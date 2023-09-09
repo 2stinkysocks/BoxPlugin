@@ -475,12 +475,12 @@ public class Listeners implements Listener {
             Bukkit.getPluginManager().callEvent(new PlayerBoxXpUpdateEvent(cause, causexp, causexp + 50000));
         } else if(targetlevel >= 150 && causelevel >= 150) {
             if(causelevel - targetlevel >= 40) { // difference is greater than 40
-                Util.debug(target, "Losing 1/10 of items due to both being over level 150, and being over 40 levels under opponent");
-                Util.debug(cause, "Dropping 1/10 of items due to both being over level 150, and being over 40 levels over opponent");
+                Util.debug(target, "Losing 15% of items due to both being over level 150, and being over 40 levels under opponent");
+                Util.debug(cause, "Dropping 15% of items due to both being over level 150, and being over 40 levels over opponent");
                 e.setKeepInventory(true);
                 e.getDrops().clear();
                 for(int i = 0; i < e.getEntity().getInventory().getSize(); i++) {
-                    int rand = (int)(Math.random() * (10) + 1);
+                    int rand = (int)(Math.random() * (6.666666) + 1);
                     if(rand == 1) {
                         if(e.getEntity().getInventory().getItem(i) != null) {
                             Util.debug(target, "Lost " + e.getEntity().getInventory().getItem(i).getType());
@@ -493,7 +493,7 @@ public class Listeners implements Listener {
                 }
                 ArrayList<ItemStack> armor = new ArrayList<>(List.of(e.getEntity().getInventory().getArmorContents()));
                 for(int i = 0; i < e.getEntity().getInventory().getArmorContents().length; i++) {
-                    int rand = (int)(Math.random() * (10) + 1);
+                    int rand = (int)(Math.random() * (6.666666) + 1);
                     if(rand == 1) {
                         if(e.getEntity().getInventory().getArmorContents()[i] != null) {
                             Util.debug(target, "Lost " + e.getEntity().getInventory().getArmorContents()[i].getType());
@@ -541,12 +541,12 @@ public class Listeners implements Listener {
             Bukkit.getPluginManager().callEvent(new PlayerBoxXpUpdateEvent(cause, causexp, causexp + 500));
         } else {
             if(causelevel - targetlevel >= 20) { // difference is greater than 20
-                Util.debug(target, "Losing 1/10 of items due to both being under level 150, and being over 20 levels under opponent");
-                Util.debug(cause, "Dropping 1/10 of items due to both being under level 150, and being over 20 levels over opponent");
+                Util.debug(target, "Losing 15% of items due to both being under level 150, and being over 20 levels under opponent");
+                Util.debug(cause, "Dropping 15% of items due to both being under level 150, and being over 20 levels over opponent");
                 e.setKeepInventory(true);
                 e.getDrops().clear();
                 for(int i = 0; i < e.getEntity().getInventory().getSize(); i++) {
-                    int rand = (int)(Math.random() * (10) + 1);
+                    int rand = (int)(Math.random() * (6.666666) + 1);
                     if(rand == 1) {
                         if(e.getEntity().getInventory().getItem(i) != null) {
                             Util.debug(target, "Lost " + e.getEntity().getInventory().getItem(i).getType());
@@ -560,7 +560,7 @@ public class Listeners implements Listener {
                 try {
                     ArrayList<ItemStack> armor = new ArrayList<>(List.of(e.getEntity().getInventory().getArmorContents()));
                     for(int i = 0; i < e.getEntity().getInventory().getArmorContents().length; i++) {
-                        int rand = (int)(Math.random() * (10) + 1);
+                        int rand = (int)(Math.random() * (6.666666) + 1);
                         if(rand == 1) {
                             if(e.getEntity().getInventory().getArmorContents()[i] != null) {
                                 Util.debug(target, "Lost " + e.getEntity().getInventory().getArmorContents()[i].getType());

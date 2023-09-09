@@ -52,6 +52,6 @@ public class ThrowableLava extends CustomItem {
         FallingBlock magma = spawn.getWorld().spawnFallingBlock(spawn, Bukkit.createBlockData(Material.MAGMA_BLOCK));
         magma.getPersistentDataContainer().set(new NamespacedKey(BoxPlugin.instance, "LAVA"), PersistentDataType.STRING, p.getUniqueId().toString());
         magma.setHurtEntities(false);
-        magma.setVelocity(spawn.getDirection().normalize().multiply(2));
+        magma.setVelocity(spawn.getDirection().normalize().multiply(1.5));
     }
 }

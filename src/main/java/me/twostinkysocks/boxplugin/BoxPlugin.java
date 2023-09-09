@@ -4,23 +4,18 @@ import com.comphenix.protocol.PacketType;
 import com.comphenix.protocol.ProtocolLibrary;
 import com.comphenix.protocol.ProtocolManager;
 import com.comphenix.protocol.events.PacketContainer;
-import com.github.stefvanschie.inventoryframework.gui.GuiItem;
-import com.github.stefvanschie.inventoryframework.gui.type.ChestGui;
-import com.github.stefvanschie.inventoryframework.pane.OutlinePane;
 import me.twostinkysocks.boxplugin.compressor.Compressor;
 import me.twostinkysocks.boxplugin.customitems.CustomItemsMain;
 import me.twostinkysocks.boxplugin.event.Listeners;
 import me.twostinkysocks.boxplugin.event.PacketListeners;
 import me.twostinkysocks.boxplugin.event.PlayerBoxXpUpdateEvent;
-import me.twostinkysocks.boxplugin.manager.PVPManager;
-import me.twostinkysocks.boxplugin.manager.PerksManager;
-import me.twostinkysocks.boxplugin.manager.ScoreboardManager;
-import me.twostinkysocks.boxplugin.manager.XPManager;
+import me.twostinkysocks.boxplugin.manager.*;
 import me.twostinkysocks.boxplugin.perks.Upgradable;
 import me.twostinkysocks.boxplugin.util.PlaceholderAPIExpansion;
 import me.twostinkysocks.boxplugin.util.Util;
 import net.luckperms.api.LuckPerms;
 import net.luckperms.api.LuckPermsProvider;
+import net.milkbowl.vault.economy.Economy;
 import org.bukkit.*;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
@@ -32,6 +27,7 @@ import org.bukkit.entity.*;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.persistence.PersistentDataType;
+import org.bukkit.plugin.RegisteredServiceProvider;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.util.StringUtil;
 import su.nexmedia.engine.api.config.JYML;
@@ -50,6 +46,8 @@ public final class BoxPlugin extends JavaPlugin implements CommandExecutor, TabC
 
     public static BoxPlugin instance;
 
+    private Economy econ = null;
+
     public HashMap<Material, Integer> blockExperience;
     public HashMap<EntityType, Integer> entityExperience;
     public ArrayList<Location> placedBlocks;
@@ -64,6 +62,8 @@ public final class BoxPlugin extends JavaPlugin implements CommandExecutor, TabC
     private PerksManager perksManager;
 
     private KeyManager keyManager;
+
+    private RubyManager rubyManager;
 
     private ExcellentCrates excellentCrates;
 
@@ -82,6 +82,18 @@ public final class BoxPlugin extends JavaPlugin implements CommandExecutor, TabC
         for(Player p : Bukkit.getOnlinePlayers()) {
             p.getPersistentDataContainer().set(new NamespacedKey(BoxPlugin.instance, "PREVIOUS_HEALTH"), PersistentDataType.DOUBLE, p.getHealth());
         }
+    }
+
+    private boolean setupEconomy() {
+        if (getServer().getPluginManager().getPlugin("Vault") == null) {
+            return false;
+        }
+        RegisteredServiceProvider<Economy> rsp = getServer().getServicesManager().getRegistration(Economy.class);
+        if (rsp == null) {
+            return false;
+        }
+        econ = rsp.getProvider();
+        return econ != null;
     }
 
     public void load() {
@@ -133,6 +145,7 @@ public final class BoxPlugin extends JavaPlugin implements CommandExecutor, TabC
         xpManager = new XPManager();
         perksManager = new PerksManager();
         compressor = new Compressor();
+        rubyManager = new RubyManager();
 
         excellentCrates = (ExcellentCrates) getServer().getPluginManager().getPlugin("ExcellentCrates");
         keyManager = excellentCrates.getKeyManager();
@@ -140,6 +153,8 @@ public final class BoxPlugin extends JavaPlugin implements CommandExecutor, TabC
         getCommand("boxgivecommonkey").setExecutor(this);
         getCommand("sus").setExecutor(this);
         getCommand("openperkgui").setExecutor(this);
+        getCommand("openrubyconversiongui").setExecutor(this);
+        getCommand("openreforgegui").setExecutor(this);
         getCommand("getselectedperks").setExecutor(this);
         getCommand("boxgivecommonkey").setExecutor(this);
         getCommand("getownedperks").setExecutor(this);
@@ -196,6 +211,7 @@ public final class BoxPlugin extends JavaPlugin implements CommandExecutor, TabC
             }
         }
         new PacketListeners();
+        setupEconomy();
         new TerrainRegeneratorMain().onEnable();
         new CustomItemsMain().onEnable();
     }
@@ -241,7 +257,15 @@ public final class BoxPlugin extends JavaPlugin implements CommandExecutor, TabC
         return perksManager;
     }
 
+    public RubyManager getRubyManager() {
+        return rubyManager;
+    }
+
     public KeyManager getKeyManager() {return keyManager;}
+
+    public Economy getEconomyManager() {
+        return econ;
+    }
 
     public ExcellentCrates getExcellentCrates() {return excellentCrates;}
 
@@ -401,11 +425,11 @@ public final class BoxPlugin extends JavaPlugin implements CommandExecutor, TabC
                     }
                 }
             } else if(label.equals("openperkgui")) {
-                ChestGui gui = new ChestGui(6, "Perks");
-                OutlinePane pane = new OutlinePane(0, 0, 9, 6);
-                pane.addItem(new GuiItem(new ItemStack(Material.SKELETON_SKULL)));
-                gui.addPane(pane);
                 getPerksManager().openMainGui(p);
+            } else if(label.equals("openrubyconversiongui")) {
+                getRubyManager().openConversionGui(p);
+            } else if(label.equals("openreforgegui")) {
+                getRubyManager().openReforgeGui(p);
             } else if(label.equals("getownedperks")) {
                 p.sendMessage(String.join("\n", getPerksManager().getPurchasedPerks(p).stream().map(pe -> pe.instance.getKey()).collect(Collectors.toList())));
             } else if(label.equals("getselectedperks")) {
