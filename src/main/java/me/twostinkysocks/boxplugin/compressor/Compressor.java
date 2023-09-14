@@ -39,6 +39,8 @@ public class Compressor {
         compressibleItems.add(new CompressibleNetherite());
         compressibleItems.add(new CompressibleEndstone());
         compressibleItems.add(new CompressibleBone());
+
+        compressibleItems.add(new CompressibleEnderPearl());
     }
 
     /*

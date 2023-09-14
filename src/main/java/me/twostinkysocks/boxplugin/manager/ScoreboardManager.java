@@ -59,7 +59,7 @@ public class ScoreboardManager {
         for(int i = 0; i < list.size(); i++) {
             String emptyName = new String(new char[i+1]).replace("\0", "§r");
             Team team = scoreboard.registerNewTeam(emptyName);
-            String text = Util.colorize(list.get(i).replaceAll("%level%", "" + BoxPlugin.instance.getXpManager().getLevel(p)).replaceAll("%needed-xp%","" + BoxPlugin.instance.getXpManager().getNeededXp(p)).replaceAll("%streak%", "" + BoxPlugin.instance.getPvpManager().getStreak(p)).replaceAll("%bounty%", "" + BoxPlugin.instance.getPvpManager().getBounty(p)));
+            String text = Util.colorize(list.get(i).replaceAll("%level%", "" + BoxPlugin.instance.getXpManager().getLevel(p)).replaceAll("%needed-xp%","" + BoxPlugin.instance.getXpManager().getNeededXp(p)).replaceAll("%streak%", "" + BoxPlugin.instance.getPvpManager().getStreak(p)).replaceAll("%bounty%", "" + BoxPlugin.instance.getPvpManager().getBounty(p))).replaceAll("%rubies%", "" + BoxPlugin.instance.getMarketManager().getRubies(p)).replaceAll("%coins%", "" + BoxPlugin.instance.getMarketManager().getCoinsBalance(p));
             team.setSuffix(text);
             team.addEntry(emptyName);
             objective.getScore(emptyName).setScore(list.size()-i);

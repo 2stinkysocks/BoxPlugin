@@ -87,6 +87,12 @@ commands:
   openreforgegui:
     usage: /<command>
     description: opens the gui idk
+  openbank:
+    usage: /<command>
+    description: open bank
+  setmarketmultipier:
+    usage: /<command>
+    description: mark multipliear
 permissions:
   boxplugin.manageperks:
     default: false
@@ -146,4 +152,13 @@ permissions:
     default: false
   boxplugin.addtag:
     description: add tags to items (should be admins)
+    default: false
+  boxplugin.increasedbanklimit:
+    description: increases limit to 25m
+    default: false
+  boxplugin.nobanklimit:
+    description: removes bank limit
+    default: false
+  boxplugin.setmarketmultiplier:
+    description: setmarketmultiplier
     default: false

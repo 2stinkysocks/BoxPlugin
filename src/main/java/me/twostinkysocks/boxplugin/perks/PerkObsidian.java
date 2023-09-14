@@ -72,6 +72,10 @@ public class PerkObsidian extends AbstractPerk {
                 p.getInventory().remove(item);
             }
         }
+        ItemStack item = p.getInventory().getItemInOffHand();
+        if(item != null && item.getType() == Material.OBSIDIAN && item.hasItemMeta() && item.getItemMeta().getPersistentDataContainer().has(new NamespacedKey(BoxPlugin.instance, "perk_item"), PersistentDataType.INTEGER) && item.getItemMeta().getPersistentDataContainer().get(new NamespacedKey(BoxPlugin.instance, "perk_item"), PersistentDataType.INTEGER) == 1) {
+            p.getInventory().setItemInOffHand(null);
+        }
     }
 
     private int getObsidianCountInInventory(Player p) {
@@ -81,6 +85,10 @@ public class PerkObsidian extends AbstractPerk {
                 count += item.getAmount();
             }
         }
+//        ItemStack item = p.getInventory().getItemInOffHand();
+//        if(item != null && item.getType() == Material.OBSIDIAN && item.hasItemMeta() && item.getItemMeta().getPersistentDataContainer().has(new NamespacedKey(BoxPlugin.instance, "perk_item"), PersistentDataType.INTEGER) && item.getItemMeta().getPersistentDataContainer().get(new NamespacedKey(BoxPlugin.instance, "perk_item"), PersistentDataType.INTEGER) == 1) {
+//            count += item.getAmount();
+//        }
         return count;
     }
 

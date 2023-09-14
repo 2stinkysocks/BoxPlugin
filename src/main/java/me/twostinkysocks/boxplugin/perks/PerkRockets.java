@@ -4,7 +4,10 @@ import me.twostinkysocks.boxplugin.BoxPlugin;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
+import org.bukkit.entity.Item;
 import org.bukkit.entity.Player;
+import org.bukkit.event.EventHandler;
+import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.entity.PlayerDeathEvent;
 import org.bukkit.event.player.PlayerRespawnEvent;
 import org.bukkit.inventory.ItemFlag;
@@ -73,6 +76,10 @@ public class PerkRockets extends AbstractPerk {
                 p.getInventory().remove(item);
             }
         }
+        ItemStack item = p.getInventory().getItemInOffHand();
+        if(item != null && item.getType() == Material.FIREWORK_ROCKET && item.hasItemMeta() && item.getItemMeta().getPersistentDataContainer().has(new NamespacedKey(BoxPlugin.instance, "perk_item"), PersistentDataType.INTEGER) && item.getItemMeta().getPersistentDataContainer().get(new NamespacedKey(BoxPlugin.instance, "perk_item"), PersistentDataType.INTEGER) == 1) {
+            p.getInventory().setItemInOffHand(null);
+        }
     }
 
     private int getRocketCountInInventory(Player p) {
@@ -82,6 +89,10 @@ public class PerkRockets extends AbstractPerk {
                 count += item.getAmount();
             }
         }
+//        ItemStack item = p.getInventory().getItemInOffHand();
+//        if(item != null && item.getType() == Material.FIREWORK_ROCKET && item.hasItemMeta() && item.getItemMeta().getPersistentDataContainer().has(new NamespacedKey(BoxPlugin.instance, "perk_item"), PersistentDataType.INTEGER) && item.getItemMeta().getPersistentDataContainer().get(new NamespacedKey(BoxPlugin.instance, "perk_item"), PersistentDataType.INTEGER) == 1) {
+//            count += item.getAmount();
+//        }
         return count;
     }
 
