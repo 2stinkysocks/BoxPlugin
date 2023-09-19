@@ -81,9 +81,6 @@ commands:
   mmxp:
     usage: /<command>
     description: spawn mythic mob with xp
-  openrubyconversiongui:
-    usage: /<command>
-    description: opens the gui idk
   openreforgegui:
     usage: /<command>
     description: opens the gui idk

@@ -64,7 +64,7 @@ public final class BoxPlugin extends JavaPlugin implements CommandExecutor, TabC
 
     private KeyManager keyManager;
 
-    private RubyManager rubyManager;
+    private ReforgeManager reforgeManager;
 
     private ExcellentCrates excellentCrates;
 
@@ -150,7 +150,7 @@ public final class BoxPlugin extends JavaPlugin implements CommandExecutor, TabC
         xpManager = new XPManager();
         perksManager = new PerksManager();
         compressor = new Compressor();
-        rubyManager = new RubyManager();
+        reforgeManager = new ReforgeManager();
         marketManager = new MarketManager();
 
         excellentCrates = (ExcellentCrates) getServer().getPluginManager().getPlugin("ExcellentCrates");
@@ -161,7 +161,6 @@ public final class BoxPlugin extends JavaPlugin implements CommandExecutor, TabC
         getCommand("boxgivecommonkey").setExecutor(this);
         getCommand("sus").setExecutor(this);
         getCommand("openperkgui").setExecutor(this);
-        getCommand("openrubyconversiongui").setExecutor(this);
         getCommand("openreforgegui").setExecutor(this);
         getCommand("getselectedperks").setExecutor(this);
         getCommand("boxgivecommonkey").setExecutor(this);
@@ -294,8 +293,8 @@ public final class BoxPlugin extends JavaPlugin implements CommandExecutor, TabC
         return perksManager;
     }
 
-    public RubyManager getRubyManager() {
-        return rubyManager;
+    public ReforgeManager getReforgeManager() {
+        return reforgeManager;
     }
 
     public MarketManager getMarketManager() {
@@ -469,10 +468,8 @@ public final class BoxPlugin extends JavaPlugin implements CommandExecutor, TabC
                 getMarketManager().openGui(p);
             } else if(label.equals("openperkgui")) {
                 getPerksManager().openMainGui(p);
-            } else if(label.equals("openrubyconversiongui")) {
-                getRubyManager().openConversionGui(p);
             } else if(label.equals("openreforgegui")) {
-                getRubyManager().openReforgeGui(p);
+                getReforgeManager().openReforgeGui(p);
             } else if(label.equals("getownedperks")) {
                 p.sendMessage(String.join("\n", getPerksManager().getPurchasedPerks(p).stream().map(pe -> pe.instance.getKey()).collect(Collectors.toList())));
             } else if(label.equals("getselectedperks")) {

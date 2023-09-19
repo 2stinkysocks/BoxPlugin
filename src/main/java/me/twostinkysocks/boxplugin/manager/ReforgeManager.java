@@ -21,7 +21,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-public class RubyManager {
+public class ReforgeManager {
 
     // reforged items contain the following:
     // pdc REFORGES: TAG_CONTAINER (pdc.getAdapterContext().newPersistentDataContainer())
@@ -70,13 +70,6 @@ public class RubyManager {
         }
     }
 
-    public void openConversionGui(Player p) {
-        // create gui
-        // contains button for depositing all rubies in inventory
-        // contains buttons for withdrawing 1x, 16x, 64x rubies into items
-        // contains button to buy ruby
-    }
-
     public void openReforgeGui(Player p) {
         // create gui
         // button for reforging item in a slot, tells you how many rubies you have
@@ -91,7 +84,9 @@ public class RubyManager {
         });
         gui.setOnClose(e -> {
             // test?
-            e.getPlayer().getInventory().addItem(e.getInventory().getItem(22));
+            if(e.getInventory().getItem(22) != null) {
+                e.getPlayer().getInventory().addItem(e.getInventory().getItem(22));
+            }
         });
         StaticPane pane = new StaticPane(0, 0, 9, 6);
         pane.addItem(new GuiItem(new ItemStack(Material.PURPLE_STAINED_GLASS_PANE)), 3, 1);
@@ -107,7 +102,7 @@ public class RubyManager {
             ItemStack toReforge = e.getClickedInventory().getItem(22);
             reforgeItem(toReforge);
         }), 4, 5);
-
+        pane.addItem(new GuiItem(new ItemStack(Material.GRAY_STAINED_GLASS_PANE), e -> {}), 4, 2);
         pane.fillWith(new ItemStack(Material.GRAY_STAINED_GLASS_PANE));
         pane.removeItem(4,2);
         gui.addPane(pane);

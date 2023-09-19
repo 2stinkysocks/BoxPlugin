@@ -97,7 +97,7 @@ public class MarketManager {
         balancemeta.setDisplayName(ChatColor.AQUA + "Your Balance");
         balancemeta.setLore(List.of(
                 "",
-                ChatColor.GRAY + "You have " + ChatColor.GOLD + String.format("%.0f",BoxPlugin.instance.getEconomy().getBalance(p)) + ChatColor.GRAY +  " Xanatos coins in your account",
+                ChatColor.GRAY + "You have " + ChatColor.GOLD + String.format("%.0f",BoxPlugin.instance.getEconomyManager().getBalance(p)) + ChatColor.GRAY +  " Xanatos coins in your account",
                 ""
         ));
         balancemeta.setOwnerProfile(p.getPlayerProfile());
@@ -431,15 +431,15 @@ public class MarketManager {
     }
 
     public int getCoinsBalance(OfflinePlayer p) {
-        return (int)BoxPlugin.instance.getEconomy().getBalance(p);
+        return (int)BoxPlugin.instance.getEconomyManager().getBalance(p);
     }
 
     public void addCoinsBalance(OfflinePlayer p, double amount) {
-        BoxPlugin.instance.getEconomy().depositPlayer(p, amount);
+        BoxPlugin.instance.getEconomyManager().depositPlayer(p, amount);
     }
 
     public void removeCoinsBalance(OfflinePlayer p, double amount) {
-        BoxPlugin.instance.getEconomy().withdrawPlayer(p, amount);
+        BoxPlugin.instance.getEconomyManager().withdrawPlayer(p, amount);
     }
 
     public int getRubies(Player p) {
