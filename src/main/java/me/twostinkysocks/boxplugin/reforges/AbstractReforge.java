@@ -7,7 +7,9 @@ public abstract class AbstractReforge {
 
     private ItemStack guiItem;
 
-    public AbstractReforge() {
+    private double level;
+
+    public AbstractReforge(double level) {
         this.guiItem = null;
     }
 
@@ -21,6 +23,10 @@ public abstract class AbstractReforge {
 
     public void applyReforge(ItemStack itemStack) {
 
+    }
+
+    public double getLevel() {
+        return level;
     }
 
     public void stripReforge(ItemStack itemStack) {

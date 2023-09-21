@@ -8,6 +8,7 @@ import com.google.common.collect.Maps;
 import me.twostinkysocks.boxplugin.BoxPlugin;
 import me.twostinkysocks.boxplugin.reforges.AbstractReforge;
 import org.bukkit.Bukkit;
+import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
 import org.bukkit.attribute.Attribute;
@@ -15,9 +16,12 @@ import org.bukkit.craftbukkit.v1_19_R1.inventory.CraftInventoryCustom;
 import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.InventoryType;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.persistence.PersistentDataContainer;
 import org.bukkit.persistence.PersistentDataType;
 
+import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
@@ -43,17 +47,38 @@ public class ReforgeManager {
         BOOTS;
     }
 
+    /*
+    TODO
+    this should be a class
+    each reforge is a public static final instance of its class (typed to its class)
+
+    so each value is still abstractreforge but they are singletons
+     */
     public enum Reforge {
         reforge1(null),
         reforge2(null);
 
-        public final AbstractReforge instance;
+        public Class clazz;
+
+        /**
+         * Returns a reforge class of the correct level
+         * this might be a terrible design pattern
+         * @param reforge the type
+         * @param level the level
+         * @return a new instance of the class
+         */
+        public static AbstractReforge ofLevel(Reforge reforge, double level) {
+            try {
+                return (AbstractReforge) reforge.clazz.getDeclaredConstructor(Double.class).newInstance(level);
+            } catch (InstantiationException | IllegalAccessException | InvocationTargetException | NoSuchMethodException e) {
+                e.printStackTrace();
+            }
+            return null;
+        }
+
+        private Reforge(Class clazz) {this.clazz = clazz;}
 
         private static final Map<String, Reforge> BY_NAME = Maps.newHashMap();
-
-        private Reforge(AbstractReforge instance) {
-            this.instance = instance;
-        }
 
         public static Reforge getByName(String name) {
             return BY_NAME.get(name);
@@ -98,23 +123,38 @@ public class ReforgeManager {
         pane.addItem(new GuiItem(new ItemStack(Material.PURPLE_STAINED_GLASS_PANE)), 4, 3);
         pane.addItem(new GuiItem(new ItemStack(Material.PURPLE_STAINED_GLASS_PANE)), 5, 3);
 
-        pane.addItem(new GuiItem(new ItemStack(Material.END_PORTAL_FRAME), e -> {
+        pane.addItem(new GuiItem(new ItemStack(Material.ANVIL), e -> {
             ItemStack toReforge = e.getClickedInventory().getItem(22);
-            reforgeItem(toReforge);
+            reforgeItem(toReforge, p);
         }), 4, 5);
-        pane.addItem(new GuiItem(new ItemStack(Material.GRAY_STAINED_GLASS_PANE), e -> {}), 4, 2);
+        // stupid workaround
+        GuiItem dirt = new GuiItem(new ItemStack(Material.DIRT), e -> {});
+        pane.addItem(dirt, 4, 2);
         pane.fillWith(new ItemStack(Material.GRAY_STAINED_GLASS_PANE));
-        pane.removeItem(4,2);
+        pane.removeItem(dirt);
         gui.addPane(pane);
         gui.copy().show(p);
     }
 
-    public void reforgeItem(ItemStack item) {
+    public void reforgeItem(ItemStack item, Player p) {
         // if null
         // if count > 1
         // if not reforgable
         // if has max reforges
         // if not enough money
+        if(item == null) {
+            p.sendMessage(ChatColor.RED + "No item found!");
+            return;
+        }
+        if(item.getAmount() > 1) {
+            p.sendMessage(ChatColor.RED + "You can't reforge a stack of items!");
+            return;
+        }
+        if(getReforgableType(item) == null) {
+            p.sendMessage(ChatColor.RED + "That item is not reforgable!");
+            return;
+        }
+        if()
     }
 
     /**
@@ -178,5 +218,28 @@ public class ReforgeManager {
     public Reforgable getReforgableType(ItemStack item) {
         return isHelmet(item) ? Reforgable.HELMET : isChestplate(item) ? Reforgable.CHESTPLATE : isLeggings(item) ? Reforgable.LEGGINGS : isBoots(item) ? Reforgable.BOOTS : isSword(item) ? Reforgable.SWORD : isBow(item) ? Reforgable.BOW : isAxe(item) ? Reforgable.AXE : isCrossbow(item) ? Reforgable.CROSSBOW : isTrident(item) ? Reforgable.TRIDENT : isPickaxe(item) ? Reforgable.PICKAXE : null;
     }
+
+    public ArrayList<AbstractReforge> getReforges(ItemStack item) {
+        if(item == null || !item.hasItemMeta()) return null;
+        PersistentDataContainer pdc = item.getItemMeta().getPersistentDataContainer();
+        if(!pdc.has(new NamespacedKey(BoxPlugin.instance, "REFORGES"), PersistentDataType.TAG_CONTAINER)) return null;
+        PersistentDataContainer reforges = pdc.get(new NamespacedKey(BoxPlugin.instance, "REFORGES"), PersistentDataType.TAG_CONTAINER);
+        ArrayList<AbstractReforge> rf = new ArrayList<>();
+        for(NamespacedKey key : reforges.getKeys()) {
+            PersistentDataContainer reforge = reforges.get(key, PersistentDataType.TAG_CONTAINER);
+            String stat = reforge.get(new NamespacedKey(BoxPlugin.instance, "STAT"), PersistentDataType.STRING);
+            double amount = reforge.get(new NamespacedKey(BoxPlugin.instance, "AMOUNT"), PersistentDataType.DOUBLE);
+            double original = reforge.get(new NamespacedKey(BoxPlugin.instance, "ORIGINAL"), PersistentDataType.DOUBLE);
+            rf.add(Reforge.ofLevel(Reforge.getByName(stat), amount));
+        }
+        return rf;
+    }
+
+    // reforged items contain the following:
+    // pdc REFORGES: TAG_CONTAINER (pdc.getAdapterContext().newPersistentDataContainer())
+    //    (id of reforge): TAG_CONTAINER
+    //        STAT: (name of stat, can look up stat by name and get object in code)
+    //        AMOUNT: (new stat number double)
+    //        ORIGINAL: (original stat number double)
 
 }
