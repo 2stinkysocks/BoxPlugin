@@ -19,11 +19,11 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.persistence.PersistentDataContainer;
 import org.bukkit.persistence.PersistentDataType;
 
+import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
+import java.lang.reflect.Modifier;
+import java.util.*;
+import java.util.stream.Collectors;
 
 public class ReforgeManager {
 
@@ -47,40 +47,13 @@ public class ReforgeManager {
         BOOTS;
     }
 
-    /*
-    TODO
-    this should be a class
-    each reforge is a public static final instance of its class (typed to its class)
+    public class Reforge {
+        // This needs to be the type of the reforge
+        private static final Class<? extends AbstractReforge> reforge1 = null;
 
-    so each value is still abstractreforge but they are singletons
-     */
-    public enum Reforge {
-        reforge1(null),
-        reforge2(null);
+        private static final Map<String, Class<? extends AbstractReforge>> BY_NAME = Maps.newHashMap();
 
-        public Class clazz;
-
-        /**
-         * Returns a reforge class of the correct level
-         * this might be a terrible design pattern
-         * @param reforge the type
-         * @param level the level
-         * @return a new instance of the class
-         */
-        public static AbstractReforge ofLevel(Reforge reforge, double level) {
-            try {
-                return (AbstractReforge) reforge.clazz.getDeclaredConstructor(Double.class).newInstance(level);
-            } catch (InstantiationException | IllegalAccessException | InvocationTargetException | NoSuchMethodException e) {
-                e.printStackTrace();
-            }
-            return null;
-        }
-
-        private Reforge(Class clazz) {this.clazz = clazz;}
-
-        private static final Map<String, Reforge> BY_NAME = Maps.newHashMap();
-
-        public static Reforge getByName(String name) {
+        public static Class<? extends AbstractReforge> getByName(String name) {
             return BY_NAME.get(name);
         }
 
@@ -88,9 +61,22 @@ public class ReforgeManager {
             return new ArrayList<String>(BY_NAME.keySet());
         }
 
+        public static AbstractReforge ofLevel(Class<? extends AbstractReforge> reforge, double level) {
+            try {
+                return reforge.getDeclaredConstructor(Double.class).newInstance(level);
+            } catch (InstantiationException | IllegalAccessException | InvocationTargetException | NoSuchMethodException e) {
+                e.printStackTrace();
+            }
+            return null;
+        }
+
         static {
-            for (Reforge reforge : values()) {
-                BY_NAME.put(reforge.name(), reforge);
+            try {
+                for (Field reforge : Arrays.stream(Reforge.class.getDeclaredFields()).filter(f -> f.getType().equals(Class.class)).collect(Collectors.toList())) {
+                    BY_NAME.put(reforge.getName(), (Class) reforge.get(null));
+                }
+            } catch(IllegalAccessException e) {
+                e.printStackTrace();
             }
         }
     }
