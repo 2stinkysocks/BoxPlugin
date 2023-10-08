@@ -386,4 +386,8 @@ public class Util {
         skull.setItemMeta(skullMeta);
         return skull;
     }
+
+    public static <T> List<T> listOfType(Class<T> type) {
+        return new ArrayList<T>();
+    }
 }

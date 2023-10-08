@@ -3,28 +3,33 @@ package me.twostinkysocks.boxplugin.manager;
 import com.github.stefvanschie.inventoryframework.gui.GuiItem;
 import com.github.stefvanschie.inventoryframework.gui.type.ChestGui;
 import com.github.stefvanschie.inventoryframework.pane.StaticPane;
-import com.github.stefvanschie.inventoryframework.pane.component.ToggleButton;
-import com.google.common.collect.Maps;
 import me.twostinkysocks.boxplugin.BoxPlugin;
-import me.twostinkysocks.boxplugin.reforges.AbstractReforge;
-import org.bukkit.Bukkit;
+import me.twostinkysocks.boxplugin.reforges.*;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
 import org.bukkit.attribute.Attribute;
-import org.bukkit.craftbukkit.v1_19_R1.inventory.CraftInventoryCustom;
 import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.InventoryType;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.persistence.PersistentDataContainer;
 import org.bukkit.persistence.PersistentDataType;
 
-import java.lang.reflect.Field;
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Modifier;
-import java.util.*;
-import java.util.stream.Collectors;
+import java.util.ArrayList;
+import java.util.HashMap;
 
+
+/**
+ * If anyone reads this in the future, i'm so sorry
+ * the design patterns i used sounded like good ideas but they were actually pretty bad
+ * so don't use this as an example please
+ *
+ * This class manages the entire reforge system
+ *
+ * The data is broken down like this:
+ *
+ * me.twostinkysocks.boxplugin.reforges.* contains abstract classes that represent a reforge at a certain level ... TODO
+ */
 public class ReforgeManager {
 
     // reforged items contain the following:
@@ -35,49 +40,21 @@ public class ReforgeManager {
     //        ORIGINAL: (original stat number double)
 
     public enum Reforgable {
-        SWORD,
-        BOW,
-        AXE,
-        CROSSBOW,
-        TRIDENT,
-        PICKAXE,
-        HELMET,
-        CHESTPLATE,
-        LEGGINGS,
-        BOOTS;
-    }
+        SWORD(AbstractSwordReforge.class),
+        BOW(AbstractBowReforge.class),
+        AXE(AbstractAxeReforge.class),
+        CROSSBOW(AbstractCrossbowReforge.class),
+        TRIDENT(AbstractTridentReforge.class),
+        PICKAXE(AbstractPickaxeReforge.class),
+        HELMET(AbstractHelmetReforge.class),
+        CHESTPLATE(AbstractChestplateReforge.class),
+        LEGGINGS(AbstractLeggingsReforge.class),
+        BOOTS(AbstractBootsReforge.class);
 
-    public class Reforge {
-        // This needs to be the type of the reforge
-        private static final Class<? extends AbstractReforge> reforge1 = null;
+        public final Class<? extends AbstractReforge> type;
 
-        private static final Map<String, Class<? extends AbstractReforge>> BY_NAME = Maps.newHashMap();
-
-        public static Class<? extends AbstractReforge> getByName(String name) {
-            return BY_NAME.get(name);
-        }
-
-        public static List<String> getKeys() {
-            return new ArrayList<String>(BY_NAME.keySet());
-        }
-
-        public static AbstractReforge ofLevel(Class<? extends AbstractReforge> reforge, double level) {
-            try {
-                return reforge.getDeclaredConstructor(Double.class).newInstance(level);
-            } catch (InstantiationException | IllegalAccessException | InvocationTargetException | NoSuchMethodException e) {
-                e.printStackTrace();
-            }
-            return null;
-        }
-
-        static {
-            try {
-                for (Field reforge : Arrays.stream(Reforge.class.getDeclaredFields()).filter(f -> f.getType().equals(Class.class)).collect(Collectors.toList())) {
-                    BY_NAME.put(reforge.getName(), (Class) reforge.get(null));
-                }
-            } catch(IllegalAccessException e) {
-                e.printStackTrace();
-            }
+        private Reforgable(Class<? extends AbstractReforge> type) {
+            this.type = type;
         }
     }
 
@@ -122,7 +99,7 @@ public class ReforgeManager {
         gui.copy().show(p);
     }
 
-    public void reforgeItem(ItemStack item, Player p) {
+    public boolean reforgeItem(ItemStack item, Player p) {
         // if null
         // if count > 1
         // if not reforgable
@@ -130,17 +107,43 @@ public class ReforgeManager {
         // if not enough money
         if(item == null) {
             p.sendMessage(ChatColor.RED + "No item found!");
-            return;
+            return false;
         }
         if(item.getAmount() > 1) {
             p.sendMessage(ChatColor.RED + "You can't reforge a stack of items!");
-            return;
+            return false;
         }
         if(getReforgableType(item) == null) {
             p.sendMessage(ChatColor.RED + "That item is not reforgable!");
-            return;
+            return false;
         }
-        if()
+        if(getReforges(item).size() >= 10) {
+            p.sendMessage(ChatColor.RED + "That item already has the max amount of reforges!");
+            return false;
+        }
+        if(BoxPlugin.instance.getMarketManager().getRubies(p) < 5) {
+            p.sendMessage(ChatColor.RED + "You don't have enough rubies!");
+            return false;
+        }
+        Reforgable type = getReforgableType(item);
+        // a list of reforges that can be applied to the item
+        ArrayList<Class<? extends AbstractReforge>> possibleReforges = new ArrayList<>();
+        for(String name : Reforge.getKeys()) {
+            Class<? extends AbstractReforge> reforge = Reforge.getByName(name);
+            // instanceof the type of abstract reforge, so if it's an abstractswordreforge, abstractbowreforge, etc
+            if(reforge.isAssignableFrom(type.type)) {
+                possibleReforges.add(reforge);
+            }
+        }
+
+        ArrayList<AbstractReforge> possibleReforgeLevels = new ArrayList<>();
+        for(Class<? extends AbstractReforge> c : possibleReforges) {
+            // there has to be a better way to do this
+            AbstractReforge reforge = Reforge.ofLevel(c, 0);
+            HashMap<Double, Double> possibleLevels = reforge.getPossibleLevels();
+            for()
+        }
+
     }
 
     /**
@@ -152,9 +155,8 @@ public class ReforgeManager {
         return item != null && item.hasItemMeta() && item.getItemMeta().getPersistentDataContainer().has(new NamespacedKey(BoxPlugin.instance, "REFORGES"), PersistentDataType.TAG_CONTAINER);
     }
 
-    public void setReforge(Reforge reforge, double amount) {
-        // get reforge instance
-        // call
+    public void stripReforge(ItemStack itemStack) {
+        // get REFORGES attribute, loop through each one and set the value back to the original then remove the pdc
     }
 
     public boolean isSword(ItemStack item) {
