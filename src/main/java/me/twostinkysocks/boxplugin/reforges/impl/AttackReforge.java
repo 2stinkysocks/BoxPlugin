@@ -10,6 +10,7 @@ public class AttackReforge extends AbstractSwordReforge {
         super.possibleLevels.put(1.0, 0.6);
         super.possibleLevels.put(2.0, 0.3);
         super.possibleLevels.put(3.0, 0.1);
+        super.weight = 0.1;
     }
 
     @Override

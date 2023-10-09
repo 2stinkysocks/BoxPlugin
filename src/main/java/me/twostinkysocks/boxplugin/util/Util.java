@@ -21,16 +21,15 @@ import org.bukkit.persistence.PersistentDataType;
 import org.bukkit.util.Vector;
 
 import java.lang.reflect.Field;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.function.Function;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class Util {
+
+    private static Random r = new Random();
 
     public static boolean isRuby(ItemStack item) {
         if(item != null && item.getType() == Material.PLAYER_HEAD && item.hasItemMeta() && item.getItemMeta().hasDisplayName() && item.getItemMeta().hasLore()) {
@@ -389,5 +388,15 @@ public class Util {
 
     public static <T> List<T> listOfType(Class<T> type) {
         return new ArrayList<T>();
+    }
+
+    public static double randomInRange(double low, double high) {
+        return low + (high - low) * r.nextDouble();
+    }
+
+    public static boolean percentChance(double percentAsDecimal) {
+        int oneToOneHundred = (int) (Math.random() * 100);
+        int num = (int) (percentAsDecimal * 100);
+        return oneToOneHundred <= num;
     }
 }

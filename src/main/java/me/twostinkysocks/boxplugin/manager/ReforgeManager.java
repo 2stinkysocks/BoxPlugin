@@ -5,6 +5,8 @@ import com.github.stefvanschie.inventoryframework.gui.type.ChestGui;
 import com.github.stefvanschie.inventoryframework.pane.StaticPane;
 import me.twostinkysocks.boxplugin.BoxPlugin;
 import me.twostinkysocks.boxplugin.reforges.*;
+import me.twostinkysocks.boxplugin.util.Util;
+import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
@@ -100,6 +102,22 @@ public class ReforgeManager {
     }
 
     public boolean reforgeItem(ItemStack item, Player p) {
+        boolean ret = false;
+        if(item == null) return false;
+        if(getReforges(item) != null && getReforges(item).size() > 8) {
+            ret = reforgeItemOnce(item, p);
+        } else {
+            if(Util.percentChance(0.1)) {
+                p.sendMessage(ChatColor.GREEN + "Your item was reforged twice!");
+                ret = reforgeItemOnce(item, p);
+            }
+            // uh idk \/
+            ret = ret && reforgeItemOnce(item, p);
+        }
+        return ret;
+    }
+
+    public boolean reforgeItemOnce(ItemStack item, Player p) {
         // if null
         // if count > 1
         // if not reforgable
@@ -117,7 +135,7 @@ public class ReforgeManager {
             p.sendMessage(ChatColor.RED + "That item is not reforgable!");
             return false;
         }
-        if(getReforges(item).size() >= 10) {
+        if(getReforges(item) != null && getReforges(item).size() >= 10) {
             p.sendMessage(ChatColor.RED + "That item already has the max amount of reforges!");
             return false;
         }
@@ -135,16 +153,39 @@ public class ReforgeManager {
                 possibleReforges.add(reforge);
             }
         }
-
-        ArrayList<AbstractReforge> possibleReforgeLevels = new ArrayList<>();
+        double totalWeight = 0;
         for(Class<? extends AbstractReforge> c : possibleReforges) {
-            // there has to be a better way to do this
-            AbstractReforge reforge = Reforge.ofLevel(c, 0);
-            HashMap<Double, Double> possibleLevels = reforge.getPossibleLevels();
-            for()
+            totalWeight += Reforge.ofLevel(c, 0).getWeight();
         }
+        int idx = 0;
+        for (double r = Math.random() * totalWeight; idx < possibleReforges.size() - 1; ++idx) {
+            r -= Reforge.ofLevel(possibleReforges.get(idx), 0).getWeight();
+            if (r <= 0.0) break;
+        }
+        Class<? extends AbstractReforge> chosenReforgeType = possibleReforges.get(idx);
 
+        // there has to be a better way to do this
+        totalWeight = 0;
+        // level, chance
+        HashMap<Double, Double> possibleLevels = Reforge.ofLevel(chosenReforgeType, 0).getPossibleLevels();
+        ArrayList<Double> levels = new ArrayList<>(possibleLevels.keySet());
+        ArrayList<Double> chance = new ArrayList<>(possibleLevels.values());
+        for(double weight : possibleLevels.values()) {
+            totalWeight += weight;
+        }
+        idx = 0;
+        for (double r = Math.random() * totalWeight; idx < possibleLevels.size() - 1; ++idx) {
+            r -= chance.get(idx);
+            if (r <= 0.0) break;
+        }
+        double chosenLevel = levels.get(idx);
+
+        AbstractReforge chosenReforge = Reforge.ofLevel(chosenReforgeType, chosenLevel);
+        Bukkit.broadcastMessage(chosenReforge.getClass().getName() + " " + chosenReforge.getLevel());
+        chosenReforge.apply(item);
+        return true;
     }
+
 
     /**
      *

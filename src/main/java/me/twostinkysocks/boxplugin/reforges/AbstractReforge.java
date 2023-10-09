@@ -22,13 +22,16 @@ public abstract class AbstractReforge {
 
     private double level;
 
-    // level, chance
+    protected double weight;
+
+    // level, weight
     protected HashMap<Double, Double> possibleLevels;
 
     public abstract double getChance();
 
     public AbstractReforge(double level) {
         possibleLevels = new HashMap<>();
+        weight = 0;
         this.level = level;
     }
 
@@ -51,6 +54,10 @@ public abstract class AbstractReforge {
 
     public double getLevel() {
         return level;
+    }
+
+    public double getWeight() {
+        return weight;
     }
 
     /**
