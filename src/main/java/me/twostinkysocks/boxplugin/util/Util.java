@@ -81,6 +81,10 @@ public class Util {
         }
     }
 
+    public static boolean isSoulbound(ItemStack item) {
+        return isPerkItem(item) || (item != null && item.hasItemMeta() && item.getItemMeta().getPersistentDataContainer().has(new NamespacedKey(BoxPlugin.instance, "SOULBOUND"), PersistentDataType.INTEGER));
+    }
+
     public static boolean isPerkItem(ItemStack item) {
         return item != null && item.getItemMeta() != null && item.getItemMeta().getPersistentDataContainer().has(new NamespacedKey(BoxPlugin.instance, "perk_item"), PersistentDataType.INTEGER) && item.getItemMeta().getPersistentDataContainer().get(new NamespacedKey(BoxPlugin.instance, "perk_item"), PersistentDataType.INTEGER) == 1;
     }
