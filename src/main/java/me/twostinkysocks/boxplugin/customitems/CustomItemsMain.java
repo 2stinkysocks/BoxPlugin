@@ -29,6 +29,17 @@ public class CustomItemsMain implements CommandExecutor, TabCompleter {
 
     private ArrayList<CustomItem> items;
 
+    public static CustomItemsMain instance;
+
+    public CustomItem getItem(String key) {
+        for(CustomItem item : items) {
+            if(item.getItemId().equals(key)) {
+                return item;
+            }
+        }
+        return null;
+    }
+
     public void onEnable() {
         items = new ArrayList<>();
         BoxPlugin.instance.getCommand("cgive").setExecutor(this);
@@ -53,7 +64,9 @@ public class CustomItemsMain implements CommandExecutor, TabCompleter {
         registerItem(new ThrowableLava(this));
         registerItem(new WolfPack(this));
         registerItem(new CageStaff(this));
+        registerItem(new GhostToken(this));
         BoxPlugin.instance.getLogger().info("Loaded custom items!");
+        instance = this;
     }
 
     @Override

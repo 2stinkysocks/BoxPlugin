@@ -69,6 +69,8 @@ public final class BoxPlugin extends JavaPlugin implements CommandExecutor, TabC
 
     private KeyManager keyManager;
 
+    private GhostTokenManager ghostTokenManager;
+
     private ExcellentCrates excellentCrates;
 
     private Compressor compressor;
@@ -153,6 +155,7 @@ public final class BoxPlugin extends JavaPlugin implements CommandExecutor, TabC
         perksManager = new PerksManager();
         compressor = new Compressor();
         marketManager = new MarketManager();
+        ghostTokenManager = new GhostTokenManager();
 
         excellentCrates = (ExcellentCrates) getServer().getPluginManager().getPlugin("ExcellentCrates");
         keyManager = excellentCrates.getKeyManager();
@@ -334,6 +337,10 @@ public final class BoxPlugin extends JavaPlugin implements CommandExecutor, TabC
 
     public ProtocolManager getProtocolManager() {
         return protocolManager;
+    }
+
+    public GhostTokenManager getGhostTokenManager() {
+        return ghostTokenManager;
     }
 
 //    public StateFlag getEntityInteractFlag() {

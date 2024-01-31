@@ -510,6 +510,8 @@ public class Listeners implements Listener {
         BoxPlugin.instance.getPvpManager().registerKill(cause, target); // resets streak here
         BoxPlugin.instance.getScoreboardManager().queueUpdate(cause);
         BoxPlugin.instance.getScoreboardManager().queueUpdate(target);
+
+        BoxPlugin.instance.getGhostTokenManager().onDeath(e.getDrops(), e.getEntity());
     }
 
 
