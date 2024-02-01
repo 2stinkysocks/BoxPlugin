@@ -87,6 +87,9 @@ commands:
   setmarketmultipier:
     usage: /<command>
     description: mark multipliear
+  openxanatosgui:
+    usage: /<command>
+    description: openxanatosgui
 permissions:
   boxplugin.manageperks:
     default: false

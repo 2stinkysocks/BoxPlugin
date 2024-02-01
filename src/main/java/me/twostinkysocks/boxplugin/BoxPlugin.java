@@ -77,6 +77,8 @@ public final class BoxPlugin extends JavaPlugin implements CommandExecutor, TabC
 
     private MarketManager marketManager;
 
+    private XanatosMenuManager xanatosMenuManager;
+
     private Economy econ = null;
 
     // player who killed, <player who was killed, times>
@@ -156,6 +158,7 @@ public final class BoxPlugin extends JavaPlugin implements CommandExecutor, TabC
         compressor = new Compressor();
         marketManager = new MarketManager();
         ghostTokenManager = new GhostTokenManager();
+        xanatosMenuManager = new XanatosMenuManager();
 
         excellentCrates = (ExcellentCrates) getServer().getPluginManager().getPlugin("ExcellentCrates");
         keyManager = excellentCrates.getKeyManager();
@@ -189,6 +192,7 @@ public final class BoxPlugin extends JavaPlugin implements CommandExecutor, TabC
         getCommand("setperkupgradelevel").setTabCompleter(this);
         getCommand("openbank").setExecutor(this);
         getCommand("setmarketmultipier").setExecutor(this);
+        getCommand("openxanatosgui").setExecutor(this);
         getServer().getPluginManager().registerEvents(new Listeners(), this);
         load();
         if(Bukkit.getPluginManager().getPlugin("PlaceholderAPI") != null) {
@@ -343,6 +347,10 @@ public final class BoxPlugin extends JavaPlugin implements CommandExecutor, TabC
         return ghostTokenManager;
     }
 
+    public XanatosMenuManager getXanatosMenuManager() {
+        return xanatosMenuManager;
+    }
+
 //    public StateFlag getEntityInteractFlag() {
 //        return entityInteract;
 //    }
@@ -486,6 +494,8 @@ public final class BoxPlugin extends JavaPlugin implements CommandExecutor, TabC
                         return true;
                     }
                 }
+            } else if(label.equals("openxanatosgui")) {
+                getXanatosMenuManager().openGui(p);
             } else if(label.equals("openbank")) {
                 getMarketManager().openGui(p);
             } else if(label.equals("openperkgui")) {

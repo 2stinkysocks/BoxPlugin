@@ -428,6 +428,8 @@ public class Listeners implements Listener {
         Player cause = e.getEntity().getKiller();
         Player target = e.getEntity();
 
+        BoxPlugin.instance.getGhostTokenManager().onPreDeath(e.getDrops(), e.getEntity());
+
         for(Perk perk : BoxPlugin.instance.getPerksManager().getSelectedPerks(target)) {
             if(perk != null) perk.instance.onDeath(e);
         }
@@ -438,8 +440,10 @@ public class Listeners implements Listener {
         if(cause == null) {
             BoxPlugin.instance.getPvpManager().resetStreak(target);
             BoxPlugin.instance.getScoreboardManager().queueUpdate(target);
+            BoxPlugin.instance.getGhostTokenManager().onPreDeath(e.getDrops(), e.getEntity());
             Util.dropPercent(e, 0.15);
             target.sendMessage(ChatColor.RED + "You lost 15% of your items from dying to a non-player!");
+            BoxPlugin.instance.getGhostTokenManager().onPostDeath(e.getDrops(), e.getEntity());
             return;
         }
 
@@ -482,7 +486,7 @@ public class Listeners implements Listener {
         double percentChance = Math.max(Math.min(1.0, dropChance / 100.0), 0.05);
 
         Util.dropPercent(e, percentChance);
-        target.sendMessage(ChatColor.RED + "You lost" + (int)(100*percentChance) + "% of your items due to the level difference between you and the other player!");
+        target.sendMessage(ChatColor.RED + "You lost " + (int)(100*percentChance) + "% of your items due to the level difference between you and the other player!");
         // skulls
         if(xpdiff <= 2) {
             e.getDrops().add(new ItemStack(Material.SKELETON_SKULL, BoxPlugin.instance.getPvpManager().getBounty(target)));
@@ -493,6 +497,8 @@ public class Listeners implements Listener {
         int xptoadd = Math.min((int)Math.min(50000,causexp*0.1), Math.max(0, BoxPlugin.instance.getXpManager().getLevel(target) * 100));
         BoxPlugin.instance.getXpManager().addXP(cause, xptoadd);
         Bukkit.getPluginManager().callEvent(new PlayerBoxXpUpdateEvent(cause, causexp, causexp + xptoadd));
+
+        BoxPlugin.instance.getGhostTokenManager().onPostDeath(e.getDrops(), e.getEntity());
 
         if(e.getEntity().getKiller() != null) {
             Player p = e.getEntity().getKiller();
@@ -511,7 +517,7 @@ public class Listeners implements Listener {
         BoxPlugin.instance.getScoreboardManager().queueUpdate(cause);
         BoxPlugin.instance.getScoreboardManager().queueUpdate(target);
 
-        BoxPlugin.instance.getGhostTokenManager().onDeath(e.getDrops(), e.getEntity());
+
     }
 
 

@@ -1,46 +1,50 @@
 package me.twostinkysocks.boxplugin.util;
 
-import net.minecraft.nbt.NBTCompressedStreamTools;
-import org.bukkit.Material;
-import org.bukkit.configuration.serialization.ConfigurationSerializable;
-import org.bukkit.configuration.serialization.ConfigurationSerialization;
-import org.bukkit.inventory.ItemStack;
 import org.bukkit.persistence.PersistentDataAdapterContext;
 import org.bukkit.persistence.PersistentDataType;
+import org.bukkit.util.io.BukkitObjectInputStream;
+import org.bukkit.util.io.BukkitObjectOutputStream;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.*;
+import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
-/**
- * https://stackoverflow.com/questions/8517323/how-to-convert-map-to-bytes-and-save-to-internal-storage
- */
-public class ListDataType implements PersistentDataType<List, List>  {
-
-    private final Class<List> primitiveType = List.class;
+public class ListDataType implements PersistentDataType<byte[], List>  {
 
     @NotNull
     @Override
-    public Class<List> getPrimitiveType() {
-        return primitiveType;
+    public Class<byte[]> getPrimitiveType() {
+        return byte[].class;
     }
 
     @NotNull
     @Override
     public Class<List> getComplexType() {
-        return primitiveType;
+        return List.class;
     }
 
     @NotNull
     @Override
-    public List toPrimitive(@NotNull List complex, @NotNull PersistentDataAdapterContext context) {
-        return complex;
+    public byte[] toPrimitive(@NotNull List complex, @NotNull PersistentDataAdapterContext context) {
+        try (ByteArrayOutputStream bos = new ByteArrayOutputStream(); BukkitObjectOutputStream oos = new BukkitObjectOutputStream(bos)) {
+            oos.writeObject(complex);
+            return bos.toByteArray();
+        } catch (IOException e) {
+            e.printStackTrace();
+            return new byte[0];
+        }
     }
 
     @NotNull
     @Override
-    public List fromPrimitive(@NotNull List primitive, @NotNull PersistentDataAdapterContext context) {
-        return primitive;
+    public List fromPrimitive(@NotNull byte[] primitive, @NotNull PersistentDataAdapterContext context) {
+        try (ByteArrayInputStream bis = new ByteArrayInputStream(primitive);
+            BukkitObjectInputStream ois = new BukkitObjectInputStream(bis)) {
+            return (List) ois.readObject();
+        } catch(IOException | ClassNotFoundException e) {
+            e.printStackTrace();
+            return new ArrayList();
+        }
     }
 }
