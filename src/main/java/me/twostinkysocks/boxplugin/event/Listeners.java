@@ -195,7 +195,16 @@ public class Listeners implements Listener {
             }
         }
     }
-
+    @EventHandler
+    public void explodeForCage(BlockExplodeEvent e) {
+        for(HashSet<Location> locations : CageStaff.cageBlocks.values()) {
+            for(Location loc : locations) {
+                if(e.blockList().contains(loc)) {
+                    e.setCancelled(true);
+                }
+            }
+        }
+    }
     @EventHandler
     public void itemSpawn(EntityDropItemEvent e) {
         if(e.getEntity().getType() == EntityType.FALLING_BLOCK && e.getEntity().getPersistentDataContainer().has(new NamespacedKey(BoxPlugin.instance, "LAVA"), PersistentDataType.STRING)) {

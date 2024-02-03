@@ -22,10 +22,14 @@ import java.util.*;
 
 public class MarketManager {
 
+    private HashMap<UUID, Integer> selectedCoins = new HashMap<>();
+
     public void openGui(Player p) {
         ChestGui gui = new ChestGui(3, "Market");
         StaticPane pane = new StaticPane(9,3);
         gui.setOnGlobalClick(e -> e.setCancelled(true));
+
+        selectedCoins.put(p.getUniqueId(), 0);
 
         // set up items in gui
         ItemStack market = new ItemStack(Material.COMMAND_BLOCK);
@@ -123,7 +127,7 @@ public class MarketManager {
         GuiItem guiWithdraw = new GuiItem(withdraw, e -> {
             e.setCancelled(true);
             p.playSound(p.getLocation(), Sound.BLOCK_NOTE_BLOCK_PLING, 0.5f, 2f);
-            openWithdrawMenu(p);
+            openWithDrawMenu(p);
         });
         GuiItem guiBalance = new GuiItem(balance, e -> e.setCancelled(true));
         GuiItem guiRubies = new GuiItem(rubies, e -> {
@@ -201,6 +205,206 @@ public class MarketManager {
         gui.copy().show(p);
     }
 
+    public void openWithDrawMenu(Player p) {
+        ChestGui gui = new ChestGui(3, "Withdraw Coins");
+        StaticPane pane = new StaticPane(9,3);
+
+        ItemStack confirm = new ItemStack(Material.LIME_STAINED_GLASS);
+        ItemMeta confirmMeta = confirm.getItemMeta();
+        confirmMeta.setDisplayName(ChatColor.GREEN + "Confirm");
+        confirmMeta.setLore(List.of(
+                ChatColor.GOLD  + "Withdraw " + selectedCoins.get(p.getUniqueId()) + " coins"));
+        confirm.setItemMeta(confirmMeta);
+
+        ItemStack cancel = new ItemStack(Material.RED_STAINED_GLASS);
+        ItemMeta cancelMeta = cancel.getItemMeta();
+        cancelMeta.setDisplayName(ChatColor.RED + "Cancel");
+        cancel.setItemMeta(cancelMeta);
+
+        ItemStack plus16 = new ItemStack(Material.LIME_STAINED_GLASS_PANE);
+        ItemMeta plus16Meta = plus16.getItemMeta();
+        plus16Meta.setDisplayName(ChatColor.GREEN + "+16");
+        plus16.setItemMeta(plus16Meta);
+
+        ItemStack plus64 = new ItemStack(Material.LIME_STAINED_GLASS_PANE);
+        ItemMeta plus64Meta = plus64.getItemMeta();
+        plus64Meta.setDisplayName(ChatColor.GREEN + "+64");
+        plus64Meta.setLore(List.of(
+                ChatColor.GOLD  + "" + ChatColor.BOLD + "1 Giga Coin"));
+        plus64.setItemMeta(plus64Meta);
+
+        ItemStack plus640 = new ItemStack(Material.LIME_STAINED_GLASS_PANE);
+        ItemMeta plus640Meta = plus640.getItemMeta();
+        plus640Meta.setDisplayName(ChatColor.GREEN + "+640");
+        plus640Meta.setLore(List.of(
+                ChatColor.GOLD  + "" + ChatColor.BOLD + "10 Giga Coins"));
+        plus640.setItemMeta(plus640Meta);
+
+        ItemStack plus2048 = new ItemStack(Material.LIME_STAINED_GLASS_PANE);
+        ItemMeta plus2048Meta = plus2048.getItemMeta();
+        plus2048Meta.setDisplayName(ChatColor.GREEN + "+2048");
+        plus2048Meta.setLore(List.of(
+                ChatColor.GOLD  + "" + ChatColor.BOLD + "32 Giga Coin "));
+        plus2048.setItemMeta(plus2048Meta);
+
+        ItemStack plus4096 = new ItemStack(Material.LIME_STAINED_GLASS_PANE);
+        ItemMeta plus4096Meta = plus4096.getItemMeta();
+        plus4096Meta.setDisplayName(ChatColor.GREEN + "+4096");
+        plus4096Meta.setLore(List.of(
+                ChatColor.GOLD  + "" + ChatColor.BOLD + "64 Giga Coin "));
+        plus4096.setItemMeta(plus4096Meta);
+
+        ItemStack takeAll = new ItemStack(Material.GOLD_INGOT);
+        ItemMeta takeAllMeta = takeAll.getItemMeta();
+        takeAllMeta.setDisplayName(ChatColor.GOLD + "Withdraw all");
+        takeAll.setItemMeta(takeAllMeta);
+
+        ItemStack typeVal = new ItemStack(Material.OAK_SIGN);
+        ItemMeta typeValMeta = typeVal.getItemMeta();
+        typeValMeta.setDisplayName(ChatColor.GOLD + "Type Value");
+        typeVal.setItemMeta(typeValMeta);
+
+        ItemStack minus16 = new ItemStack(Material.RED_STAINED_GLASS_PANE);
+        ItemMeta minus16Meta = minus16.getItemMeta();
+        minus16Meta.setDisplayName(ChatColor.RED + "-16");
+        minus16.setItemMeta(minus16Meta);
+
+        ItemStack minus64 = new ItemStack(Material.RED_STAINED_GLASS_PANE);
+        ItemMeta minus64Meta = minus64.getItemMeta();
+        minus64Meta.setDisplayName(ChatColor.RED + "-64");
+        minus64Meta.setLore(List.of(
+                ChatColor.GOLD  + "" + ChatColor.BOLD + "1 Giga Coin"));
+        minus64.setItemMeta(minus64Meta);
+
+        ItemStack minus640 = new ItemStack(Material.RED_STAINED_GLASS_PANE);
+        ItemMeta minus640Meta = minus640.getItemMeta();
+        minus640Meta.setDisplayName(ChatColor.RED + "-640");
+        minus640Meta.setLore(List.of(
+                ChatColor.GOLD  + "" + ChatColor.BOLD + "10 Giga Coins"));
+        minus640.setItemMeta(minus640Meta);
+
+        ItemStack minus2048 = new ItemStack(Material.RED_STAINED_GLASS_PANE);
+        ItemMeta minus2048Meta = minus2048.getItemMeta();
+        minus2048Meta.setDisplayName(ChatColor.RED + "-2048");
+        minus2048Meta.setLore(List.of(
+                ChatColor.GOLD  + "" + ChatColor.BOLD + "32 Giga Coins"));
+        minus2048.setItemMeta(minus2048Meta);
+
+        ItemStack minus4096 = new ItemStack(Material.RED_STAINED_GLASS_PANE);
+        ItemMeta minus4096Meta = minus4096.getItemMeta();
+        minus4096Meta.setDisplayName(ChatColor.RED + "-4096");
+        minus4096Meta.setLore(List.of(
+                ChatColor.GOLD  + "" + ChatColor.BOLD + "64 Giga Coins"));
+        minus4096.setItemMeta(minus4096Meta);
+
+        ItemStack balance = new ItemStack(Material.PLAYER_HEAD);
+        SkullMeta balancemeta = (SkullMeta) balance.getItemMeta();
+        balancemeta.setDisplayName(ChatColor.AQUA + "Your Balance");
+        balancemeta.setLore(List.of(
+                "",
+                ChatColor.GRAY + "You have " + ChatColor.GOLD + String.format("%.0f",BoxPlugin.instance.getEconomy().getBalance(p)) + ChatColor.GRAY +  " Xanatos coins in your account",
+                ""
+        ));
+        balancemeta.setOwnerProfile(p.getPlayerProfile());
+        balance.setItemMeta(balancemeta);
+
+        GuiItem confirmGui = new GuiItem(confirm.clone(), e -> {
+            e.setCancelled(true);
+            confrimWithdraw(e, p);
+        });
+
+        GuiItem cancelGui = new GuiItem(cancel.clone(), e -> {
+            e.setCancelled(true);
+            cancelDeposit(e, p);
+        });
+
+        GuiItem plus16Gui = new GuiItem(plus16.clone(), e -> {
+            e.setCancelled(true);
+            plus16(e, p);
+        });
+
+        GuiItem plus64Gui = new GuiItem(plus64.clone(), e -> {
+            e.setCancelled(true);
+            plus64(e, p);
+        });
+
+        GuiItem plus640Gui = new GuiItem(plus640.clone(), e -> {
+            e.setCancelled(true);
+            plus640(e, p);
+        });
+
+        GuiItem plus2048Gui = new GuiItem(plus2048.clone(), e -> {
+            e.setCancelled(true);
+            plus2048(e, p);
+        });
+
+        GuiItem plus4096Gui = new GuiItem(plus4096.clone(), e -> {
+            e.setCancelled(true);
+            plus4096(e, p);
+        });
+
+        GuiItem minus16Gui = new GuiItem(minus16.clone(), e -> {
+            e.setCancelled(true);
+            minus16(e, p);
+        });
+
+        GuiItem minus64Gui = new GuiItem(minus64.clone(), e -> {
+            e.setCancelled(true);
+            minus64(e, p);
+        });
+
+        GuiItem minus640Gui = new GuiItem(minus640.clone(), e -> {
+            e.setCancelled(true);
+            minus640(e, p);
+        });
+
+        GuiItem minus2048Gui = new GuiItem(minus2048.clone(), e -> {
+            e.setCancelled(true);
+            minus2048(e, p);
+        });
+
+        GuiItem minus4096Gui = new GuiItem(minus4096.clone(), e -> {
+            e.setCancelled(true);
+            minus4096(e, p);
+        });
+
+        GuiItem takeAllGui = new GuiItem(takeAll.clone(), e -> {
+            e.setCancelled(true);
+            removeAllCoins(e, p);
+        });
+
+        GuiItem typeValGui = new GuiItem(typeVal.clone(), e -> {
+            e.setCancelled(true);
+            typeValue(e, p);
+        });
+        GuiItem guiBalance = new GuiItem(balance, e -> e.setCancelled(true));
+
+        for(int i = 0; i < 2; i++) {
+            for(int j = 0; j < 3; j++) {
+                pane.addItem(confirmGui.copy(), i, j);
+                pane.addItem(cancelGui.copy(), i+7,j);
+            }
+        }
+        pane.addItem(plus16Gui.copy(), 2, 0);
+        pane.addItem(plus64Gui.copy(), 3, 0);
+        pane.addItem(plus640Gui.copy(), 4, 0);
+        pane.addItem(plus2048Gui.copy(), 5, 0);
+        pane.addItem(plus4096Gui.copy(), 6, 0);
+
+        pane.addItem(minus16Gui.copy(), 2, 2);
+        pane.addItem(minus64Gui.copy(), 3, 2);
+        pane.addItem(minus640Gui.copy(), 4, 2);
+        pane.addItem(minus2048Gui.copy(), 5, 2);
+        pane.addItem(minus4096Gui.copy(), 6, 2);
+
+        pane.addItem(takeAllGui.copy(), 2, 1);
+        pane.addItem(guiBalance.copy(), 4, 1);
+        pane.addItem(typeValGui.copy(), 6, 1);
+
+        gui.addPane(pane);
+        gui.copy().show(p);
+    }
+
     public void confirmDeposit(InventoryClickEvent e, Player p) {
         ArrayList<ItemStack> toAdd = new ArrayList<>();
         if(e.getView().getTopInventory().getItem(3) != null) toAdd.add(e.getView().getTopInventory().getItem(3));
@@ -259,7 +463,192 @@ public class MarketManager {
         openGui(p);
     }
 
-    public void openWithdrawMenu(Player p) {
+    public void plus16(InventoryClickEvent e, Player p) {
+        if (selectedCoins.containsKey(p.getUniqueId())){
+            if (selectedCoins.get(p.getUniqueId()) + 16 >= getCoinsBalance(p)) {
+                selectedCoins.put((p.getUniqueId()), getCoinsBalance(p));
+            }
+            else {
+                selectedCoins.put((p.getUniqueId()), selectedCoins.get(p.getUniqueId()) + 16);
+            }
+        }
+        p.playSound(p.getLocation(), Sound.BLOCK_NOTE_BLOCK_PLING, 0.5f, 2f);
+        openWithDrawMenu(p);
+    }
+
+    public void plus64(InventoryClickEvent e, Player p) {
+        if (selectedCoins.containsKey(p.getUniqueId())){
+            if (selectedCoins.get(p.getUniqueId()) + 64 >= getCoinsBalance(p)) {
+                selectedCoins.put((p.getUniqueId()), getCoinsBalance(p));
+            }
+            else {
+                selectedCoins.put((p.getUniqueId()), selectedCoins.get(p.getUniqueId()) + 64);
+            }
+        }
+        p.playSound(p.getLocation(), Sound.BLOCK_NOTE_BLOCK_PLING, 0.5f, 2f);
+        openWithDrawMenu(p);
+    }
+
+    public void plus640(InventoryClickEvent e, Player p) {
+        if (selectedCoins.containsKey(p.getUniqueId())){
+            if (selectedCoins.get(p.getUniqueId()) + 640 >= getCoinsBalance(p)) {
+                selectedCoins.put((p.getUniqueId()), getCoinsBalance(p));
+            }
+            else {
+                selectedCoins.put((p.getUniqueId()), selectedCoins.get(p.getUniqueId()) + 640);
+            }
+        }
+        p.playSound(p.getLocation(), Sound.BLOCK_NOTE_BLOCK_PLING, 0.5f, 2f);
+        openWithDrawMenu(p);
+    }
+
+    public void plus2048(InventoryClickEvent e, Player p) {
+        if (selectedCoins.containsKey(p.getUniqueId())){
+            if (selectedCoins.get(p.getUniqueId()) + 2048 >= getCoinsBalance(p)) {
+                selectedCoins.put((p.getUniqueId()), getCoinsBalance(p));
+            }
+            else {
+                selectedCoins.put((p.getUniqueId()), selectedCoins.get(p.getUniqueId()) + 2048);
+            }
+        }
+        p.playSound(p.getLocation(), Sound.BLOCK_NOTE_BLOCK_PLING, 0.5f, 2f);
+        openWithDrawMenu(p);
+    }
+
+    public void plus4096(InventoryClickEvent e, Player p) {
+        if (selectedCoins.containsKey(p.getUniqueId())){
+            if (selectedCoins.get(p.getUniqueId()) + 4096 >= getCoinsBalance(p)) {
+                selectedCoins.put((p.getUniqueId()), getCoinsBalance(p));
+            }
+            else {
+                selectedCoins.put((p.getUniqueId()), selectedCoins.get(p.getUniqueId()) + 4096);
+            }
+        }
+        p.playSound(p.getLocation(), Sound.BLOCK_NOTE_BLOCK_PLING, 0.5f, 2f);
+        openWithDrawMenu(p);
+    }
+
+    public void minus16(InventoryClickEvent e, Player p) {
+        if (selectedCoins.containsKey(p.getUniqueId())) {
+            if (selectedCoins.get(p.getUniqueId()) - 16 <= 0) {
+                selectedCoins.put((p.getUniqueId()), 0);
+            }
+            else {
+                selectedCoins.put((p.getUniqueId()), selectedCoins.get(p.getUniqueId()) - 16);
+            }
+        }
+        p.playSound(p.getLocation(), Sound.BLOCK_NOTE_BLOCK_PLING, 0.5f, 2f);
+        openWithDrawMenu(p);
+    }
+
+    public void minus64(InventoryClickEvent e, Player p) {
+        if (selectedCoins.containsKey(p.getUniqueId())){
+            if (selectedCoins.get(p.getUniqueId()) - 64+0 <= 0) {
+                selectedCoins.put((p.getUniqueId()), 0);
+            }
+            else {
+                selectedCoins.put((p.getUniqueId()), selectedCoins.get(p.getUniqueId()) - 64);
+            }
+        }
+        p.playSound(p.getLocation(), Sound.BLOCK_NOTE_BLOCK_PLING, 0.5f, 2f);
+        openWithDrawMenu(p);
+    }
+
+    public void minus640(InventoryClickEvent e, Player p) {
+        if (selectedCoins.containsKey(p.getUniqueId())){
+            if (selectedCoins.get(p.getUniqueId()) - 640 <= 0) {
+                selectedCoins.put((p.getUniqueId()), 0);
+            }
+            else {
+                selectedCoins.put((p.getUniqueId()), selectedCoins.get(p.getUniqueId()) - 640);
+            }
+        }
+        p.playSound(p.getLocation(), Sound.BLOCK_NOTE_BLOCK_PLING, 0.5f, 2f);
+        openWithDrawMenu(p);
+    }
+
+    public void minus2048(InventoryClickEvent e, Player p) {
+        if (selectedCoins.containsKey(p.getUniqueId())){
+            if (selectedCoins.get(p.getUniqueId()) - 2048 <= 0) {
+                selectedCoins.put((p.getUniqueId()), 0);
+            }
+            else {
+                selectedCoins.put((p.getUniqueId()), selectedCoins.get(p.getUniqueId()) - 2048);
+            }
+        }
+        p.playSound(p.getLocation(), Sound.BLOCK_NOTE_BLOCK_PLING, 0.5f, 2f);
+        openWithDrawMenu(p);
+    }
+
+    public void minus4096(InventoryClickEvent e, Player p) {
+        if (selectedCoins.containsKey(p.getUniqueId())){
+            if (selectedCoins.get(p.getUniqueId()) - 4096 <= 0) {
+                selectedCoins.put((p.getUniqueId()), 0);
+            }
+            else {
+                selectedCoins.put((p.getUniqueId()), selectedCoins.get(p.getUniqueId()) - 4096);
+            }
+        }
+        p.playSound(p.getLocation(), Sound.BLOCK_NOTE_BLOCK_PLING, 0.5f, 2f);
+        openWithDrawMenu(p);
+    }
+    public void typeValue(InventoryClickEvent e, Player p) {
+        p.playSound(p.getLocation(), Sound.BLOCK_NOTE_BLOCK_PLING, 0.5f, 2f);
+        openWithdrawSign(p);
+    }
+    public void removeAllCoins(InventoryClickEvent e, Player p) {
+        p.playSound(p.getLocation(), Sound.BLOCK_NOTE_BLOCK_PLING, 0.5f, 2f);
+        if (selectedCoins.containsKey(p.getUniqueId())){
+            selectedCoins.put((p.getUniqueId()), getCoinsBalance(p));
+        }
+        openWithDrawMenu(p);
+    }
+    public void confrimWithdraw(InventoryClickEvent e, Player p) {
+        int amount = selectedCoins.get(p.getUniqueId());
+        int orig = amount;
+        amount *= getMarketMultiplier();
+        int withMult = amount;
+        int hexidium = amount / 262144;
+        amount = amount % 262144;
+        int teracube = amount / 4096;
+        amount = amount % 4096;
+        int gigaCoin = amount / 64;
+        amount = amount % 64;
+        int coin = amount;
+        HashMap<Integer, ItemStack> h = p.getInventory().addItem(Util.itemArray(hexidium, Util::hexidium));
+        HashMap<Integer, ItemStack> t = p.getInventory().addItem(Util.itemArray(teracube, Util::teraCube));
+        HashMap<Integer, ItemStack> g = p.getInventory().addItem(Util.itemArray(gigaCoin, Util::gigaCoin));
+        HashMap<Integer, ItemStack> x = p.getInventory().addItem(Util.itemArray(coin, Util::coin));
+        for(ItemStack item : h.values()) {
+            Item i = (Item) p.getWorld().spawnEntity(p.getLocation(), EntityType.DROPPED_ITEM);
+            i.setItemStack(item);
+        }
+        for(ItemStack item : t.values()) {
+            Item i = (Item) p.getWorld().spawnEntity(p.getLocation(), EntityType.DROPPED_ITEM);
+            i.setItemStack(item);
+        }
+        for(ItemStack item : g.values()) {
+            Item i = (Item) p.getWorld().spawnEntity(p.getLocation(), EntityType.DROPPED_ITEM);
+            i.setItemStack(item);
+        }
+        for(ItemStack item : x.values()) {
+            Item i = (Item) p.getWorld().spawnEntity(p.getLocation(), EntityType.DROPPED_ITEM);
+            i.setItemStack(item);
+        }
+        p.playSound(p.getLocation(), Sound.BLOCK_NOTE_BLOCK_PLING, 0.5f, 2f);
+        if (amount == 0){
+            p.sendMessage(ChatColor.GREEN + "Withdrew 0 coins.");
+        }
+        else {
+            p.sendMessage(ChatColor.GREEN + "Withdrew " + orig + " coins, now worth " + withMult + " from the market's current value!");
+            BoxPlugin.instance.getScoreboardManager().queueUpdate(p);
+            removeCoinsBalance(p, orig);
+        }
+        e.getView().close();
+
+    }
+
+    public void openWithdrawSign(Player p) {
         SignGUI sign = SignGUI.builder()
                 .setLines(null, "===============",  "Withdraw Amount", "(or \"all\")")
                 .setType(Material.OAK_SIGN)
