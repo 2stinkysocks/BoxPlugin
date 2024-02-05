@@ -250,7 +250,7 @@ public class GhostTokenManager {
                         ItemStack currentItem = e.getInventory().getItem(e.getSlot());
                         ItemMeta currentItemMeta = e.getCurrentItem().getItemMeta();
                         List<String> currentLore = currentItemMeta.getLore();
-                        lore.addAll(List.of("", ChatColor.GOLD + "Cost: " + Reclaimable.getByName(currentItem.getItemMeta().getDisplayName()).cost + " Xanatos coins"));
+                        lore.addAll(List.of("", ChatColor.GOLD + "Cost: " + (Reclaimable.getByName(currentItem.getItemMeta().getDisplayName()).cost * (item.getType() == Material.SHIELD ? 2 : 1)) + " Xanatos coins"));
                         currentItemMeta.setLore(currentLore);
                         currentItem.setItemMeta(currentItemMeta);
                         e.getInventory().setItem(e.getSlot(), item);
@@ -273,7 +273,7 @@ public class GhostTokenManager {
                         ItemMeta currentItemMeta = e.getCurrentItem().getItemMeta();
                         List<String> lore = currentItemMeta.getLore();
                         if(lore == null) lore = new ArrayList<>();
-                        lore.addAll(List.of("", ChatColor.GOLD + "" + ChatColor.BOLD + "Reclaim cost: " + Reclaimable.getByName(currentItem.getItemMeta().getDisplayName()).cost + " Xanatos coins"));
+                        lore.addAll(List.of("", ChatColor.GOLD + "" + ChatColor.BOLD + "Reclaim cost: " + (Reclaimable.getByName(currentItem.getItemMeta().getDisplayName()).cost* (currentItem.getType() == Material.SHIELD ? 2 : 1)) + " Xanatos coins"));
                         currentItemMeta.setLore(lore);
                         currentItem.setItemMeta(currentItemMeta);
                         e.getView().getTopInventory().setItem(13, currentItem);
@@ -323,7 +323,7 @@ public class GhostTokenManager {
                 BoxPlugin.instance.getMarketManager().removeCoinsBalance(p, coins);
                 BoxPlugin.instance.getScoreboardManager().queueUpdate(p);
                 e.getView().getTopInventory().setItem(rawSlot, stripGhost(e.getView().getTopInventory().getItem(rawSlot)));
-                p.sendMessage(ChatColor.GREEN + "Successfully reclaimed your ghost item!");
+                p.sendMessage(ChatColor.GREEN + "Successfully reclaimed your ghost item for " + coins + " Xanatos coins!");
                 p.playSound(p.getLocation(), Sound.BLOCK_NOTE_BLOCK_PLING, 0.5f, 2f);
                 boolean hasMore = false;
                 for(ItemStack i : p.getInventory().getContents()) {
