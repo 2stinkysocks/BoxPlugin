@@ -119,6 +119,31 @@ public class Listeners implements Listener {
             e.getEntity().getWorld().playSound(e.getEntity().getLocation(), Sound.BLOCK_ANVIL_LAND, 0.2f, 0.5f);
             e.getEntity().getWorld().playSound(e.getEntity().getLocation(), Sound.BLOCK_BEACON_POWER_SELECT, 1f, 1.7f);
             e.getEntity().getWorld().playSound(e.getEntity().getLocation(), Sound.BLOCK_CONDUIT_ACTIVATE, 1f, 2f);
+            e.getEntity().getWorld().playSound(e.getEntity().getLocation().add(15,0,0), Sound.BLOCK_ANVIL_LAND, 0.2f, 0.5f);
+            e.getEntity().getWorld().playSound(e.getEntity().getLocation().add(15,0,0), Sound.BLOCK_BEACON_POWER_SELECT, 1f, 1.7f);
+            e.getEntity().getWorld().playSound(e.getEntity().getLocation().add(15,0,0), Sound.BLOCK_CONDUIT_ACTIVATE, 1f, 2f);
+            e.getEntity().getWorld().playSound(e.getEntity().getLocation().add(-15,0,0), Sound.BLOCK_ANVIL_LAND, 0.2f, 0.5f);
+            e.getEntity().getWorld().playSound(e.getEntity().getLocation().add(-15,0,0), Sound.BLOCK_BEACON_POWER_SELECT, 1f, 1.7f);
+            e.getEntity().getWorld().playSound(e.getEntity().getLocation().add(-15,0,0), Sound.BLOCK_CONDUIT_ACTIVATE, 1f, 2f);
+            e.getEntity().getWorld().playSound(e.getEntity().getLocation().add(0,0,15), Sound.BLOCK_ANVIL_LAND, 0.2f, 0.5f);
+            e.getEntity().getWorld().playSound(e.getEntity().getLocation().add(0,0,15), Sound.BLOCK_BEACON_POWER_SELECT, 1f, 1.7f);
+            e.getEntity().getWorld().playSound(e.getEntity().getLocation().add(0,0,15), Sound.BLOCK_CONDUIT_ACTIVATE, 1f, 2f);
+            e.getEntity().getWorld().playSound(e.getEntity().getLocation().add(0,0,-15), Sound.BLOCK_ANVIL_LAND, 0.2f, 0.5f);
+            e.getEntity().getWorld().playSound(e.getEntity().getLocation().add(0,0,-15), Sound.BLOCK_BEACON_POWER_SELECT, 1f, 1.7f);
+            e.getEntity().getWorld().playSound(e.getEntity().getLocation().add(0,0,-15), Sound.BLOCK_CONDUIT_ACTIVATE, 1f, 2f);
+            e.getEntity().getWorld().playSound(e.getEntity().getLocation().add(10,0,10), Sound.BLOCK_ANVIL_LAND, 0.2f, 0.5f);
+            e.getEntity().getWorld().playSound(e.getEntity().getLocation().add(10,0,10), Sound.BLOCK_BEACON_POWER_SELECT, 1f, 1.7f);
+            e.getEntity().getWorld().playSound(e.getEntity().getLocation().add(10,0,10), Sound.BLOCK_CONDUIT_ACTIVATE, 1f, 2f);
+            e.getEntity().getWorld().playSound(e.getEntity().getLocation().add(-10,0,10), Sound.BLOCK_ANVIL_LAND, 0.2f, 0.5f);
+            e.getEntity().getWorld().playSound(e.getEntity().getLocation().add(-10,0,10), Sound.BLOCK_BEACON_POWER_SELECT, 1f, 1.7f);
+            e.getEntity().getWorld().playSound(e.getEntity().getLocation().add(-10,0,10), Sound.BLOCK_CONDUIT_ACTIVATE, 1f, 2f);
+            e.getEntity().getWorld().playSound(e.getEntity().getLocation().add(10,0,-10), Sound.BLOCK_ANVIL_LAND, 0.2f, 0.5f);
+            e.getEntity().getWorld().playSound(e.getEntity().getLocation().add(10,0,-10), Sound.BLOCK_BEACON_POWER_SELECT, 1f, 1.7f);
+            e.getEntity().getWorld().playSound(e.getEntity().getLocation().add(10,0,-10), Sound.BLOCK_CONDUIT_ACTIVATE, 1f, 2f);
+            e.getEntity().getWorld().playSound(e.getEntity().getLocation().add(-10,0,-10), Sound.BLOCK_ANVIL_LAND, 0.2f, 0.5f);
+            e.getEntity().getWorld().playSound(e.getEntity().getLocation().add(-10,0,-10), Sound.BLOCK_BEACON_POWER_SELECT, 1f, 1.7f);
+            e.getEntity().getWorld().playSound(e.getEntity().getLocation().add(-10,0,-10), Sound.BLOCK_CONDUIT_ACTIVATE, 1f, 2f);
+
             Bukkit.getScheduler().runTaskTimer(BoxPlugin.instance, task -> {
                 if(i.get() == 0.0) {
                     e.getEntity().getWorld().playSound(e.getEntity().getLocation(), Sound.ENTITY_WARDEN_HEARTBEAT, 1f, 0.5f);
@@ -126,6 +151,46 @@ public class Listeners implements Listener {
                     e.getEntity().getWorld().playSound(e.getEntity().getLocation(), Sound.ENTITY_WITHER_DEATH, 0.2f, 2f);
                     e.getEntity().getWorld().playSound(e.getEntity().getLocation(), Sound.BLOCK_CONDUIT_DEACTIVATE, 1f, 1.6f);
                     e.getEntity().getWorld().playSound(e.getEntity().getLocation(), Sound.ENTITY_EVOKER_CAST_SPELL, 1f, 0.8f);
+                    e.getEntity().getWorld().playSound(e.getEntity().getLocation().add(15,0,0), Sound.ENTITY_WARDEN_HEARTBEAT, 1f, 0.5f);
+                    e.getEntity().getWorld().playSound(e.getEntity().getLocation().add(15,0,0), Sound.BLOCK_SCULK_BREAK, 0.6f, 0.5f);
+                    e.getEntity().getWorld().playSound(e.getEntity().getLocation().add(15,0,0), Sound.ENTITY_WITHER_DEATH, 0.2f, 2f);
+                    e.getEntity().getWorld().playSound(e.getEntity().getLocation().add(15,0,0), Sound.BLOCK_CONDUIT_DEACTIVATE, 1f, 1.6f);
+                    e.getEntity().getWorld().playSound(e.getEntity().getLocation().add(15,0,0), Sound.ENTITY_EVOKER_CAST_SPELL, 1f, 0.8f);
+                    e.getEntity().getWorld().playSound(e.getEntity().getLocation().add(-15,0,0), Sound.ENTITY_WARDEN_HEARTBEAT, 1f, 0.5f);
+                    e.getEntity().getWorld().playSound(e.getEntity().getLocation().add(-15,0,0), Sound.BLOCK_SCULK_BREAK, 0.6f, 0.5f);
+                    e.getEntity().getWorld().playSound(e.getEntity().getLocation().add(-15,0,0), Sound.ENTITY_WITHER_DEATH, 0.2f, 2f);
+                    e.getEntity().getWorld().playSound(e.getEntity().getLocation().add(-15,0,0), Sound.BLOCK_CONDUIT_DEACTIVATE, 1f, 1.6f);
+                    e.getEntity().getWorld().playSound(e.getEntity().getLocation().add(-15,0,0), Sound.ENTITY_EVOKER_CAST_SPELL, 1f, 0.8f);
+                    e.getEntity().getWorld().playSound(e.getEntity().getLocation().add(0,0,15), Sound.ENTITY_WARDEN_HEARTBEAT, 1f, 0.5f);
+                    e.getEntity().getWorld().playSound(e.getEntity().getLocation().add(0,0,15), Sound.BLOCK_SCULK_BREAK, 0.6f, 0.5f);
+                    e.getEntity().getWorld().playSound(e.getEntity().getLocation().add(0,0,15), Sound.ENTITY_WITHER_DEATH, 0.2f, 2f);
+                    e.getEntity().getWorld().playSound(e.getEntity().getLocation().add(0,0,15), Sound.BLOCK_CONDUIT_DEACTIVATE, 1f, 1.6f);
+                    e.getEntity().getWorld().playSound(e.getEntity().getLocation().add(0,0,15), Sound.ENTITY_EVOKER_CAST_SPELL, 1f, 0.8f);
+                    e.getEntity().getWorld().playSound(e.getEntity().getLocation().add(0,0,-15), Sound.ENTITY_WARDEN_HEARTBEAT, 1f, 0.5f);
+                    e.getEntity().getWorld().playSound(e.getEntity().getLocation().add(0,0,-15), Sound.BLOCK_SCULK_BREAK, 0.6f, 0.5f);
+                    e.getEntity().getWorld().playSound(e.getEntity().getLocation().add(0,0,-15), Sound.ENTITY_WITHER_DEATH, 0.2f, 2f);
+                    e.getEntity().getWorld().playSound(e.getEntity().getLocation().add(0,0,-15), Sound.BLOCK_CONDUIT_DEACTIVATE, 1f, 1.6f);
+                    e.getEntity().getWorld().playSound(e.getEntity().getLocation().add(0,0,-15), Sound.ENTITY_EVOKER_CAST_SPELL, 1f, 0.8f);
+                    e.getEntity().getWorld().playSound(e.getEntity().getLocation().add(10,0,10), Sound.ENTITY_WARDEN_HEARTBEAT, 1f, 0.5f);
+                    e.getEntity().getWorld().playSound(e.getEntity().getLocation().add(10,0,10), Sound.BLOCK_SCULK_BREAK, 0.6f, 0.5f);
+                    e.getEntity().getWorld().playSound(e.getEntity().getLocation().add(10,0,10), Sound.ENTITY_WITHER_DEATH, 0.2f, 2f);
+                    e.getEntity().getWorld().playSound(e.getEntity().getLocation().add(10,0,10), Sound.BLOCK_CONDUIT_DEACTIVATE, 1f, 1.6f);
+                    e.getEntity().getWorld().playSound(e.getEntity().getLocation().add(10,0,10), Sound.ENTITY_EVOKER_CAST_SPELL, 1f, 0.8f);
+                    e.getEntity().getWorld().playSound(e.getEntity().getLocation().add(10,0,-10), Sound.ENTITY_WARDEN_HEARTBEAT, 1f, 0.5f);
+                    e.getEntity().getWorld().playSound(e.getEntity().getLocation().add(10,0,-10), Sound.BLOCK_SCULK_BREAK, 0.6f, 0.5f);
+                    e.getEntity().getWorld().playSound(e.getEntity().getLocation().add(10,0,-10), Sound.ENTITY_WITHER_DEATH, 0.2f, 2f);
+                    e.getEntity().getWorld().playSound(e.getEntity().getLocation().add(10,0,-10), Sound.BLOCK_CONDUIT_DEACTIVATE, 1f, 1.6f);
+                    e.getEntity().getWorld().playSound(e.getEntity().getLocation().add(10,0,-10), Sound.ENTITY_EVOKER_CAST_SPELL, 1f, 0.8f);
+                    e.getEntity().getWorld().playSound(e.getEntity().getLocation().add(-10,0,-10), Sound.ENTITY_WARDEN_HEARTBEAT, 1f, 0.5f);
+                    e.getEntity().getWorld().playSound(e.getEntity().getLocation().add(-10,0,-10), Sound.BLOCK_SCULK_BREAK, 0.6f, 0.5f);
+                    e.getEntity().getWorld().playSound(e.getEntity().getLocation().add(-10,0,-10), Sound.ENTITY_WITHER_DEATH, 0.2f, 2f);
+                    e.getEntity().getWorld().playSound(e.getEntity().getLocation().add(-10,0,-10), Sound.BLOCK_CONDUIT_DEACTIVATE, 1f, 1.6f);
+                    e.getEntity().getWorld().playSound(e.getEntity().getLocation().add(-10,0,-10), Sound.ENTITY_EVOKER_CAST_SPELL, 1f, 0.8f);
+                    e.getEntity().getWorld().playSound(e.getEntity().getLocation().add(-10,0,10), Sound.ENTITY_WARDEN_HEARTBEAT, 1f, 0.5f);
+                    e.getEntity().getWorld().playSound(e.getEntity().getLocation().add(-10,0,10), Sound.BLOCK_SCULK_BREAK, 0.6f, 0.5f);
+                    e.getEntity().getWorld().playSound(e.getEntity().getLocation().add(-10,0,10), Sound.ENTITY_WITHER_DEATH, 0.2f, 2f);
+                    e.getEntity().getWorld().playSound(e.getEntity().getLocation().add(-10,0,10), Sound.BLOCK_CONDUIT_DEACTIVATE, 1f, 1.6f);
+                    e.getEntity().getWorld().playSound(e.getEntity().getLocation().add(-10,0,10), Sound.ENTITY_EVOKER_CAST_SPELL, 1f, 0.8f);
                 }
                 Util.spawnTallCircle(e.getEntity().getWorld(), location, new Vector(0, 1, 0), i.get(), 100, new Particle.DustOptions(Color.fromRGB(71, 145, 255), 1.5F));
                 for(LivingEntity entity : near20) {
