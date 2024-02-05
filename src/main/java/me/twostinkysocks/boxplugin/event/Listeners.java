@@ -72,6 +72,17 @@ public class Listeners implements Listener {
     }
 
     @EventHandler
+    public void explodeForCage(BlockExplodeEvent e) {
+        for(HashSet<Location> locations : CageStaff.cageBlocks.values()) {
+            for(Location loc : locations) {
+                if(e.blockList().contains(loc)) {
+                    e.setCancelled(true);
+                }
+            }
+        }
+    }
+
+    @EventHandler
     public void onCommandPreprocess(PlayerCommandPreprocessEvent e) {
         if(e.getMessage().startsWith("/spawn")) {
             if(BoxPlugin.instance.getPvpManager().getStreak(e.getPlayer()) >= 20) {
@@ -440,7 +451,6 @@ public class Listeners implements Listener {
         if(cause == null) {
             BoxPlugin.instance.getPvpManager().resetStreak(target);
             BoxPlugin.instance.getScoreboardManager().queueUpdate(target);
-            BoxPlugin.instance.getGhostTokenManager().onPreDeath(e.getDrops(), e.getEntity());
             Util.dropPercent(e, 0.15);
             target.sendMessage(ChatColor.RED + "You lost 15% of your items from dying to a non-player!");
             BoxPlugin.instance.getGhostTokenManager().onPostDeath(e.getDrops(), e.getEntity());

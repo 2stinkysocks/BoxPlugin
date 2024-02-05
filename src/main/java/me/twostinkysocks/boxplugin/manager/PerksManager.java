@@ -428,6 +428,11 @@ public class PerksManager {
                     p.sendMessage(ChatColor.RED + "You already have this megaperk equipped!");
                     return;
                 }
+                if(BoxPlugin.instance.getGhostTokenManager().hasGhostItems(p) && selectedPerks.size()>=0) {
+                    p.sendMessage(ChatColor.RED + "You have ghost items in your inventory! You can only equip one perk!");
+                    p.playSound(p.getLocation(), Sound.BLOCK_FIRE_EXTINGUISH, 1f, 1f);
+                    return;
+                }
                 if(ownsMegaPerk(p, perk)) {
                     if(selectedPerks.size() < slot) {
                         selectedPerks.add(perk);
@@ -602,6 +607,11 @@ public class PerksManager {
                     if(selectedPerks.contains(perk)) {
                         p.playSound(p.getLocation(), Sound.ENTITY_ENDERMAN_TELEPORT, 0.25f, 0.5f);
                         p.sendMessage(ChatColor.RED + "You already have this perk equipped!");
+                        return;
+                    }
+                    if(BoxPlugin.instance.getGhostTokenManager().hasGhostItems(p) && selectedPerks.size()>0) {
+                        p.sendMessage(ChatColor.RED + "You have ghost items in your inventory! You can only equip one perk!");
+                        p.playSound(p.getLocation(), Sound.BLOCK_FIRE_EXTINGUISH, 1f, 1f);
                         return;
                     }
                     if(ownsPerk(p, perk)) {

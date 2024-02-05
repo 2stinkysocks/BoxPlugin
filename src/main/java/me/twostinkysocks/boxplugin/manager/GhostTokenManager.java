@@ -8,7 +8,6 @@ import me.twostinkysocks.boxplugin.BoxPlugin;
 import me.twostinkysocks.boxplugin.customitems.CustomItemsMain;
 import me.twostinkysocks.boxplugin.util.ListDataType;
 import me.twostinkysocks.boxplugin.util.Util;
-import net.minecraft.world.item.Items;
 import org.bukkit.*;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Item;
@@ -19,11 +18,8 @@ import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.persistence.PersistentDataType;
 
 import javax.annotation.Nullable;
-import javax.naming.Name;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
+import java.util.stream.Collectors;
 
 public class GhostTokenManager {
 
@@ -34,7 +30,7 @@ public class GhostTokenManager {
         LEAFY(148),
         STONE_GOLEM(250),
         MOLTEN_IRON(340),
-        SPOOKY(680),
+        SPOOKY(680, "☠☠☠"),
         HELLFIRE(980),
         OBSIDIAN(1200),
         SUPER_GOLDEN(1600),
@@ -141,12 +137,19 @@ public class GhostTokenManager {
 
     public void onPreDeath(List<ItemStack> drops, Player p) {
         List<ItemStack> ghostItems = new ArrayList<>();
-        for(ItemStack item : drops) {
+        for(int i = 0; i < p.getInventory().getContents().length; i++) {
+            ItemStack item = p.getInventory().getContents()[i];
+            if(item != null && item.hasItemMeta() && item.getItemMeta().getPersistentDataContainer().has(new NamespacedKey(BoxPlugin.instance, "ITEM_ID"), PersistentDataType.STRING) && item.getItemMeta().getPersistentDataContainer().get(new NamespacedKey(BoxPlugin.instance, "ITEM_ID"), PersistentDataType.STRING).equals("GHOST_TOKEN")) {
+                p.getInventory().setItem(i, null);
+            }
+        }
+        for(ItemStack item : p.getInventory().getContents()) {
             if(item != null && item.hasItemMeta() && item.getItemMeta().getPersistentDataContainer().has(new NamespacedKey(BoxPlugin.instance, "ghost"), PersistentDataType.INTEGER)) {
                 ghostItems.add(item);
             }
         }
         p.getPersistentDataContainer().remove(hasGhostItemsKey);
+        Util.debug(p, "Found " + ghostItems.size() + " ghost items");
         if(ghostItems.size() > 0) {
             drops.removeAll(ghostItems);
             for(int i = 0; i < p.getInventory().getContents().length; i++) {
@@ -162,6 +165,7 @@ public class GhostTokenManager {
     public void openGui(Player p) {
         ChestGui gui = new ChestGui(3, "Reclaim Items");
         StaticPane pane = new StaticPane(9,3);
+
 
         gui.setOnClose(e -> {
             ArrayList<ItemStack> toAdd = new ArrayList<>();
@@ -183,7 +187,7 @@ public class GhostTokenManager {
         cancelMeta.setDisplayName(ChatColor.RED + "Cancel");
         cancel.setItemMeta(cancelMeta);
 
-        ItemStack bars = new ItemStack(Material.IRON_BARS);
+        ItemStack bars = new ItemStack(Material.GRAY_STAINED_GLASS_PANE);
         ItemMeta barsMeta = bars.getItemMeta();
         barsMeta.setDisplayName(ChatColor.RESET + "");
         bars.setItemMeta(barsMeta);
@@ -200,6 +204,59 @@ public class GhostTokenManager {
 
         GuiItem barsGui = new GuiItem(bars.clone(), e -> {
             e.setCancelled(true);
+        });
+
+        gui.setOnGlobalClick(e -> {
+            e.setCancelled(true);
+            if(e.getSlot() == e.getRawSlot()) { // clicked in the chest
+                if(e.getSlot() == 13) {
+                    if(e.getWhoClicked().getInventory().addItem(e.getInventory().getItem(e.getSlot())).size() > 0) {
+                        p.playSound(p.getLocation(), Sound.BLOCK_FIRE_EXTINGUISH, 3.0F, 1.0F);
+                        p.sendMessage(ChatColor.RED + "Your inventory is full!");
+                    } else {
+                        e.getInventory().setItem(e.getSlot(), null);
+                        p.playSound(p.getLocation(), Sound.BLOCK_NOTE_BLOCK_PLING, 0.5f, 2f);
+                        ItemStack newConfirm = new ItemStack(Material.LIME_STAINED_GLASS_PANE);
+                        ItemMeta newConfirmMeta = newConfirm.getItemMeta();
+                        newConfirmMeta.setDisplayName(ChatColor.GREEN + "Confirm");
+                        newConfirmMeta.setLore(null);
+                        newConfirm.setItemMeta(newConfirmMeta);
+                        confirmGui.setItem(newConfirm);
+                        for(int i = 0; i < 3; i++) {
+                            for(int j = 0; j < 3; j++) {
+                                pane.addItem(confirmGui.copy(), i, j);
+                            }
+                        }
+                    }
+                }
+                return;
+            }
+            if(e.getCurrentItem() != null && isGhostItem(e.getCurrentItem())) {
+                if(e.getSlot() != e.getRawSlot()) { // not clicked in chest
+                    if(e.getView().getTopInventory().getItem(13) != null) {
+                        p.playSound(p.getLocation(), Sound.BLOCK_FIRE_EXTINGUISH, 3.0F, 1.0F);
+                        p.sendMessage(ChatColor.RED + "You're already reclaiming an item!");
+                    } else {
+                        e.getView().getTopInventory().setItem(13, e.getCurrentItem());
+                        e.getClickedInventory().setItem(e.getSlot(), null);
+                        p.playSound(p.getLocation(), Sound.BLOCK_NOTE_BLOCK_PLING, 0.5f, 2f);
+                        ItemStack newConfirm = new ItemStack(Material.LIME_STAINED_GLASS_PANE);
+                        ItemMeta newConfirmMeta = newConfirm.getItemMeta();
+                        newConfirmMeta.setDisplayName(ChatColor.GREEN + "Confirm");
+                        newConfirmMeta.setLore(List.of("", ChatColor.GOLD + "Cost: " + Reclaimable.getByName(e.getView().getTopInventory().getItem(13).getItemMeta().getDisplayName()) + " Xanatos coins", ""));
+                        newConfirm.setItemMeta(newConfirmMeta);
+                        confirmGui.setItem(newConfirm);
+                        for(int i = 0; i < 3; i++) {
+                            for(int j = 0; j < 3; j++) {
+                                pane.addItem(confirmGui.copy(), i, j);
+                            }
+                        }
+                    }
+                }
+            } else {
+                p.playSound(p.getLocation(), Sound.BLOCK_FIRE_EXTINGUISH, 3.0F, 1.0F);
+                p.sendMessage(ChatColor.RED + "That isn't a ghost item!");
+            }
         });
 
         for(int i = 0; i < 3; i++) {
@@ -220,6 +277,39 @@ public class GhostTokenManager {
     }
 
     public void reclaimItem(InventoryClickEvent e, Player p) {
+        final int rawSlot = 13;
+        ItemStack item = e.getView().getTopInventory().getItem(rawSlot);
+        if(item != null & item.hasItemMeta() && item.getItemMeta().hasDisplayName()) {
+            Reclaimable reclaimable = Reclaimable.getByName(item.getItemMeta().getDisplayName());
+            if(reclaimable == null) {
+                p.sendMessage(ChatColor.RED + "That isn't a ghost item!");
+                p.playSound(p.getLocation(), Sound.BLOCK_FIRE_EXTINGUISH, 3.0F, 1.0F);
+                return;
+            }
+            int coins = reclaimable.cost * (item.getType() == Material.SHIELD ? 2 : 1);
+            if(BoxPlugin.instance.getMarketManager().getCoinsBalance(p) < coins) {
+                p.sendMessage(ChatColor.RED + "You don't have enough money in your bank!");
+                p.playSound(p.getLocation(), Sound.BLOCK_FIRE_EXTINGUISH, 3.0F, 1.0F);
+            } else {
+                BoxPlugin.instance.getMarketManager().removeCoinsBalance(p, coins);
+                BoxPlugin.instance.getScoreboardManager().queueUpdate(p);
+                e.getView().getTopInventory().setItem(rawSlot, stripGhost(e.getView().getTopInventory().getItem(rawSlot)));
+                p.sendMessage(ChatColor.GREEN + "Successfully reclaimed your ghost item!");
+                p.playSound(p.getLocation(), Sound.BLOCK_NOTE_BLOCK_PLING, 0.5f, 2f);
+                boolean hasMore = false;
+                for(ItemStack i : p.getInventory().getContents()) {
+                    if(isGhostItem(i)) {
+                        Util.debug(p, "Remaining ghost item " + i.getItemMeta().getDisplayName());
+                        hasMore = true;
+                    }
+                }
+                if(!hasMore) {
+                    Util.debug(p, "Removed ghost item tag from player");
+                    p.getPersistentDataContainer().remove(hasGhostItemsKey);
+                }
+            }
+        }
+        e.getView().getTopInventory().setItem(rawSlot, stripGhost(e.getView().getTopInventory().getItem(rawSlot)));
 
     }
 
@@ -248,13 +338,18 @@ public class GhostTokenManager {
     public void restoreReclaimables(Player p) {
         List<ItemStack> reclaimables = p.getPersistentDataContainer().get(reclaimablesKey, new ListDataType());
         if(reclaimables != null) {
-            for(ItemStack item : reclaimables) {
-                p.getInventory().addItem(makeGhost(item));
-            }
+            HashMap<Integer, ItemStack> toDrop = p.getInventory().addItem(reclaimables.stream().map(i -> makeGhost(i)).collect(Collectors.toList()).toArray(new ItemStack[reclaimables.size()]));
             p.sendMessage(ChatColor.AQUA + "Restored " + reclaimables.size() + " ghost items!");
+            if(toDrop.size() > 0) {
+                p.sendMessage(ChatColor.RED + "" + toDrop.size() + " ghost items could not fit into your inventory and were permanently deleted!");
+            }
         }
         p.getPersistentDataContainer().set(hasGhostItemsKey, PersistentDataType.INTEGER, 1);
         clearReclaimables(p);
+    }
+
+    public boolean isGhostItem(ItemStack item) {
+        return item != null && item.hasItemMeta() && item.getItemMeta().getPersistentDataContainer().has(new NamespacedKey(BoxPlugin.instance, "ghost"), PersistentDataType.INTEGER);
     }
 
     public ItemStack makeGhost(ItemStack item) {
@@ -262,6 +357,7 @@ public class GhostTokenManager {
         if(meta != null && !meta.getPersistentDataContainer().has(new NamespacedKey(BoxPlugin.instance, "ghost"), PersistentDataType.INTEGER)) {
             meta.getPersistentDataContainer().set(new NamespacedKey(BoxPlugin.instance, "ghost"), PersistentDataType.INTEGER, 1);
             meta.getPersistentDataContainer().set(new NamespacedKey(BoxPlugin.instance, "SOULBOUND"), PersistentDataType.INTEGER, 1);
+            meta.getPersistentDataContainer().set(new NamespacedKey(BoxPlugin.instance, "ghost_uuid"), PersistentDataType.STRING, UUID.randomUUID().toString());
             List<String> lore = meta.getLore() != null ? meta.getLore() : new ArrayList<>();
             lore.add("");
             lore.add(ChatColor.AQUA + "This is a ghost item");
@@ -281,8 +377,10 @@ public class GhostTokenManager {
                 lore.remove(lore.size()-1);
                 lore.remove(lore.size()-1);
             }
+            meta.setLore(lore);
             meta.getPersistentDataContainer().remove(new NamespacedKey(BoxPlugin.instance, "ghost"));
             meta.getPersistentDataContainer().remove(new NamespacedKey(BoxPlugin.instance, "SOULBOUND"));
+            meta.getPersistentDataContainer().remove(new NamespacedKey(BoxPlugin.instance, "ghost_uuid"));
             item.setItemMeta(meta);
         }
         return item;

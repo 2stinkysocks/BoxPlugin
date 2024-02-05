@@ -55,9 +55,9 @@ public class XanatosMenuManager {
 
         pane.addItem(ghostGui, 2, 1);
 
-        pane.addItem(reforgeGui, 4, 2);
+        pane.addItem(reforgeGui, 4, 1);
 
-        pane.addItem(livesGui, 6, 2);
+        pane.addItem(livesGui, 6, 1);
 
         gui.addPane(pane);
 

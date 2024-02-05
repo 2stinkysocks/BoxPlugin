@@ -29,13 +29,19 @@ public class GhostToken extends CustomItem {
                 "GHOST_TOKEN",
                 Material.MUSIC_DISC_5,
                 plugin,
-                ""
+                ChatColor.GRAY + "Right click to reclaim your ghost items",
+                ChatColor.RED + "Left click 3 times to permanently delete your ghost items"
         );
         leftClicks = new HashMap<>();
 
         setClick((e, a) -> {
             Player p = e.getPlayer();
             if(e.getAction() == Action.LEFT_CLICK_AIR || e.getAction() == Action.LEFT_CLICK_BLOCK) {
+                if(p.getPersistentDataContainer().has(new NamespacedKey(BoxPlugin.instance, "ghost_token_cooldown"), PersistentDataType.LONG) && p.getPersistentDataContainer().get(new NamespacedKey(BoxPlugin.instance, "ghost_token_cooldown"), PersistentDataType.LONG) > System.currentTimeMillis()) {
+                    p.playSound(p.getLocation(), Sound.BLOCK_FIRE_EXTINGUISH, 3.0F, 1.0F);
+                    p.sendMessage(ChatColor.RED + "That's too fast!");
+                    return;
+                }
                 if(leftClicks.containsKey(p.getUniqueId())) {
                     leftClicks.put(p.getUniqueId(), leftClicks.get(p.getUniqueId())+1);
                 } else {
@@ -46,17 +52,24 @@ public class GhostToken extends CustomItem {
                 } else {
                     p.playSound(p.getLocation(), Sound.ENTITY_WITHER_BREAK_BLOCK, 1f, 0.75f);
                     p.sendMessage(ChatColor.RED + "Left Click " + ChatColor.BOLD + (3-leftClicks.get(p.getUniqueId())) + ChatColor.RED + " more times to permanently delete your ghost token.");
+                    p.getPersistentDataContainer().set(new NamespacedKey(BoxPlugin.instance, "ghost_token_cooldown"), PersistentDataType.LONG, System.currentTimeMillis()+1000);
                 }
             } else if(e.getAction() == Action.RIGHT_CLICK_BLOCK || e.getAction() == Action.RIGHT_CLICK_AIR) {
-                p.playSound(p.getLocation(), Sound.BLOCK_BELL_USE, 1f, 2f);
-                BoxPlugin.instance.getGhostTokenManager().restoreReclaimables(p);
-                for(int i = 0; i < e.getPlayer().getInventory().getContents().length; i++) {
-                    ItemStack item = e.getPlayer().getInventory().getContents()[i];
-                    if(item != null && item.hasItemMeta() && item.getItemMeta().getPersistentDataContainer().has(new NamespacedKey(BoxPlugin.instance, "ITEM_ID"), PersistentDataType.STRING) && item.getItemMeta().getPersistentDataContainer().get(new NamespacedKey(BoxPlugin.instance, "ITEM_ID"), PersistentDataType.STRING).equals("GHOST_TOKEN")) {
-                        e.getPlayer().getInventory().setItem(i, null);
+                if(BoxPlugin.instance.getPerksManager().getSelectedPerks(p).size() > 1 || BoxPlugin.instance.getPerksManager().getSelectedMegaPerks(p).size() > 0) {
+                    p.playSound(p.getLocation(), Sound.BLOCK_FIRE_EXTINGUISH, 3.0F, 1.0F);
+                    p.sendMessage(ChatColor.RED + "You can only have 1 equipped perk (and no equipped megaperks) while using ghost items!");
+                } else {
+                    p.playSound(p.getLocation(), Sound.BLOCK_BELL_USE, 1f, 2f);
+                    BoxPlugin.instance.getGhostTokenManager().restoreReclaimables(p);
+                    for(int i = 0; i < e.getPlayer().getInventory().getContents().length; i++) {
+                        ItemStack item = e.getPlayer().getInventory().getContents()[i];
+                        if(item != null && item.hasItemMeta() && item.getItemMeta().getPersistentDataContainer().has(new NamespacedKey(BoxPlugin.instance, "ITEM_ID"), PersistentDataType.STRING) && item.getItemMeta().getPersistentDataContainer().get(new NamespacedKey(BoxPlugin.instance, "ITEM_ID"), PersistentDataType.STRING).equals("GHOST_TOKEN")) {
+                            e.getPlayer().getInventory().setItem(i, null);
+                        }
                     }
+                    leftClicks.remove(e.getPlayer().getUniqueId());
                 }
-                leftClicks.remove(e.getPlayer().getUniqueId());
+
             }
         });
     }
