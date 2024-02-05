@@ -7,6 +7,7 @@ import me.twostinkysocks.boxplugin.util.Util;
 import org.bukkit.*;
 import org.bukkit.entity.*;
 import org.bukkit.event.EventHandler;
+import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
 import org.bukkit.event.entity.*;
@@ -307,6 +308,15 @@ public class Listeners implements Listener {
                 e.getProjectile().getPersistentDataContainer().set(new NamespacedKey(BoxPlugin.instance, "PULSE_ARROW"), PersistentDataType.INTEGER, 1);
                 e.getEntity().getWorld().playSound(e.getEntity().getLocation(), Sound.BLOCK_CONDUIT_DEACTIVATE, 1f, 2f);
                 e.getProjectile().setVelocity(e.getProjectile().getVelocity().multiply(2));
+            }
+        }
+    }
+
+    @EventHandler(priority = EventPriority.MONITOR)
+    public void onDragonDeath(EntityDeathEvent e) {
+        if(e.getEntityType() == EntityType.ENDER_DRAGON) {
+            if(e.getEntity().getWorld().getPersistentDataContainer().has(new NamespacedKey(BoxPlugin.instance, "dragon_alive"), PersistentDataType.INTEGER)) {
+                e.getEntity().getWorld().getPersistentDataContainer().remove(new NamespacedKey(BoxPlugin.instance, "dragon_alive"));
             }
         }
     }
