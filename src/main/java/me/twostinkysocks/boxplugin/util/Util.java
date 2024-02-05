@@ -190,7 +190,7 @@ public class Util {
             double z = 0;
             Vector v = new Vector(x,y,z);
             v = MathUtil.rotateFunction(v, new Location(w, 0,0,0).setDirection(direction));
-            w.spawnParticle(Particle.SCULK_SOUL, new Location(w, circleLocation.getX() + v.getX(), circleLocation.getY() + v.getY(), circleLocation.getZ() + v.getZ()), 4, 0, 0.8, 0, 0);
+            w.spawnParticle(Particle.SCULK_SOUL, new Location(w, circleLocation.getX() + v.getX(), circleLocation.getY() + v.getY(), circleLocation.getZ() + v.getZ()), 4, 0.5, 0.8, 0.5, 0);
         }
 
 

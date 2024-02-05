@@ -26,7 +26,7 @@ public class GhostTokenManager {
     // there has to be a better way but i think this works
     public enum Reclaimable {
         ENTERPRISE(64),
-        XANATOS(100),
+        XANATOS(100, null, "XANATOS_COIN"),
         LEAFY(148),
         STONE_GOLEM(250),
         MOLTEN_IRON(340),
@@ -59,8 +59,9 @@ public class GhostTokenManager {
         SCEPTER(1200),
         VOID_STAFF(9000),
         GOD_SLAYER(100000),
-        JAVELIN(999999),
-        CAGE(999999),
+        JAVELIN(21000),
+        LOYAL_SOUL_JAVELIN(31000),
+        CAGE(4500),
         GIGA_DIGGER(2300),
         BIGGER_GIGA_DIGGER(5000),
         DRILL(9000),
@@ -74,16 +75,24 @@ public class GhostTokenManager {
 
         public final int cost;
         public final String altKey;
+        public final String not;
 
         private static final Map<List<String>, Reclaimable> BY_NAME = Maps.newHashMap();
 
         private Reclaimable(int cost) {
             this.cost = cost;
             this.altKey = null;
+            this.not = null;
+        }
+        private Reclaimable(int cost, String altKey, String not) {
+            this.cost = cost;
+            this.altKey = altKey;
+            this.not = not;
         }
         private Reclaimable(int cost, String altKey) {
             this.cost = cost;
             this.altKey = altKey;
+            this.not = null;
         }
 
         /**
@@ -109,10 +118,15 @@ public class GhostTokenManager {
             Reclaimable reclaimable = null;
             for(List<String> names : BY_NAME.keySet()) {
                 for(String possibleName : names) {
-                    if(ChatColor.stripColor(name).toLowerCase().contains(possibleName)) {
+                    String lowerStripped = ChatColor.stripColor(name).toLowerCase();
+                    if(lowerStripped.contains(possibleName)) {
                         if(BY_NAME.get(names).cost > highest) {
-                            highest = BY_NAME.get(names).cost;
                             reclaimable = BY_NAME.get(names);
+                            if(reclaimable.not != null && lowerStripped.contains(reclaimable.not.toLowerCase().replaceAll("_", " "))) {
+                                reclaimable = null;
+                            } else {
+                                highest = BY_NAME.get(names).cost;
+                            }
                         }
                     }
                 }
@@ -169,7 +183,18 @@ public class GhostTokenManager {
 
         gui.setOnClose(e -> {
             ArrayList<ItemStack> toAdd = new ArrayList<>();
-            if(e.getView().getTopInventory().getItem(13) != null) toAdd.add(e.getView().getTopInventory().getItem(13));
+            if(e.getView().getTopInventory().getItem(13) != null) {
+                ItemStack item = e.getView().getTopInventory().getItem(13);
+                ItemMeta meta = item.getItemMeta();
+                List<String> lore = meta.getLore();
+                if(isGhostItem(item)) {
+                    lore.remove(lore.size()-1);
+                    lore.remove(lore.size()-1);
+                }
+                meta.setLore(lore);
+                item.setItemMeta(meta);
+                toAdd.add(item);
+            }
             HashMap<Integer, ItemStack> toDrop = e.getPlayer().getInventory().addItem(toAdd.toArray(new ItemStack[toAdd.size()]));
             for(ItemStack stack : toDrop.values()) {
                 Item itemEntity = (Item) p.getWorld().spawnEntity(p.getLocation(), EntityType.DROPPED_ITEM);
@@ -199,6 +224,7 @@ public class GhostTokenManager {
 
         GuiItem cancelGui = new GuiItem(cancel.clone(), e -> {
             e.setCancelled(true);
+            p.playSound(p.getLocation(), Sound.BLOCK_NOTE_BLOCK_PLING, 0.5f, 2f);
             BoxPlugin.instance.getXanatosMenuManager().openGui(p);
         });
 
@@ -210,23 +236,29 @@ public class GhostTokenManager {
             e.setCancelled(true);
             if(e.getSlot() == e.getRawSlot()) { // clicked in the chest
                 if(e.getSlot() == 13) {
+                    ItemStack item = e.getInventory().getItem(e.getSlot());
+                    ItemMeta meta = item.getItemMeta();
+                    List<String> lore = meta.getLore();
+                    if(isGhostItem(item)) {
+                        lore.remove(lore.size()-1);
+                        lore.remove(lore.size()-1);
+                    }
+                    meta.setLore(lore);
+                    item.setItemMeta(meta);
+                    e.getInventory().setItem(e.getSlot(), item);
                     if(e.getWhoClicked().getInventory().addItem(e.getInventory().getItem(e.getSlot())).size() > 0) {
+                        ItemStack currentItem = e.getInventory().getItem(e.getSlot());
+                        ItemMeta currentItemMeta = e.getCurrentItem().getItemMeta();
+                        List<String> currentLore = currentItemMeta.getLore();
+                        lore.addAll(List.of("", ChatColor.GOLD + "Cost: " + Reclaimable.getByName(currentItem.getItemMeta().getDisplayName()).cost + " Xanatos coins"));
+                        currentItemMeta.setLore(currentLore);
+                        currentItem.setItemMeta(currentItemMeta);
+                        e.getInventory().setItem(e.getSlot(), item);
                         p.playSound(p.getLocation(), Sound.BLOCK_FIRE_EXTINGUISH, 3.0F, 1.0F);
                         p.sendMessage(ChatColor.RED + "Your inventory is full!");
                     } else {
                         e.getInventory().setItem(e.getSlot(), null);
                         p.playSound(p.getLocation(), Sound.BLOCK_NOTE_BLOCK_PLING, 0.5f, 2f);
-                        ItemStack newConfirm = new ItemStack(Material.LIME_STAINED_GLASS_PANE);
-                        ItemMeta newConfirmMeta = newConfirm.getItemMeta();
-                        newConfirmMeta.setDisplayName(ChatColor.GREEN + "Confirm");
-                        newConfirmMeta.setLore(null);
-                        newConfirm.setItemMeta(newConfirmMeta);
-                        confirmGui.setItem(newConfirm);
-                        for(int i = 0; i < 3; i++) {
-                            for(int j = 0; j < 3; j++) {
-                                pane.addItem(confirmGui.copy(), i, j);
-                            }
-                        }
                     }
                 }
                 return;
@@ -237,20 +269,17 @@ public class GhostTokenManager {
                         p.playSound(p.getLocation(), Sound.BLOCK_FIRE_EXTINGUISH, 3.0F, 1.0F);
                         p.sendMessage(ChatColor.RED + "You're already reclaiming an item!");
                     } else {
-                        e.getView().getTopInventory().setItem(13, e.getCurrentItem());
+                        ItemStack currentItem = e.getCurrentItem();
+                        ItemMeta currentItemMeta = e.getCurrentItem().getItemMeta();
+                        List<String> lore = currentItemMeta.getLore();
+                        if(lore == null) lore = new ArrayList<>();
+                        lore.addAll(List.of("", ChatColor.GOLD + "" + ChatColor.BOLD + "Reclaim cost: " + Reclaimable.getByName(currentItem.getItemMeta().getDisplayName()).cost + " Xanatos coins"));
+                        currentItemMeta.setLore(lore);
+                        currentItem.setItemMeta(currentItemMeta);
+                        e.getView().getTopInventory().setItem(13, currentItem);
                         e.getClickedInventory().setItem(e.getSlot(), null);
                         p.playSound(p.getLocation(), Sound.BLOCK_NOTE_BLOCK_PLING, 0.5f, 2f);
-                        ItemStack newConfirm = new ItemStack(Material.LIME_STAINED_GLASS_PANE);
-                        ItemMeta newConfirmMeta = newConfirm.getItemMeta();
-                        newConfirmMeta.setDisplayName(ChatColor.GREEN + "Confirm");
-                        newConfirmMeta.setLore(List.of("", ChatColor.GOLD + "Cost: " + Reclaimable.getByName(e.getView().getTopInventory().getItem(13).getItemMeta().getDisplayName()) + " Xanatos coins", ""));
-                        newConfirm.setItemMeta(newConfirmMeta);
-                        confirmGui.setItem(newConfirm);
-                        for(int i = 0; i < 3; i++) {
-                            for(int j = 0; j < 3; j++) {
-                                pane.addItem(confirmGui.copy(), i, j);
-                            }
-                        }
+
                     }
                 }
             } else {
@@ -279,9 +308,9 @@ public class GhostTokenManager {
     public void reclaimItem(InventoryClickEvent e, Player p) {
         final int rawSlot = 13;
         ItemStack item = e.getView().getTopInventory().getItem(rawSlot);
-        if(item != null & item.hasItemMeta() && item.getItemMeta().hasDisplayName()) {
+        if(item != null && item.hasItemMeta() && item.getItemMeta().hasDisplayName()) {
             Reclaimable reclaimable = Reclaimable.getByName(item.getItemMeta().getDisplayName());
-            if(reclaimable == null) {
+            if(reclaimable == null || !isGhostItem(item)) {
                 p.sendMessage(ChatColor.RED + "That isn't a ghost item!");
                 p.playSound(p.getLocation(), Sound.BLOCK_FIRE_EXTINGUISH, 3.0F, 1.0F);
                 return;
@@ -309,15 +338,13 @@ public class GhostTokenManager {
                 }
             }
         }
-        e.getView().getTopInventory().setItem(rawSlot, stripGhost(e.getView().getTopInventory().getItem(rawSlot)));
-
     }
 
     public void onPostDeath(List<ItemStack> drops, Player p) {
         if((BoxPlugin.instance.getConfig().contains("check-ip") && BoxPlugin.instance.getConfig().getBoolean("check-ip")) && (p.getKiller() != null && p.getKiller().getAddress().equals(p.getAddress()))) return;
         List<ItemStack> reclaimables = new ArrayList<>();
         for(ItemStack item : drops) {
-            if(item != null && item.hasItemMeta() && item.getItemMeta().hasDisplayName() && Reclaimable.getByName(item.getItemMeta().getDisplayName()) != null) {
+            if(item != null && !isGhostItem(item) && item.hasItemMeta() && item.getItemMeta().hasDisplayName() && Reclaimable.getByName(item.getItemMeta().getDisplayName()) != null) {
                 reclaimables.add(item.clone()); // not sure if this needs deep copy but I'll be safe
             }
         }
@@ -328,6 +355,15 @@ public class GhostTokenManager {
                 giveGhostToken(p);
                 p.sendMessage(ChatColor.RED + "Your ghost token preserved " + reclaimables.size() + " items as ghost items. Right click it to claim them.");
             }, 5L);
+        }
+    }
+
+    public int getReclaimableCountFromPDC(Player p) {
+        List<ItemStack> reclaimables = p.getPersistentDataContainer().get(reclaimablesKey, new ListDataType());
+        if(reclaimables != null) {
+            return reclaimables.size();
+        } else {
+            return 0;
         }
     }
 
@@ -373,6 +409,9 @@ public class GhostTokenManager {
         if(meta != null && meta.getPersistentDataContainer().has(new NamespacedKey(BoxPlugin.instance, "ghost"), PersistentDataType.INTEGER)) {
             List<String> lore = meta.getLore();
             if(lore != null) {
+                // 5 times because 3 lines for ghost lore, 2 for cost
+                lore.remove(lore.size()-1);
+                lore.remove(lore.size()-1);
                 lore.remove(lore.size()-1);
                 lore.remove(lore.size()-1);
                 lore.remove(lore.size()-1);

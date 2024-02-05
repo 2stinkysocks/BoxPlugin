@@ -16,6 +16,7 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.persistence.PersistentDataType;
 
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.UUID;
 
@@ -60,14 +61,22 @@ public class GhostToken extends CustomItem {
                     p.sendMessage(ChatColor.RED + "You can only have 1 equipped perk (and no equipped megaperks) while using ghost items!");
                 } else {
                     p.playSound(p.getLocation(), Sound.BLOCK_BELL_USE, 1f, 2f);
-                    BoxPlugin.instance.getGhostTokenManager().restoreReclaimables(p);
-                    for(int i = 0; i < e.getPlayer().getInventory().getContents().length; i++) {
-                        ItemStack item = e.getPlayer().getInventory().getContents()[i];
-                        if(item != null && item.hasItemMeta() && item.getItemMeta().getPersistentDataContainer().has(new NamespacedKey(BoxPlugin.instance, "ITEM_ID"), PersistentDataType.STRING) && item.getItemMeta().getPersistentDataContainer().get(new NamespacedKey(BoxPlugin.instance, "ITEM_ID"), PersistentDataType.STRING).equals("GHOST_TOKEN")) {
-                            e.getPlayer().getInventory().setItem(i, null);
+                    int numReclaimables = BoxPlugin.instance.getGhostTokenManager().getReclaimableCountFromPDC(p);
+                    int items = (int) Arrays.stream(p.getInventory().getStorageContents()).filter(i -> i != null).count();
+                    int openSlots = (4*9) - items;
+                    if(numReclaimables > openSlots) {
+                        p.playSound(p.getLocation(), Sound.BLOCK_FIRE_EXTINGUISH, 3.0F, 1.0F);
+                        p.sendMessage(ChatColor.RED + "You don't have enough inventory space!");
+                    } else {
+                        BoxPlugin.instance.getGhostTokenManager().restoreReclaimables(p);
+                        for(int i = 0; i < e.getPlayer().getInventory().getContents().length; i++) {
+                            ItemStack item = e.getPlayer().getInventory().getContents()[i];
+                            if(item != null && item.hasItemMeta() && item.getItemMeta().getPersistentDataContainer().has(new NamespacedKey(BoxPlugin.instance, "ITEM_ID"), PersistentDataType.STRING) && item.getItemMeta().getPersistentDataContainer().get(new NamespacedKey(BoxPlugin.instance, "ITEM_ID"), PersistentDataType.STRING).equals("GHOST_TOKEN")) {
+                                e.getPlayer().getInventory().setItem(i, null);
+                            }
                         }
+                        leftClicks.remove(e.getPlayer().getUniqueId());
                     }
-                    leftClicks.remove(e.getPlayer().getUniqueId());
                 }
 
             }
