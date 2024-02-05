@@ -17,7 +17,7 @@ public class CompressibleEnderPearl extends Compressible {
 
     @Override
     public int getInput() {
-        return 40;
+        return 20;
     }
 
     @Override

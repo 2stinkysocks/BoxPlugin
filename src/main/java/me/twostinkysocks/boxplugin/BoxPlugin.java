@@ -69,11 +69,15 @@ public final class BoxPlugin extends JavaPlugin implements CommandExecutor, TabC
 
     private KeyManager keyManager;
 
+    private GhostTokenManager ghostTokenManager;
+
     private ExcellentCrates excellentCrates;
 
     private Compressor compressor;
 
     private MarketManager marketManager;
+
+    private XanatosMenuManager xanatosMenuManager;
 
     private Economy econ = null;
 
@@ -153,6 +157,8 @@ public final class BoxPlugin extends JavaPlugin implements CommandExecutor, TabC
         perksManager = new PerksManager();
         compressor = new Compressor();
         marketManager = new MarketManager();
+        ghostTokenManager = new GhostTokenManager();
+        xanatosMenuManager = new XanatosMenuManager();
 
         excellentCrates = (ExcellentCrates) getServer().getPluginManager().getPlugin("ExcellentCrates");
         keyManager = excellentCrates.getKeyManager();
@@ -186,6 +192,7 @@ public final class BoxPlugin extends JavaPlugin implements CommandExecutor, TabC
         getCommand("setperkupgradelevel").setTabCompleter(this);
         getCommand("openbank").setExecutor(this);
         getCommand("setmarketmultipier").setExecutor(this);
+        getCommand("openxanatosgui").setExecutor(this);
         getServer().getPluginManager().registerEvents(new Listeners(), this);
         load();
         if(Bukkit.getPluginManager().getPlugin("PlaceholderAPI") != null) {
@@ -305,6 +312,14 @@ public final class BoxPlugin extends JavaPlugin implements CommandExecutor, TabC
 
     public ProtocolManager getProtocolManager() {
         return protocolManager;
+    }
+
+    public GhostTokenManager getGhostTokenManager() {
+        return ghostTokenManager;
+    }
+
+    public XanatosMenuManager getXanatosMenuManager() {
+        return xanatosMenuManager;
     }
 
 //    public StateFlag getEntityInteractFlag() {
@@ -450,6 +465,8 @@ public final class BoxPlugin extends JavaPlugin implements CommandExecutor, TabC
                         return true;
                     }
                 }
+            } else if(label.equals("openxanatosgui")) {
+                getXanatosMenuManager().openGui(p);
             } else if(label.equals("openbank")) {
                 getMarketManager().openGui(p);
             } else if(label.equals("openperkgui")) {

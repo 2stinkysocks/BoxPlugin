@@ -73,6 +73,17 @@ public class Listeners implements Listener {
     }
 
     @EventHandler
+    public void explodeForCage(BlockExplodeEvent e) {
+        for(HashSet<Location> locations : CageStaff.cageBlocks.values()) {
+            for(Location loc : locations) {
+                if(e.blockList().contains(loc)) {
+                    e.setCancelled(true);
+                }
+            }
+        }
+    }
+
+    @EventHandler
     public void onCommandPreprocess(PlayerCommandPreprocessEvent e) {
         if(e.getMessage().startsWith("/spawn")) {
             if(BoxPlugin.instance.getPvpManager().getStreak(e.getPlayer()) >= 20) {
@@ -347,9 +358,9 @@ public class Listeners implements Listener {
 
 
         if(shouldCancel) {
-            if(Util.isPerkItem(item) || Util.isPerkItem(itemselected) || Util.isPerkItem(hotkeyItem)) {
+            if(Util.isSoulbound(item) || Util.isSoulbound(itemselected) || Util.isSoulbound(hotkeyItem)) {
                 event.setCancelled(true);
-                player.sendMessage(ChatColor.RED + "You can't remove perk items from your inventory!");
+                player.sendMessage(ChatColor.RED + "You can't remove soulbound items from your inventory!");
                 player.playSound(player.getLocation(), Sound.ENTITY_ENDERMAN_TELEPORT, 0.25f, 0.5f);
             }
         }
@@ -362,7 +373,7 @@ public class Listeners implements Listener {
 
         ItemStack dragged = event.getOldCursor(); // This is the item that is being dragged
 
-        if (Util.isPerkItem(dragged)) {
+        if (Util.isSoulbound(dragged)) {
             int inventorySize = event.getInventory().getSize(); // The size of the inventory, for reference
 
             // Now we go through all of the slots and check if the slot is inside our inventory (using the inventory size as reference)
@@ -411,9 +422,9 @@ public class Listeners implements Listener {
     public void onDropItem(PlayerDropItemEvent e) {
         Player p = e.getPlayer();
         ItemStack item = e.getItemDrop().getItemStack();
-        if(Util.isPerkItem(item)) {
+        if(Util.isSoulbound(item)) {
             e.setCancelled(true);
-            p.sendMessage(ChatColor.RED + "You can't drop perk items!");
+            p.sendMessage(ChatColor.RED + "You can't drop soulbound items!");
             p.playSound(p.getLocation(), Sound.ENTITY_ENDERMAN_TELEPORT, 0.25f, 0.5f);
         }
     }
@@ -440,6 +451,8 @@ public class Listeners implements Listener {
         Player cause = e.getEntity().getKiller();
         Player target = e.getEntity();
 
+        BoxPlugin.instance.getGhostTokenManager().onPreDeath(e.getDrops(), e.getEntity());
+
         for(Perk perk : BoxPlugin.instance.getPerksManager().getSelectedPerks(target)) {
             if(perk != null) perk.instance.onDeath(e);
         }
@@ -452,6 +465,7 @@ public class Listeners implements Listener {
             BoxPlugin.instance.getScoreboardManager().queueUpdate(target);
             Util.dropPercent(e, 0.15);
             target.sendMessage(ChatColor.RED + "You lost 15% of your items from dying to a non-player!");
+            BoxPlugin.instance.getGhostTokenManager().onPostDeath(e.getDrops(), e.getEntity());
             return;
         }
 
@@ -494,7 +508,7 @@ public class Listeners implements Listener {
         double percentChance = Math.max(Math.min(1.0, dropChance / 100.0), 0.05);
 
         Util.dropPercent(e, percentChance);
-        target.sendMessage(ChatColor.RED + "You lost" + (int)(100*percentChance) + "% of your items due to the level difference between you and the other player!");
+        target.sendMessage(ChatColor.RED + "You lost " + (int)(100*percentChance) + "% of your items due to the level difference between you and the other player!");
         // skulls
         if(xpdiff <= 2) {
             e.getDrops().add(new ItemStack(Material.SKELETON_SKULL, BoxPlugin.instance.getPvpManager().getBounty(target)));
@@ -505,6 +519,8 @@ public class Listeners implements Listener {
         int xptoadd = Math.min((int)Math.min(50000,causexp*0.1), Math.max(0, BoxPlugin.instance.getXpManager().getLevel(target) * 100));
         BoxPlugin.instance.getXpManager().addXP(cause, xptoadd);
         Bukkit.getPluginManager().callEvent(new PlayerBoxXpUpdateEvent(cause, causexp, causexp + xptoadd));
+
+        BoxPlugin.instance.getGhostTokenManager().onPostDeath(e.getDrops(), e.getEntity());
 
         if(e.getEntity().getKiller() != null) {
             Player p = e.getEntity().getKiller();
@@ -522,6 +538,8 @@ public class Listeners implements Listener {
         BoxPlugin.instance.getPvpManager().registerKill(cause, target); // resets streak here
         BoxPlugin.instance.getScoreboardManager().queueUpdate(cause);
         BoxPlugin.instance.getScoreboardManager().queueUpdate(target);
+
+
     }
 
 
