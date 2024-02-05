@@ -65,6 +65,8 @@ public class CustomItemsMain implements CommandExecutor, TabCompleter {
         registerItem(new WolfPack(this));
         registerItem(new CageStaff(this));
         registerItem(new GhostToken(this));
+        registerItem(new DragonEgg(this));
+        registerItem(new SuperDragonEgg(this));
         BoxPlugin.instance.getLogger().info("Loaded custom items!");
         instance = this;
     }
