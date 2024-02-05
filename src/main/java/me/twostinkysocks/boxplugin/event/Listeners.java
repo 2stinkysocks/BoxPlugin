@@ -8,6 +8,7 @@ import me.twostinkysocks.boxplugin.perks.PerkXPBoost;
 import me.twostinkysocks.boxplugin.util.Util;
 import org.bukkit.*;
 import org.bukkit.attribute.Attribute;
+import org.bukkit.block.Block;
 import org.bukkit.craftbukkit.v1_19_R1.inventory.CraftInventoryCrafting;
 import org.bukkit.craftbukkit.v1_19_R1.inventory.CraftInventoryPlayer;
 import org.bukkit.entity.*;
@@ -195,16 +196,18 @@ public class Listeners implements Listener {
             }
         }
     }
+
     @EventHandler
-    public void explodeForCage(BlockExplodeEvent e) {
+    public void onBlockExplodeForCage(BlockExplodeEvent e) {
         for(HashSet<Location> locations : CageStaff.cageBlocks.values()) {
-            for(Location loc : locations) {
-                if(e.blockList().contains(loc)) {
+            for(Block block : e.blockList()) {
+                if(locations.contains(block.getLocation())) {
                     e.setCancelled(true);
                 }
             }
         }
     }
+
     @EventHandler
     public void itemSpawn(EntityDropItemEvent e) {
         if(e.getEntity().getType() == EntityType.FALLING_BLOCK && e.getEntity().getPersistentDataContainer().has(new NamespacedKey(BoxPlugin.instance, "LAVA"), PersistentDataType.STRING)) {
