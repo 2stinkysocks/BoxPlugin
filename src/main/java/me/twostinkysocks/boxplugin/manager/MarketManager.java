@@ -320,52 +320,52 @@ public class MarketManager {
 
         GuiItem plus16Gui = new GuiItem(plus16.clone(), e -> {
             e.setCancelled(true);
-            plus16(e, p);
+            add2Depo(e, p, 16);
         });
 
         GuiItem plus64Gui = new GuiItem(plus64.clone(), e -> {
             e.setCancelled(true);
-            plus64(e, p);
+            add2Depo(e, p, 64);
         });
 
         GuiItem plus640Gui = new GuiItem(plus640.clone(), e -> {
             e.setCancelled(true);
-            plus640(e, p);
+            add2Depo(e, p, 640);
         });
 
         GuiItem plus2048Gui = new GuiItem(plus2048.clone(), e -> {
             e.setCancelled(true);
-            plus2048(e, p);
+            add2Depo(e, p, 2048);
         });
 
         GuiItem plus4096Gui = new GuiItem(plus4096.clone(), e -> {
             e.setCancelled(true);
-            plus4096(e, p);
+            add2Depo(e, p, 4096);
         });
 
         GuiItem minus16Gui = new GuiItem(minus16.clone(), e -> {
             e.setCancelled(true);
-            minus16(e, p);
+            add2Depo(e, p, -16);
         });
 
         GuiItem minus64Gui = new GuiItem(minus64.clone(), e -> {
             e.setCancelled(true);
-            minus64(e, p);
+            add2Depo(e, p, -64);
         });
 
         GuiItem minus640Gui = new GuiItem(minus640.clone(), e -> {
             e.setCancelled(true);
-            minus640(e, p);
+            add2Depo(e, p, -640);
         });
 
         GuiItem minus2048Gui = new GuiItem(minus2048.clone(), e -> {
             e.setCancelled(true);
-            minus2048(e, p);
+            add2Depo(e, p, -2048);
         });
 
         GuiItem minus4096Gui = new GuiItem(minus4096.clone(), e -> {
             e.setCancelled(true);
-            minus4096(e, p);
+            add2Depo(e, p, -4096);
         });
 
         GuiItem takeAllGui = new GuiItem(takeAll.clone(), e -> {
@@ -463,130 +463,23 @@ public class MarketManager {
         openGui(p);
     }
 
-    public void plus16(InventoryClickEvent e, Player p) {
+    public void add2Depo(InventoryClickEvent e, Player p, int userNum) {
         if (selectedCoins.containsKey(p.getUniqueId())){
-            if (selectedCoins.get(p.getUniqueId()) + 16 >= getCoinsBalance(p)) {
-                selectedCoins.put((p.getUniqueId()), getCoinsBalance(p));
+            if (userNum > 0) {
+                if (selectedCoins.get(p.getUniqueId()) + userNum >= getCoinsBalance(p)) {
+                    selectedCoins.put((p.getUniqueId()), getCoinsBalance(p));
+                }
+                else {
+                    selectedCoins.put((p.getUniqueId()), selectedCoins.get(p.getUniqueId()) + userNum);
+                }
             }
-            else {
-                selectedCoins.put((p.getUniqueId()), selectedCoins.get(p.getUniqueId()) + 16);
-            }
-        }
-        p.playSound(p.getLocation(), Sound.BLOCK_NOTE_BLOCK_PLING, 0.5f, 2f);
-        openWithDrawMenu(p);
-    }
-
-    public void plus64(InventoryClickEvent e, Player p) {
-        if (selectedCoins.containsKey(p.getUniqueId())){
-            if (selectedCoins.get(p.getUniqueId()) + 64 >= getCoinsBalance(p)) {
-                selectedCoins.put((p.getUniqueId()), getCoinsBalance(p));
-            }
-            else {
-                selectedCoins.put((p.getUniqueId()), selectedCoins.get(p.getUniqueId()) + 64);
-            }
-        }
-        p.playSound(p.getLocation(), Sound.BLOCK_NOTE_BLOCK_PLING, 0.5f, 2f);
-        openWithDrawMenu(p);
-    }
-
-    public void plus640(InventoryClickEvent e, Player p) {
-        if (selectedCoins.containsKey(p.getUniqueId())){
-            if (selectedCoins.get(p.getUniqueId()) + 640 >= getCoinsBalance(p)) {
-                selectedCoins.put((p.getUniqueId()), getCoinsBalance(p));
-            }
-            else {
-                selectedCoins.put((p.getUniqueId()), selectedCoins.get(p.getUniqueId()) + 640);
-            }
-        }
-        p.playSound(p.getLocation(), Sound.BLOCK_NOTE_BLOCK_PLING, 0.5f, 2f);
-        openWithDrawMenu(p);
-    }
-
-    public void plus2048(InventoryClickEvent e, Player p) {
-        if (selectedCoins.containsKey(p.getUniqueId())){
-            if (selectedCoins.get(p.getUniqueId()) + 2048 >= getCoinsBalance(p)) {
-                selectedCoins.put((p.getUniqueId()), getCoinsBalance(p));
-            }
-            else {
-                selectedCoins.put((p.getUniqueId()), selectedCoins.get(p.getUniqueId()) + 2048);
-            }
-        }
-        p.playSound(p.getLocation(), Sound.BLOCK_NOTE_BLOCK_PLING, 0.5f, 2f);
-        openWithDrawMenu(p);
-    }
-
-    public void plus4096(InventoryClickEvent e, Player p) {
-        if (selectedCoins.containsKey(p.getUniqueId())){
-            if (selectedCoins.get(p.getUniqueId()) + 4096 >= getCoinsBalance(p)) {
-                selectedCoins.put((p.getUniqueId()), getCoinsBalance(p));
-            }
-            else {
-                selectedCoins.put((p.getUniqueId()), selectedCoins.get(p.getUniqueId()) + 4096);
-            }
-        }
-        p.playSound(p.getLocation(), Sound.BLOCK_NOTE_BLOCK_PLING, 0.5f, 2f);
-        openWithDrawMenu(p);
-    }
-
-    public void minus16(InventoryClickEvent e, Player p) {
-        if (selectedCoins.containsKey(p.getUniqueId())) {
-            if (selectedCoins.get(p.getUniqueId()) - 16 <= 0) {
-                selectedCoins.put((p.getUniqueId()), 0);
-            }
-            else {
-                selectedCoins.put((p.getUniqueId()), selectedCoins.get(p.getUniqueId()) - 16);
-            }
-        }
-        p.playSound(p.getLocation(), Sound.BLOCK_NOTE_BLOCK_PLING, 0.5f, 2f);
-        openWithDrawMenu(p);
-    }
-
-    public void minus64(InventoryClickEvent e, Player p) {
-        if (selectedCoins.containsKey(p.getUniqueId())){
-            if (selectedCoins.get(p.getUniqueId()) - 64+0 <= 0) {
-                selectedCoins.put((p.getUniqueId()), 0);
-            }
-            else {
-                selectedCoins.put((p.getUniqueId()), selectedCoins.get(p.getUniqueId()) - 64);
-            }
-        }
-        p.playSound(p.getLocation(), Sound.BLOCK_NOTE_BLOCK_PLING, 0.5f, 2f);
-        openWithDrawMenu(p);
-    }
-
-    public void minus640(InventoryClickEvent e, Player p) {
-        if (selectedCoins.containsKey(p.getUniqueId())){
-            if (selectedCoins.get(p.getUniqueId()) - 640 <= 0) {
-                selectedCoins.put((p.getUniqueId()), 0);
-            }
-            else {
-                selectedCoins.put((p.getUniqueId()), selectedCoins.get(p.getUniqueId()) - 640);
-            }
-        }
-        p.playSound(p.getLocation(), Sound.BLOCK_NOTE_BLOCK_PLING, 0.5f, 2f);
-        openWithDrawMenu(p);
-    }
-
-    public void minus2048(InventoryClickEvent e, Player p) {
-        if (selectedCoins.containsKey(p.getUniqueId())){
-            if (selectedCoins.get(p.getUniqueId()) - 2048 <= 0) {
-                selectedCoins.put((p.getUniqueId()), 0);
-            }
-            else {
-                selectedCoins.put((p.getUniqueId()), selectedCoins.get(p.getUniqueId()) - 2048);
-            }
-        }
-        p.playSound(p.getLocation(), Sound.BLOCK_NOTE_BLOCK_PLING, 0.5f, 2f);
-        openWithDrawMenu(p);
-    }
-
-    public void minus4096(InventoryClickEvent e, Player p) {
-        if (selectedCoins.containsKey(p.getUniqueId())){
-            if (selectedCoins.get(p.getUniqueId()) - 4096 <= 0) {
-                selectedCoins.put((p.getUniqueId()), 0);
-            }
-            else {
-                selectedCoins.put((p.getUniqueId()), selectedCoins.get(p.getUniqueId()) - 4096);
+            if (userNum < 0) {
+                if (selectedCoins.get(p.getUniqueId()) + userNum <= 0) {
+                    selectedCoins.put((p.getUniqueId()), 0);
+                }
+                else {
+                    selectedCoins.put((p.getUniqueId()), selectedCoins.get(p.getUniqueId()) + userNum);
+                }
             }
         }
         p.playSound(p.getLocation(), Sound.BLOCK_NOTE_BLOCK_PLING, 0.5f, 2f);
