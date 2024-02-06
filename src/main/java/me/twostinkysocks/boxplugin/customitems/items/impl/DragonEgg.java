@@ -29,7 +29,7 @@ public class DragonEgg extends CustomItem {
                     }
                     e.getPlayer().getWorld().getPersistentDataContainer().set(new NamespacedKey(BoxPlugin.instance, "dragon_alive"), PersistentDataType.INTEGER, 1);
                     e.getPlayer().getInventory().getItem(e.getHand()).setAmount(e.getPlayer().getInventory().getItem(e.getHand()).getAmount()-1);
-                    MythicMobsIntegration.spawnWithData("dragonSpawn", 0, new Location(e.getPlayer().getWorld(), 0, 109, 0), true);
+                    MythicMobsIntegration.spawnWithData("dragonSpawn", 0, new Location(e.getPlayer().getWorld(), 0.5, 109, 0.5), true);
                     Bukkit.getScheduler().runTaskLater(BoxPlugin.instance, () -> {
                         MythicMobsIntegration.spawnWithData("Dragon", 3000, new Location(e.getPlayer().getWorld(), 0, 141, 0), true);
                     }, 160);
