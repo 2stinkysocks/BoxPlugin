@@ -79,6 +79,8 @@ public final class BoxPlugin extends JavaPlugin implements CommandExecutor, TabC
 
     private XanatosMenuManager xanatosMenuManager;
 
+    private ItemLivesManager itemLivesManager;
+
     private Economy econ = null;
 
     // player who killed, <player who was killed, times>
@@ -159,6 +161,7 @@ public final class BoxPlugin extends JavaPlugin implements CommandExecutor, TabC
         marketManager = new MarketManager();
         ghostTokenManager = new GhostTokenManager();
         xanatosMenuManager = new XanatosMenuManager();
+        itemLivesManager = new ItemLivesManager();
 
         excellentCrates = (ExcellentCrates) getServer().getPluginManager().getPlugin("ExcellentCrates");
         keyManager = excellentCrates.getKeyManager();
@@ -320,6 +323,10 @@ public final class BoxPlugin extends JavaPlugin implements CommandExecutor, TabC
 
     public XanatosMenuManager getXanatosMenuManager() {
         return xanatosMenuManager;
+    }
+
+    public ItemLivesManager getItemLivesManager() {
+        return itemLivesManager;
     }
 
 //    public StateFlag getEntityInteractFlag() {
