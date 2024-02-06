@@ -21,6 +21,7 @@ import me.twostinkysocks.boxplugin.util.PlaceholderAPIExpansion;
 import me.twostinkysocks.boxplugin.util.Util;
 import net.luckperms.api.LuckPerms;
 import net.luckperms.api.LuckPermsProvider;
+import net.luckperms.api.node.types.InheritanceNode;
 import net.milkbowl.vault.economy.Economy;
 import org.bukkit.*;
 import org.bukkit.command.Command;
@@ -47,6 +48,7 @@ import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.util.*;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 public final class BoxPlugin extends JavaPlugin implements CommandExecutor, TabCompleter {
@@ -196,6 +198,7 @@ public final class BoxPlugin extends JavaPlugin implements CommandExecutor, TabC
         getCommand("openbank").setExecutor(this);
         getCommand("setmarketmultipier").setExecutor(this);
         getCommand("openxanatosgui").setExecutor(this);
+        getCommand("redeemtrialrank").setExecutor(this);
         getServer().getPluginManager().registerEvents(new Listeners(), this);
         load();
         if(Bukkit.getPluginManager().getPlugin("PlaceholderAPI") != null) {
@@ -690,6 +693,20 @@ public final class BoxPlugin extends JavaPlugin implements CommandExecutor, TabC
                 double d = Double.parseDouble(args[0]);
                 getMarketManager().setMarketMultiplier(d);
                 p.sendMessage(ChatColor.GREEN + "Set multiplier to " + d);
+            } else if(label.equals("redeemtrialrank")) {
+                int level = this.getXpManager().getLevel(p);
+                if(level < 70) {
+                    p.sendMessage(ChatColor.RED + "You have to be at least level 70 to claim your trial rank!");
+                    return true;
+                }
+                if(p.getPersistentDataContainer().has(new NamespacedKey(BoxPlugin.instance, "claimedtrialrank"), PersistentDataType.INTEGER)) {
+                    p.sendMessage(ChatColor.RED + "You've already claimed your trial rank!");
+                    return true;
+                }
+                InheritanceNode node = InheritanceNode.builder("mvp+").value(true).expiry(3, TimeUnit.DAYS).build();
+                getLuckPerms().getUserManager().getUser(p.getUniqueId()).data().add(node);
+                p.getPersistentDataContainer().set(new NamespacedKey(BoxPlugin.instance, "claimedtrialrank"), PersistentDataType.INTEGER, 1);
+                p.sendMessage(ChatColor.GREEN + "Successfully claimed your MVP+ 3 day trial!");
             }
         }
 

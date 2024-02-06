@@ -107,6 +107,7 @@ public class XPManager {
         if(beforelevel < 70 && afterlevel >= 70) {
             InheritanceNode node = InheritanceNode.builder("lvl70").value(true).build();
             user.data().add(node);
+            p.sendMessage(ChatColor.GREEN + "You've reached level 70! You can claim your free 3-day trial of MVP+ at any time with /redeemtrialrank!");
         }
         if(beforelevel < 100 && afterlevel >= 100) {
             InheritanceNode node = InheritanceNode.builder("lvl100").value(true).build();

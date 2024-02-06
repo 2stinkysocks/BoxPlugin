@@ -90,6 +90,9 @@ commands:
   openxanatosgui:
     usage: /<command>
     description: openxanatosgui
+  redeemtrialrank:
+    usage: /<command>
+    description: redeem trial of mvp+
 permissions:
   boxplugin.manageperks:
     default: false
