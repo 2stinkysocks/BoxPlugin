@@ -29,8 +29,8 @@ jobs:
         cache: maven
     - name: Install deps
       run: |
-        mvn install:install-file -Dfile=libs/ExcellentCrates-4.1.6.jar -DgroupId=su.nightexpress -DartifactId=excellentcrates -Dversion=4.1.6 -Dpackaging=jar -DgeneratePom=true
-        mvn install:install-file -Dfile=libs/MythicMobs-5.2.6.jar -DgroupId=io.lumine -DartifactId=mythic -Dversion=5.2.6 -Dpackaging=jar -DgeneratePom=true
-        mvn install:install-file -Dfile=libs/NexEngine.jar -DgroupId=su.nexmedia -DartifactId=engine -Dversion=2.2.8 -Dpackaging=jar -DgeneratePom=true
+        mvn install:install-file -Dfile=.github/libs/ExcellentCrates-4.1.6.jar -DgroupId=su.nightexpress -DartifactId=excellentcrates -Dversion=4.1.6 -Dpackaging=jar -DgeneratePom=true
+        mvn install:install-file -Dfile=.github/libs/MythicMobs-5.2.6.jar -DgroupId=io.lumine -DartifactId=mythic -Dversion=5.2.6 -Dpackaging=jar -DgeneratePom=true
+        mvn install:install-file -Dfile=.github/libs/NexEngine.jar -DgroupId=su.nexmedia -DartifactId=engine -Dversion=2.2.8 -Dpackaging=jar -DgeneratePom=true
     - name: Build with Maven
       run: mvn -B package --file pom.xml

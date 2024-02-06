@@ -31,7 +31,7 @@ public class DragonEgg extends CustomItem {
                     e.getPlayer().getInventory().getItem(e.getHand()).setAmount(e.getPlayer().getInventory().getItem(e.getHand()).getAmount()-1);
                     MythicMobsIntegration.spawnWithData("dragonSpawn", 0, new Location(e.getPlayer().getWorld(), 0, 109, 0), true);
                     Bukkit.getScheduler().runTaskLater(BoxPlugin.instance, () -> {
-                        MythicMobsIntegration.spawnWithData("Dragon", 6000, new Location(e.getPlayer().getWorld(), 0, 141, 0), true);
+                        MythicMobsIntegration.spawnWithData("Dragon", 3000, new Location(e.getPlayer().getWorld(), 0, 141, 0), true);
                     }, 160);
                 }
             }

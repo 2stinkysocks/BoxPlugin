@@ -49,8 +49,8 @@ public class XanatosMenuManager {
 
         GuiItem livesGui = new GuiItem(lives, e -> {
             e.setCancelled(true);
-            p.playSound(p.getLocation(), Sound.BLOCK_FIRE_EXTINGUISH, 3.0F, 1.0F);
-            p.sendMessage(ChatColor.RED + "Coming Soon");
+            p.playSound(p.getLocation(), Sound.BLOCK_NOTE_BLOCK_PLING, 0.5f, 2f);
+            BoxPlugin.instance.getItemLivesManager().openGui(p);
         });
 
         pane.addItem(ghostGui, 2, 1);

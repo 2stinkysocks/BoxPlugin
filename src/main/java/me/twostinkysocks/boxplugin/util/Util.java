@@ -341,6 +341,12 @@ public class Util {
             int rand = (int)(Math.random() * (outof) + 1);
             if(rand == 1) {
                 if(e.getEntity().getInventory().getItem(i) != null) {
+                    ItemStack item = e.getEntity().getInventory().getItem(i);
+                    if(BoxPlugin.instance.getItemLivesManager().hasLives(item)) {
+                        BoxPlugin.instance.getItemLivesManager().decrementLives(item);
+                        Util.debug(target, "Lost a life on " + item.getType());
+                        continue;
+                    }
                     Util.debug(target, "Lost " + e.getEntity().getInventory().getItem(i).getType());
                     e.getDrops().add(e.getEntity().getInventory().getItem(i));
                     e.getEntity().getInventory().setItem(i, null);
