@@ -46,7 +46,7 @@ public class GhostTokenManager {
         EMERALD(26000),
         ANUBIS(40000),
         ZEUS(55000),
-        DRAGON(120000, "FIREBALL"),
+        DRAGON(125000, "FIREBALL"),
         SUPREME(950000, "XANATOS_STAR"),
         NEPTUNE(30000),
         CANNON(5000),
