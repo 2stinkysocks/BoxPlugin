@@ -431,12 +431,17 @@ public class MarketManager {
         if(getMarketMultiplier() > 1) {
             total *= (1.0/getMarketMultiplier());
         }
-        if(!p.hasPermission("boxplugin.increasedbanklimit") && !p.hasPermission("boxplugin.nobanklimit") && total + getCoinsBalance(p) > 500000) {
+        if(!p.hasPermission("boxplugin.tenmilbanklimit") && !p.hasPermission("boxplugin.twentyfivemilbanklimit") && !p.hasPermission("boxplugin.nobanklimit") && total + getCoinsBalance(p) > 500000) {
             p.sendMessage(ChatColor.RED + "You cannot exceed 500000 coins in your account!");
             e.getView().close();
             return;
         }
-        if(p.hasPermission("boxplugin.increasedbanklimit") && !p.hasPermission("boxplugin.nobanklimit") && total + getCoinsBalance(p) > 25000000) {
+        if(p.hasPermission("boxplugin.tenmilbanklimit") && !p.hasPermission("boxplugin.twentyfivemilbanklimit") && !p.hasPermission("boxplugin.nobanklimit") && total + getCoinsBalance(p) > 10000000) {
+            p.sendMessage(ChatColor.RED + "You cannot exceed 10000000 coins in your account!");
+            e.getView().close();
+            return;
+        }
+        if(p.hasPermission("boxplugin.twentyfivemilbanklimit") && !p.hasPermission("boxplugin.nobanklimit") && total + getCoinsBalance(p) > 25000000) {
             p.sendMessage(ChatColor.RED + "You cannot exceed 25000000 coins in your account!");
             e.getView().close();
             return;
