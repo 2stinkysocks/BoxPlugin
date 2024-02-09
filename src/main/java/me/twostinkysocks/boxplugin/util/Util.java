@@ -246,6 +246,7 @@ public class Util {
     }
 
     public static <T> T randomFromList(List<T> list) {
+        if(list.size() == 0) return null;
         return list.get(ThreadLocalRandom.current().nextInt(list.size()) % list.size());
     }
 
