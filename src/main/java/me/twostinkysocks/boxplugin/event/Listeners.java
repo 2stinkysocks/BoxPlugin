@@ -334,9 +334,6 @@ public class Listeners implements Listener {
         // TODO: fix hotkey
         boolean shouldCancel = false;
 
-        if(!(player.getOpenInventory().getTopInventory() instanceof CraftInventoryPlayer)) {
-            shouldCancel = true;
-        }
 
         // shift click into another inventory
         if(event.getAction() == InventoryAction.MOVE_TO_OTHER_INVENTORY && !(player.getOpenInventory().getTopInventory() instanceof CraftInventoryPlayer)) {
