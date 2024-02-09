@@ -200,6 +200,14 @@ public class Listeners implements Listener {
     }
 
     @EventHandler
+    public void removeLotteryOnJoin(PlayerJoinEvent e) {
+        Player p = e.getPlayer();
+        if(p.getPersistentDataContainer().has(BoxPlugin.instance.getLotteryManager().inLotteryKey, PersistentDataType.INTEGER) && !BoxPlugin.instance.getLotteryManager().hasTickets(p)) {
+            p.getPersistentDataContainer().remove(BoxPlugin.instance.getLotteryManager().inLotteryKey);
+        }
+    }
+
+    @EventHandler
     public void onBlockBreakForCage(BlockBreakEvent e) {
         for(HashSet<Location> locations : CageStaff.cageBlocks.values()) {
             if(locations.contains(e.getBlock().getLocation())) {

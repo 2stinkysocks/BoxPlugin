@@ -8,10 +8,12 @@ import io.github.rapha149.signgui.SignGUIAction;
 import me.twostinkysocks.boxplugin.BoxPlugin;
 import me.twostinkysocks.boxplugin.util.Util;
 import org.bukkit.*;
+import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Item;
 import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.InventoryClickEvent;
+import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.inventory.meta.SkullMeta;
@@ -117,6 +119,23 @@ public class MarketManager {
         ));
         rubies.setItemMeta(rubiesMeta);
 
+        ItemStack lottery = new ItemStack(Material.PAPER);
+        ItemMeta lotteryMeta = lottery.getItemMeta();
+        lotteryMeta.addItemFlags(ItemFlag.HIDE_ENCHANTS);
+        lotteryMeta.addEnchant(Enchantment.MENDING, 1, true);
+        lotteryMeta.setDisplayName(ChatColor.AQUA + "Lottery");
+        List<String> lore = new ArrayList<>();
+        lore.add("");
+        lore.add(ChatColor.GOLD + "Entry Price: " + BoxPlugin.instance.getLotteryManager().getTicketPrice());
+        lore.add("");
+        if(BoxPlugin.instance.getLotteryManager().getRemainingTimeMs() > 0) {
+            lore.add(ChatColor.BLUE + "Remaining time: " + (BoxPlugin.instance.getLotteryManager().getRemainingTimeMs()/60000) + " minutes");
+            lore.add("");
+        }
+        lore.add(ChatColor.YELLOW + "/lottery for more info");
+        lotteryMeta.setLore(lore);
+        lottery.setItemMeta(lotteryMeta);
+
         // gui items
         GuiItem guiMarket = new GuiItem(market, e -> e.setCancelled(true));
         GuiItem guiDeposit = new GuiItem(deposit, e -> {
@@ -126,13 +145,31 @@ public class MarketManager {
         });
         GuiItem guiWithdraw = new GuiItem(withdraw, e -> {
             e.setCancelled(true);
-            p.playSound(p.getLocation(), Sound.BLOCK_NOTE_BLOCK_PLING, 0.5f, 2f);
-            openWithDrawMenu(p);
+            if(BoxPlugin.instance.getLotteryManager().hasTickets(p)) {
+                p.playSound(p.getLocation(), Sound.BLOCK_FIRE_EXTINGUISH, 3.0F, 1.0F);
+                p.sendMessage(ChatColor.RED + "You cannot withdraw money while participating in the lottery!");
+            } else {
+                p.playSound(p.getLocation(), Sound.BLOCK_NOTE_BLOCK_PLING, 0.5f, 2f);
+                openWithDrawMenu(p);
+            }
         });
         GuiItem guiBalance = new GuiItem(balance, e -> e.setCancelled(true));
         GuiItem guiRubies = new GuiItem(rubies, e -> {
             e.setCancelled(true);
             openRubyGui(p);
+        });
+        GuiItem guiLottery = new GuiItem(lottery, e -> {
+            e.setCancelled(true);
+            int ticketPrice = BoxPlugin.instance.getLotteryManager().getTicketPrice();
+            if(BoxPlugin.instance.getLotteryManager().buyTicket(p)) {
+                p.playSound(p.getLocation(), Sound.BLOCK_NOTE_BLOCK_PLING, 0.5f, 2f);
+                p.sendMessage(ChatColor.GREEN + "Successfully bought 1x lottery ticket for a maximum of " + ticketPrice + "!");
+                p.closeInventory();
+                openGui(p);
+            } else {
+                p.playSound(p.getLocation(), Sound.BLOCK_FIRE_EXTINGUISH, 3.0F, 1.0F);
+                p.sendMessage(ChatColor.RED + "You can't buy a lottery ticket!");
+            }
         });
 
         pane.addItem(guiMarket, 4, 0);
@@ -140,6 +177,7 @@ public class MarketManager {
         pane.addItem(guiWithdraw, 6, 1);
         pane.addItem(guiBalance, 0, 2);
         pane.addItem(guiRubies, 8, 2);
+        pane.addItem(guiLottery, 4, 2);
 
         gui.addPane(pane);
         gui.copy().show(p);
