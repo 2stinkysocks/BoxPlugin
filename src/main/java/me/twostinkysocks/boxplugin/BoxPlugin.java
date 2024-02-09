@@ -21,6 +21,7 @@ import me.twostinkysocks.boxplugin.util.PlaceholderAPIExpansion;
 import me.twostinkysocks.boxplugin.util.Util;
 import net.luckperms.api.LuckPerms;
 import net.luckperms.api.LuckPermsProvider;
+import net.luckperms.api.node.Node;
 import net.luckperms.api.node.types.InheritanceNode;
 import net.milkbowl.vault.economy.Economy;
 import org.bukkit.*;
@@ -47,6 +48,7 @@ import su.nightexpress.excellentcrates.key.KeyManager;
 import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
+import java.time.Duration;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
@@ -703,8 +705,7 @@ public final class BoxPlugin extends JavaPlugin implements CommandExecutor, TabC
                     p.sendMessage(ChatColor.RED + "You've already claimed your trial rank!");
                     return true;
                 }
-                InheritanceNode node = InheritanceNode.builder("mvp+").value(true).expiry(3, TimeUnit.DAYS).build();
-                getLuckPerms().getUserManager().getUser(p.getUniqueId()).data().add(node);
+                Bukkit.getServer().dispatchCommand(Bukkit.getConsoleSender(), "lp user " + p.getName() + " parent addtemp mvp+ 3d"); // lmao
                 p.getPersistentDataContainer().set(new NamespacedKey(BoxPlugin.instance, "claimedtrialrank"), PersistentDataType.INTEGER, 1);
                 p.sendMessage(ChatColor.GREEN + "Successfully claimed your MVP+ 3 day trial!");
             }
