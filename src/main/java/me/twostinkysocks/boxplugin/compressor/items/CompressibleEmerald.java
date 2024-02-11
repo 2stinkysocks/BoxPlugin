@@ -11,7 +11,7 @@ import org.bukkit.inventory.meta.Repairable;
 public class CompressibleEmerald extends Compressible {
     @Override
     public boolean equals(ItemStack item) {
-        return item != null && item.getType() == Material.EMERALD && !item.hasItemMeta();
+        return item != null && item.getType() == Material.EMERALD_BLOCK && !item.hasItemMeta();
     }
 
     @Override

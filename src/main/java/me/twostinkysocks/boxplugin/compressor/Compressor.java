@@ -15,6 +15,7 @@ public class Compressor {
     static {
         compressibleItems.add(new CompressibleDiamondBlock());
         compressibleItems.add(new CompressibleEmerald());
+        compressibleItems.add(new CompressibleEmeraldBlock());
         compressibleItems.add(new CompressibleGoldBlock());
         compressibleItems.add(new CompressibleRedstoneBlock());
         compressibleItems.add(new CompressibleNetheriteBlock());
