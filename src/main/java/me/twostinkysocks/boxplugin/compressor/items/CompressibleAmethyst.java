@@ -7,11 +7,12 @@ import org.bukkit.enchantments.Enchantment;
 import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
+import org.bukkit.inventory.meta.Repairable;
 
-public class CompressibleEndstone extends Compressible {
+public class CompressibleAmethyst extends Compressible {
     @Override
     public boolean equals(ItemStack item) {
-        return item != null && item.getType() == Material.END_STONE && !item.hasItemMeta();
+        return item != null && item.getType() == Material.AMETHYST_BLOCK && !item.hasItemMeta();
     }
 
     @Override
@@ -26,11 +27,11 @@ public class CompressibleEndstone extends Compressible {
 
     @Override
     public ItemStack getCompressedItemStack(int count) {
-        ItemStack item = new ItemStack(Material.END_STONE, count);
+        ItemStack item = new ItemStack(Material.AMETHYST_BLOCK, count);
         ItemMeta meta = item.getItemMeta();
         meta.addEnchant(Enchantment.MENDING, 1, true);
         meta.addItemFlags(ItemFlag.HIDE_ENCHANTS);
-        meta.setDisplayName(ChatColor.AQUA + "Compressed Endstone");
+        meta.setDisplayName(ChatColor.LIGHT_PURPLE + "Compressed Amethyst");
         item.setItemMeta(meta);
         return item;
     }
