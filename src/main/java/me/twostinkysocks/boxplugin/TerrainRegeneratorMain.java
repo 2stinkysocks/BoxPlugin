@@ -188,6 +188,7 @@ public final class TerrainRegeneratorMain implements Listener, CommandExecutor, 
         tasks.add(Bukkit.getScheduler().runTaskTimer(BoxPlugin.instance, () -> {
             for(ArrayList<UUID> list : spawnedEntities.values()) {
                 for(UUID uuid : list) {
+                    if(uuid == null) continue;
                     Entity entity = Bukkit.getEntity(uuid);
                     if(entity instanceof Warden) {
                         Warden warden = (Warden) entity;
