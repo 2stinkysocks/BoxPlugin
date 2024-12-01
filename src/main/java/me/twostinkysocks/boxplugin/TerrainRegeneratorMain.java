@@ -17,18 +17,17 @@ import io.lumine.mythic.bukkit.MythicBukkit;
 import io.lumine.mythic.core.mobs.ActiveMob;
 import me.twostinkysocks.boxplugin.util.MythicMobsIntegration;
 import me.twostinkysocks.boxplugin.util.Util;
-import net.minecraft.nbt.MojangsonParser;
-import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.world.entity.EntityLiving;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.TagParser;
 import net.minecraft.world.entity.ai.memory.MemoryModuleType;
 import org.bukkit.*;
 import org.bukkit.command.*;
 import org.bukkit.configuration.InvalidConfigurationException;
 import org.bukkit.configuration.file.YamlConfiguration;
-import org.bukkit.craftbukkit.v1_19_R1.entity.CraftCreature;
-import org.bukkit.craftbukkit.v1_19_R1.entity.CraftEntity;
-import org.bukkit.craftbukkit.v1_19_R1.entity.CraftPlayer;
-import org.bukkit.craftbukkit.v1_19_R1.entity.CraftWarden;
+import org.bukkit.craftbukkit.v1_21_R1.entity.CraftCreature;
+import org.bukkit.craftbukkit.v1_21_R1.entity.CraftEntity;
+import org.bukkit.craftbukkit.v1_21_R1.entity.CraftPlayer;
+import org.bukkit.craftbukkit.v1_21_R1.entity.CraftWarden;
 import org.bukkit.entity.*;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -149,16 +148,16 @@ public final class TerrainRegeneratorMain implements Listener, CommandExecutor, 
         for(Object entity : this.config.getConfigurationSection("entities").getKeys(false).toArray()) {
             int timerseconds = this.config.getInt("entities." + entity + ".timer-seconds");
             try {
-                NBTTagCompound nbt = null;
+                CompoundTag nbt = null;
                 if(!this.config.isSet("entities." + entity + ".isMythic") || !this.config.getBoolean("entities." + entity + ".isMythic")) {
-                    nbt = MojangsonParser.a(this.config.getString("entities." + entity + ".nbt"));
+                    nbt = TagParser.parseTag(this.config.getString("entities." + entity + ".nbt"));
                 }
                 EntityType entityType = EntityType.fromName(this.config.getString("entities." + entity + ".type"));
                 int x = this.config.getInt("entities." + entity + ".x");
                 int y = this.config.getInt("entities." + entity + ".y");
                 int z = this.config.getInt("entities." + entity + ".z");
 //                System.out.println("Entity " + entity + " located at " + x + " " + y + " " + z);
-                NBTTagCompound finalNbt = nbt;
+                CompoundTag finalNbt = nbt;
                 tasks.add(Bukkit.getScheduler()
                         .runTaskTimer(
                                 BoxPlugin.instance,
@@ -232,7 +231,7 @@ public final class TerrainRegeneratorMain implements Listener, CommandExecutor, 
                                     CraftCreature creature = (CraftCreature) entity;
                                     if(creature.getHandle() instanceof net.minecraft.world.entity.monster.warden.Warden) {
                                         net.minecraft.world.entity.monster.warden.Warden warden = (net.minecraft.world.entity.monster.warden.Warden) creature.getHandle();
-                                        warden.k(((CraftPlayer) nearest).getHandle()); // setAttackTarget
+                                        warden.setAttackTarget(((CraftPlayer) nearest).getHandle()); // setAttackTarget
                                     } else {
                                         creature.setTarget(nearest);
                                     }
@@ -266,7 +265,7 @@ public final class TerrainRegeneratorMain implements Listener, CommandExecutor, 
         return this.config.getConfigurationSection("schematics").getKeys(false).toArray().length + this.config.getConfigurationSection("entities").getKeys(false).toArray().length;
     }
 
-    private void spawnEntity(String name, EntityType entityType, NBTTagCompound nbt, int x, int y, int z) {
+    private void spawnEntity(String name, EntityType entityType, CompoundTag nbt, int x, int y, int z) {
         if(spawnedEntities.containsKey(name) && this.config.getBoolean("entities." + name + ".kill-existing")) {
             for(UUID uuid : new ArrayList<>(spawnedEntities.get(name))) {
                 if(Bukkit.getEntity(uuid) != null) {
@@ -301,7 +300,7 @@ public final class TerrainRegeneratorMain implements Listener, CommandExecutor, 
                 }
                 e.getPersistentDataContainer().set(new NamespacedKey(BoxPlugin.instance, "respawningmob"), PersistentDataType.INTEGER, 1);
                 e.getPersistentDataContainer().set(new NamespacedKey(BoxPlugin.instance, "respawningmobid"), PersistentDataType.STRING, name);
-                if(nbt != null) e.getHandle().g(nbt); // Entity#load()
+                if(nbt != null) e.getHandle().load(nbt); // Entity#load()
                 e.teleport(loc); // loading nbt resets loc to 0
             }
         }
@@ -501,14 +500,15 @@ public final class TerrainRegeneratorMain implements Listener, CommandExecutor, 
     public void onEntityTarget(EntityTargetEvent e) {
         if(e.getEntity() instanceof Warden && e.getTarget() instanceof Silverfish) {
             net.minecraft.world.entity.monster.warden.Warden nmsWarden = ((CraftWarden) e.getEntity()).getHandle();
-            nmsWarden.k((EntityLiving) null);
+            nmsWarden.setAttackTarget(null);
+            nmsWarden.getBrain().eraseMemory(MemoryModuleType.ANGRY_AT);
             e.setTarget(null);
             e.setCancelled(true);
         }
         if(e.getEntity() instanceof Silverfish && e.getTarget() instanceof Warden) {
             net.minecraft.world.entity.monster.warden.Warden nmsWarden = ((CraftWarden) e.getTarget()).getHandle();
-            nmsWarden.k((EntityLiving) null);
-            nmsWarden.dy().b(MemoryModuleType.o);
+            nmsWarden.setAttackTarget(null);
+            nmsWarden.getBrain().eraseMemory(MemoryModuleType.ATTACK_TARGET);
             e.setTarget(null);
             e.setCancelled(true);
         }

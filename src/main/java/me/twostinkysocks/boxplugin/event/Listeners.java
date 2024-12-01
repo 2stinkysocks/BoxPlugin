@@ -9,8 +9,8 @@ import me.twostinkysocks.boxplugin.util.Util;
 import org.bukkit.*;
 import org.bukkit.attribute.Attribute;
 import org.bukkit.block.Block;
-import org.bukkit.craftbukkit.v1_19_R1.inventory.CraftInventoryCrafting;
-import org.bukkit.craftbukkit.v1_19_R1.inventory.CraftInventoryPlayer;
+import org.bukkit.craftbukkit.v1_21_R1.inventory.CraftInventoryCrafting;
+import org.bukkit.craftbukkit.v1_21_R1.inventory.CraftInventoryPlayer;
 import org.bukkit.entity.*;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
@@ -62,7 +62,7 @@ public class Listeners implements Listener {
                     HashMap<Integer, ItemStack> leftover = p.getInventory().addItem(e.getDrops().toArray(new ItemStack[0]));
                     e.getDrops().clear();
                     for(ItemStack item : leftover.values()) {
-                        Item drop = (Item) p.getWorld().spawnEntity(e.getEntity().getLocation(), EntityType.DROPPED_ITEM);
+                        Item drop = (Item) p.getWorld().spawnEntity(e.getEntity().getLocation(), EntityType.ITEM);
                         drop.setItemStack(item);
                     }
                     p.giveExp(e.getDroppedExp());
@@ -421,7 +421,7 @@ public class Listeners implements Listener {
             HashMap<Integer, ItemStack> leftover = p.getInventory().addItem((e.getItems().stream().map(i -> i.getItemStack()).collect(Collectors.toList())).toArray(new ItemStack[0]));
             e.getItems().clear();
             for(ItemStack item : leftover.values()) {
-                Item drop = (Item) p.getWorld().spawnEntity(e.getBlock().getLocation(), EntityType.DROPPED_ITEM);
+                Item drop = (Item) p.getWorld().spawnEntity(e.getBlock().getLocation(), EntityType.ITEM);
                 drop.setItemStack(item);
             }
         }
@@ -537,7 +537,7 @@ public class Listeners implements Listener {
                 HashMap<Integer, ItemStack> leftover = p.getInventory().addItem(e.getDrops().toArray(new ItemStack[0]));
                 e.getDrops().clear();
                 for(ItemStack item : leftover.values()) {
-                    Item drop = (Item) p.getWorld().spawnEntity(e.getEntity().getLocation(), EntityType.DROPPED_ITEM);
+                    Item drop = (Item) p.getWorld().spawnEntity(e.getEntity().getLocation(), EntityType.ITEM);
                     drop.setItemStack(item);
                 }
                 p.giveExp(e.getDroppedExp());
@@ -587,7 +587,7 @@ public class Listeners implements Listener {
             int toGive = BoxPlugin.instance.getXpManager().getLevelUpRewardLevelToLevel(BoxPlugin.instance.getXpManager().convertXPToLevel(e.getBeforeXP()), BoxPlugin.instance.getXpManager().getLevel(p));
             HashMap<Integer, ItemStack> toDrop = p.getInventory().addItem(Util.itemArray(toGive, Util::gigaCoin));
             toDrop.forEach((index, item) -> {
-                Item entity = (Item) p.getWorld().spawnEntity(p.getLocation(), EntityType.DROPPED_ITEM);
+                Item entity = (Item) p.getWorld().spawnEntity(p.getLocation(), EntityType.ITEM);
                 entity.setItemStack(item);
             });
             p.sendMessage(ChatColor.GOLD + "Earned " + ChatColor.BOLD + toGive + " Giga Coins " + ChatColor.GOLD + "from leveling up!");

@@ -15,7 +15,7 @@ public class MegaPerkCooldownReduction extends AbstractPerk {
         ItemMeta meta = guiItem.getItemMeta();
         meta.addEnchant(Enchantment.MENDING, 1, true);
         meta.setDisplayName(ChatColor.AQUA + "Cooldown Reduction");
-        meta.addItemFlags(ItemFlag.HIDE_ENCHANTS, ItemFlag.HIDE_ATTRIBUTES, ItemFlag.HIDE_POTION_EFFECTS);
+        meta.addItemFlags(ItemFlag.HIDE_ENCHANTS, ItemFlag.HIDE_ATTRIBUTES, ItemFlag.HIDE_ADDITIONAL_TOOLTIP);
         meta.setLore(List.of(
                 "",
                 ChatColor.GRAY + "Reduce the cooldowns of custom items by 50%"

@@ -4,10 +4,10 @@ import com.mojang.authlib.GameProfile;
 import com.mojang.authlib.properties.Property;
 import me.twostinkysocks.boxplugin.BoxPlugin;
 import net.md_5.bungee.api.ChatColor;
-import net.minecraft.world.entity.EntityLiving;
+import net.minecraft.world.entity.LivingEntity;
 import org.apache.commons.codec.binary.Base64;
 import org.bukkit.*;
-import org.bukkit.craftbukkit.v1_19_R1.entity.CraftHumanEntity;
+import org.bukkit.craftbukkit.v1_21_R1.entity.CraftHumanEntity;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.HumanEntity;
@@ -320,9 +320,9 @@ public class Util {
     public static void hitThroughShield(Entity source, HumanEntity target, double damage, int cooldownticks) {
         if(target.isBlocking()) {
             target.setCooldown(Material.SHIELD, cooldownticks);
-            EntityLiving nms = ((CraftHumanEntity) target).getHandle();
+            LivingEntity nms = ((CraftHumanEntity) target).getHandle();
             // EntityLiving#clearActiveItem()  -  actually disables it
-            nms.eZ();
+            nms.stopUsingItem();
         }
         target.damage(damage, source);
     }

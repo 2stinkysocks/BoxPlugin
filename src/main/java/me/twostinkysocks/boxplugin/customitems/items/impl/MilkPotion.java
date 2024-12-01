@@ -8,7 +8,6 @@ import org.bukkit.Material;
 import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.PotionMeta;
-import org.bukkit.potion.PotionData;
 import org.bukkit.potion.PotionType;
 
 public class MilkPotion extends CustomItem {
@@ -27,8 +26,8 @@ public class MilkPotion extends CustomItem {
         ItemStack item = super.getItemStack();
         PotionMeta meta = (PotionMeta) item.getItemMeta();
         meta.setColor(Color.WHITE);
-        meta.setBasePotionData(new PotionData(PotionType.AWKWARD));
-        meta.addItemFlags(ItemFlag.HIDE_POTION_EFFECTS, ItemFlag.HIDE_UNBREAKABLE);
+        meta.setBasePotionType(PotionType.AWKWARD);
+        meta.addItemFlags(ItemFlag.HIDE_ADDITIONAL_TOOLTIP, ItemFlag.HIDE_UNBREAKABLE);
         item.setItemMeta(meta);
         return item;
     }

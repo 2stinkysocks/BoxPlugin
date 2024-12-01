@@ -100,7 +100,7 @@ public class CustomItemsMain implements CommandExecutor, TabCompleter {
                             Player togive = Bukkit.getPlayer(args[1]);
                             HashMap<Integer, ItemStack> toDrop = togive.getInventory().addItem(i.getItemStack());
                             toDrop.forEach((index, item) -> {
-                                Item entity = (Item) togive.getWorld().spawnEntity(togive.getLocation(), EntityType.DROPPED_ITEM);
+                                Item entity = (Item) togive.getWorld().spawnEntity(togive.getLocation(), EntityType.ITEM);
                                 entity.setItemStack(i.getItemStack());
                             });
                             p.sendMessage(ChatColor.GREEN + "Gave " + togive.getName() + " 1x " + i.getItemId());

@@ -33,7 +33,7 @@ public class PerkHaste extends AbstractPerk implements Upgradable {
         meta.setColor(Color.YELLOW);
         meta.setDisplayName(ChatColor.YELLOW + "Haste");
         meta.addEnchant(Enchantment.MENDING, 1, true);
-        meta.addItemFlags(ItemFlag.HIDE_ENCHANTS, ItemFlag.HIDE_ATTRIBUTES, ItemFlag.HIDE_POTION_EFFECTS);
+        meta.addItemFlags(ItemFlag.HIDE_ENCHANTS, ItemFlag.HIDE_ATTRIBUTES, ItemFlag.HIDE_ADDITIONAL_TOOLTIP);
         meta.setLore(List.of(
                 "",
                 ChatColor.GRAY + "Gain permanent Haste " + getLevel(p)
@@ -46,7 +46,7 @@ public class PerkHaste extends AbstractPerk implements Upgradable {
     public void onRespawn(PlayerRespawnEvent e) {
         Player p = e.getPlayer();
         if(getLevel(p) > 0) {
-            p.addPotionEffect(new PotionEffect(PotionEffectType.FAST_DIGGING, Integer.MAX_VALUE, getLevel(p)-1, true, false));
+            p.addPotionEffect(new PotionEffect(PotionEffectType.HASTE, Integer.MAX_VALUE, getLevel(p)-1, true, false));
         }
     }
 
@@ -57,13 +57,13 @@ public class PerkHaste extends AbstractPerk implements Upgradable {
     @Override
     public void onEquip(Player p) {
         if(getLevel(p) > 0) {
-            p.addPotionEffect(new PotionEffect(PotionEffectType.FAST_DIGGING, Integer.MAX_VALUE, getLevel(p)-1, true, false));
+            p.addPotionEffect(new PotionEffect(PotionEffectType.HASTE, Integer.MAX_VALUE, getLevel(p)-1, true, false));
         }
     }
 
     @Override
     public void onUnequip(Player p) {
-        p.removePotionEffect(PotionEffectType.FAST_DIGGING);
+        p.removePotionEffect(PotionEffectType.HASTE);
     }
 
     @Override

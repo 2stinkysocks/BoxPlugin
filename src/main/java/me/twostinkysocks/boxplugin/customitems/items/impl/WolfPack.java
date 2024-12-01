@@ -55,6 +55,6 @@ public class WolfPack extends CustomItem {
             wolf.getAttribute(Attribute.GENERIC_ATTACK_DAMAGE).setBaseValue(8);
         }
         p.getWorld().playSound(p.getLocation(), Sound.ENTITY_WOLF_HOWL, 0.5f, 1f);
-        p.getWorld().spawnParticle(Particle.SMOKE_NORMAL, p.getLocation(), 10, 0, 0, 0, 0.5);
+        p.getWorld().spawnParticle(Particle.SMOKE, p.getLocation(), 10, 0, 0, 0, 0.5);
     }
 }

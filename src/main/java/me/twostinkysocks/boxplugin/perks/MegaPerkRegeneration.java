@@ -8,7 +8,6 @@ import org.bukkit.event.player.PlayerRespawnEvent;
 import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.PotionMeta;
-import org.bukkit.potion.PotionData;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 import org.bukkit.potion.PotionType;
@@ -19,9 +18,9 @@ public class MegaPerkRegeneration extends AbstractPerk {
     public MegaPerkRegeneration() {
         ItemStack guiItem = new ItemStack(Material.POTION);
         PotionMeta meta = (PotionMeta) guiItem.getItemMeta();
-        meta.setBasePotionData(new PotionData(PotionType.REGEN));
+        meta.setBasePotionType(PotionType.REGENERATION);
         meta.setDisplayName(ChatColor.LIGHT_PURPLE + "Mega Regeneration");
-        meta.addItemFlags(ItemFlag.HIDE_ENCHANTS, ItemFlag.HIDE_ATTRIBUTES, ItemFlag.HIDE_POTION_EFFECTS);
+        meta.addItemFlags(ItemFlag.HIDE_ENCHANTS, ItemFlag.HIDE_ATTRIBUTES, ItemFlag.HIDE_ADDITIONAL_TOOLTIP);
         meta.setLore(List.of(
                 "",
                 ChatColor.GRAY + "Gain permanent Regeneration II"

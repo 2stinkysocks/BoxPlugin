@@ -41,7 +41,7 @@ public class SpaceHelmet extends CustomItem {
         );
         tasks = new HashMap<>();
         ItemMeta meta = getItemStack().getItemMeta();
-        meta.addEnchant(Enchantment.PROTECTION_ENVIRONMENTAL, 20, true);
+        meta.addEnchant(Enchantment.PROTECTION, 20, true);
         meta.addItemFlags(ItemFlag.HIDE_ENCHANTS, ItemFlag.HIDE_UNBREAKABLE);
         getItemStack().setItemMeta(meta);
 

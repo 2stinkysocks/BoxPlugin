@@ -62,7 +62,7 @@ public class ClusterGrenade extends CustomItem {
     }
 
     private void spawnTNT(Player p, Location startLoc, Vector velocity, int fuse, UUID instanceUUID) {
-        TNTPrimed tnt = (TNTPrimed) p.getWorld().spawnEntity(startLoc, EntityType.PRIMED_TNT);
+        TNTPrimed tnt = (TNTPrimed) p.getWorld().spawnEntity(startLoc, EntityType.TNT);
         tnt.setFuseTicks(fuse);
         tnt.setVelocity(velocity.multiply(2));
         tnt.getPersistentDataContainer().set(new NamespacedKey(BoxPlugin.instance, "CLUSTER_GRENADE_ENTITY"), PersistentDataType.STRING, p.getUniqueId().toString());
@@ -88,7 +88,7 @@ public class ClusterGrenade extends CustomItem {
             int newFuse = 20;
             origin.setDirection(new Vector(0.5, 1, 0));
             for(int i = 0; i < 6; i++) {
-                TNTPrimed tnt2 = (TNTPrimed) p.getWorld().spawnEntity(firstFinalLoc.get(), EntityType.PRIMED_TNT);
+                TNTPrimed tnt2 = (TNTPrimed) p.getWorld().spawnEntity(firstFinalLoc.get(), EntityType.TNT);
                 tnt2.setFuseTicks(newFuse+(new Random().nextInt(6)));
                 tnt2.setVelocity(origin.getDirection().normalize().multiply(0.5));
                 origin.setDirection(origin.getDirection().rotateAroundY(Math.toRadians(60)));
