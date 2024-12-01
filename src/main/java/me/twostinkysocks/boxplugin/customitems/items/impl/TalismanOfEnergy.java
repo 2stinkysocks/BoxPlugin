@@ -7,10 +7,10 @@ import me.twostinkysocks.boxplugin.customitems.items.CustomItem;
 import me.twostinkysocks.boxplugin.manager.PerksManager;
 import me.twostinkysocks.boxplugin.util.Util;
 import net.minecraft.world.damagesource.DamageSource;
-import net.minecraft.world.entity.EntityLiving;
+import net.minecraft.world.entity.LivingEntity;
 import org.bukkit.*;
-import org.bukkit.craftbukkit.v1_19_R1.entity.CraftHumanEntity;
-import org.bukkit.craftbukkit.v1_19_R1.entity.CraftLivingEntity;
+import org.bukkit.craftbukkit.v1_21_R1.entity.CraftHumanEntity;
+import org.bukkit.craftbukkit.v1_21_R1.entity.CraftLivingEntity;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
@@ -75,16 +75,16 @@ public class TalismanOfEnergy extends CustomItem {
 
     private void electrocute(long avg, EntityDamageByEntityEvent e) {
         if(e.getEntity() instanceof CraftLivingEntity) {
-            EntityLiving nmsEntity = ((CraftLivingEntity) e.getEntity()).getHandle();
+            LivingEntity nmsEntity = ((CraftLivingEntity) e.getEntity()).getHandle();
             Preconditions.checkState(!nmsEntity.generation, "Cannot damage entity during world generation");
-            DamageSource reason = DamageSource.a(((CraftHumanEntity)e.getDamager()).getHandle()); // DamageSource.playerAttack()
-            nmsEntity.W = 0; // set no damage ticks to 0
+            DamageSource reason = nmsEntity.damageSources().playerAttack(((CraftHumanEntity)e.getDamager()).getHandle()); // DamageSource.playerAttack()
+            nmsEntity.invulnerableTime = 0; // set no damage ticks to 0
 //            System.out.println(avg);
             if(e.getEntity() instanceof Player && ((Player) e.getEntity()).isBlocking()) {
                 ((Player) e.getEntity()).setCooldown(Material.SHIELD, 30);
             }
             Util.debug((Player) e.getDamager(), "Dealt " + avg + " damage with smite");
-            nmsEntity.a(reason, (float)avg);
+            nmsEntity.hurt(reason, (float)avg);
             playEffects(e);
         }
     }
@@ -102,7 +102,7 @@ public class TalismanOfEnergy extends CustomItem {
         Particle.DustOptions dustOptions = new Particle.DustOptions(Color.fromRGB(255, 25, 51), 1.5F);
         Bukkit.getScheduler().runTaskTimer(BoxPlugin.instance, task -> {
             if(task.isCancelled()) return; // just in case
-            damaged.getWorld().spawnParticle(Particle.REDSTONE, damaged.getLocation().clone().add(0, 2, 0), 5, 0, 3, 0, dustOptions);
+            damaged.getWorld().spawnParticle(Particle.DUST, damaged.getLocation().clone().add(0, 2, 0), 5, 0, 3, 0, dustOptions);
             if(boltTimers.containsKey(instanceUUID)) {
                 boltTimers.put(instanceUUID, boltTimers.get(instanceUUID)+1);
             } else {
@@ -111,8 +111,8 @@ public class TalismanOfEnergy extends CustomItem {
             if(boltTimers.get(instanceUUID) > 3) {
                 boltTimers.remove(instanceUUID);
                 task.cancel();
-                damaged.getWorld().spawnParticle(Particle.REDSTONE, damaged.getLocation().clone().add(0, 0.5, 0), 15, 0.5, 0.5, 0.5, dustOptions);
-                damaged.getWorld().spawnParticle(Particle.REDSTONE, damaged.getLocation(), 15, 0.8, 0.8, 0.8, dustOptions);
+                damaged.getWorld().spawnParticle(Particle.DUST, damaged.getLocation().clone().add(0, 0.5, 0), 15, 0.5, 0.5, 0.5, dustOptions);
+                damaged.getWorld().spawnParticle(Particle.DUST, damaged.getLocation(), 15, 0.8, 0.8, 0.8, dustOptions);
             }
         }, 0, 1);
     }

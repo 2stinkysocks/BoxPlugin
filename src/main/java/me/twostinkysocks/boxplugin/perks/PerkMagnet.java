@@ -14,7 +14,7 @@ public class PerkMagnet extends AbstractPerk {
         ItemStack guiItem = new ItemStack(Material.IRON_INGOT);
         ItemMeta meta = guiItem.getItemMeta();
         meta.setDisplayName(ChatColor.WHITE + "Magnet");
-        meta.addItemFlags(ItemFlag.HIDE_ENCHANTS, ItemFlag.HIDE_ATTRIBUTES, ItemFlag.HIDE_POTION_EFFECTS);
+        meta.addItemFlags(ItemFlag.HIDE_ENCHANTS, ItemFlag.HIDE_ATTRIBUTES, ItemFlag.HIDE_ADDITIONAL_TOOLTIP);
         meta.addEnchant(Enchantment.MENDING, 1, true);
         meta.setLore(List.of(
                 "",

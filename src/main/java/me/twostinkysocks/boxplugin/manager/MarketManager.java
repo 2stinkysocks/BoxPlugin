@@ -201,7 +201,7 @@ public class MarketManager {
             if(e.getView().getTopInventory().getItem(23) != null) toAdd.add(e.getView().getTopInventory().getItem(23));
             HashMap<Integer, ItemStack> toDrop = e.getPlayer().getInventory().addItem(toAdd.toArray(new ItemStack[toAdd.size()]));
             for(ItemStack stack : toDrop.values()) {
-                Item itemEntity = (Item) p.getWorld().spawnEntity(p.getLocation(), EntityType.DROPPED_ITEM);
+                Item itemEntity = (Item) p.getWorld().spawnEntity(p.getLocation(), EntityType.ITEM);
                 itemEntity.setItemStack(stack);
             }
         });
@@ -556,19 +556,19 @@ public class MarketManager {
         HashMap<Integer, ItemStack> g = p.getInventory().addItem(Util.itemArray(gigaCoin, Util::gigaCoin));
         HashMap<Integer, ItemStack> x = p.getInventory().addItem(Util.itemArray(coin, Util::coin));
         for(ItemStack item : h.values()) {
-            Item i = (Item) p.getWorld().spawnEntity(p.getLocation(), EntityType.DROPPED_ITEM);
+            Item i = (Item) p.getWorld().spawnEntity(p.getLocation(), EntityType.ITEM);
             i.setItemStack(item);
         }
         for(ItemStack item : t.values()) {
-            Item i = (Item) p.getWorld().spawnEntity(p.getLocation(), EntityType.DROPPED_ITEM);
+            Item i = (Item) p.getWorld().spawnEntity(p.getLocation(), EntityType.ITEM);
             i.setItemStack(item);
         }
         for(ItemStack item : g.values()) {
-            Item i = (Item) p.getWorld().spawnEntity(p.getLocation(), EntityType.DROPPED_ITEM);
+            Item i = (Item) p.getWorld().spawnEntity(p.getLocation(), EntityType.ITEM);
             i.setItemStack(item);
         }
         for(ItemStack item : x.values()) {
-            Item i = (Item) p.getWorld().spawnEntity(p.getLocation(), EntityType.DROPPED_ITEM);
+            Item i = (Item) p.getWorld().spawnEntity(p.getLocation(), EntityType.ITEM);
             i.setItemStack(item);
         }
         p.playSound(p.getLocation(), Sound.BLOCK_NOTE_BLOCK_PLING, 0.5f, 2f);
@@ -617,19 +617,19 @@ public class MarketManager {
                             HashMap<Integer, ItemStack> g = p.getInventory().addItem(Util.itemArray(gigaCoin, Util::gigaCoin));
                             HashMap<Integer, ItemStack> x = p.getInventory().addItem(Util.itemArray(coin, Util::coin));
                             for(ItemStack item : h.values()) {
-                                Item i = (Item) p.getWorld().spawnEntity(p.getLocation(), EntityType.DROPPED_ITEM);
+                                Item i = (Item) p.getWorld().spawnEntity(p.getLocation(), EntityType.ITEM);
                                 i.setItemStack(item);
                             }
                             for(ItemStack item : t.values()) {
-                                Item i = (Item) p.getWorld().spawnEntity(p.getLocation(), EntityType.DROPPED_ITEM);
+                                Item i = (Item) p.getWorld().spawnEntity(p.getLocation(), EntityType.ITEM);
                                 i.setItemStack(item);
                             }
                             for(ItemStack item : g.values()) {
-                                Item i = (Item) p.getWorld().spawnEntity(p.getLocation(), EntityType.DROPPED_ITEM);
+                                Item i = (Item) p.getWorld().spawnEntity(p.getLocation(), EntityType.ITEM);
                                 i.setItemStack(item);
                             }
                             for(ItemStack item : x.values()) {
-                                Item i = (Item) p.getWorld().spawnEntity(p.getLocation(), EntityType.DROPPED_ITEM);
+                                Item i = (Item) p.getWorld().spawnEntity(p.getLocation(), EntityType.ITEM);
                                 i.setItemStack(item);
                             }
                             removeCoinsBalance(p, orig);

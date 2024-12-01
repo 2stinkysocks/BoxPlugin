@@ -197,7 +197,7 @@ public class GhostTokenManager {
             }
             HashMap<Integer, ItemStack> toDrop = e.getPlayer().getInventory().addItem(toAdd.toArray(new ItemStack[toAdd.size()]));
             for(ItemStack stack : toDrop.values()) {
-                Item itemEntity = (Item) p.getWorld().spawnEntity(p.getLocation(), EntityType.DROPPED_ITEM);
+                Item itemEntity = (Item) p.getWorld().spawnEntity(p.getLocation(), EntityType.ITEM);
                 itemEntity.setItemStack(stack);
             }
         });

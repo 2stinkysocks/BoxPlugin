@@ -24,7 +24,7 @@ public class PerkRockets extends AbstractPerk {
         FireworkMeta meta = (FireworkMeta) guiItem.getItemMeta();
         meta.setDisplayName(ChatColor.YELLOW + "Rockets");
         meta.setPower(2);
-        meta.addItemFlags(ItemFlag.HIDE_ENCHANTS, ItemFlag.HIDE_ATTRIBUTES, ItemFlag.HIDE_POTION_EFFECTS);
+        meta.addItemFlags(ItemFlag.HIDE_ENCHANTS, ItemFlag.HIDE_ATTRIBUTES, ItemFlag.HIDE_ADDITIONAL_TOOLTIP);
         meta.setLore(List.of(
                 "",
                 ChatColor.GRAY + "Gain 32 rockets on respawn"

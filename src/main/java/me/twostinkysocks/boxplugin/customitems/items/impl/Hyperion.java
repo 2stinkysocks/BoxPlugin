@@ -84,7 +84,7 @@ public class Hyperion extends CustomItem {
                                 p.getWorld().playSound(p.getLocation(), Sound.ENTITY_GENERIC_EXPLODE, 0.5f, 1.5f);
                             }
                             p.setVelocity(p.getVelocity().add(new Vector(0, -0.1, 0)));
-                            p.getWorld().spawnParticle(Particle.EXPLOSION_NORMAL, p.getLocation(), 5, 0, 0, 0, 0.5);
+                            p.getWorld().spawnParticle(Particle.EXPLOSION, p.getLocation(), 5, 0, 0, 0, 0.5);
                             inAirTime.put(p.getUniqueId(), inAirTime.get(p.getUniqueId())+1);
                             Util.debug(p, "Ticks in air: " + inAirTime.get(p.getUniqueId()));
                             Util.debug(p, "Velocity: " + p.getVelocity().getY());
@@ -190,7 +190,7 @@ public class Hyperion extends CustomItem {
                 List<LivingEntity> nearby = loc.getWorld().getNearbyEntities(loc, 2.5, 2.5, 2.5).stream().filter(e -> e instanceof LivingEntity).map(e -> (LivingEntity) e).collect(Collectors.toList());
                 for(LivingEntity entity : nearby) {
                     if(entity.getLocation().distance(loc) <= 2.5) {
-                        entity.addPotionEffect(new PotionEffect(PotionEffectType.DAMAGE_RESISTANCE, 21, 2));
+                        entity.addPotionEffect(new PotionEffect(PotionEffectType.RESISTANCE, 21, 2));
                     }
                 }
             }

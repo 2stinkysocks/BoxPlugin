@@ -29,7 +29,7 @@ public class ItemLivesManager {
             if(e.getView().getTopInventory().getItem(13) != null) {
                 HashMap<Integer, ItemStack> toDrop = e.getPlayer().getInventory().addItem(e.getView().getTopInventory().getItem(13));
                 for(ItemStack stack : toDrop.values()) {
-                    Item itemEntity = (Item) p.getWorld().spawnEntity(p.getLocation(), EntityType.DROPPED_ITEM);
+                    Item itemEntity = (Item) p.getWorld().spawnEntity(p.getLocation(), EntityType.ITEM);
                     itemEntity.setItemStack(stack);
                 }
             }

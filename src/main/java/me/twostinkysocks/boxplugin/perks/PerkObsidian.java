@@ -20,7 +20,7 @@ public class PerkObsidian extends AbstractPerk {
         ItemStack guiItem = new ItemStack(Material.OBSIDIAN);
         ItemMeta meta = guiItem.getItemMeta();
         meta.setDisplayName(ChatColor.DARK_GRAY + "Obsidian");
-        meta.addItemFlags(ItemFlag.HIDE_ENCHANTS, ItemFlag.HIDE_ATTRIBUTES, ItemFlag.HIDE_POTION_EFFECTS);
+        meta.addItemFlags(ItemFlag.HIDE_ENCHANTS, ItemFlag.HIDE_ATTRIBUTES, ItemFlag.HIDE_ADDITIONAL_TOOLTIP);
         meta.setLore(List.of(
                 "",
                 ChatColor.GRAY + "Gain 64 obsidian on respawn"

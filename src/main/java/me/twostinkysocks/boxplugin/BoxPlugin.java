@@ -4,11 +4,6 @@ import com.comphenix.protocol.PacketType;
 import com.comphenix.protocol.ProtocolLibrary;
 import com.comphenix.protocol.ProtocolManager;
 import com.comphenix.protocol.events.PacketContainer;
-import com.github.stefvanschie.inventoryframework.gui.GuiItem;
-import com.github.stefvanschie.inventoryframework.gui.type.ChestGui;
-import com.github.stefvanschie.inventoryframework.pane.OutlinePane;
-import io.lumine.mythic.api.mobs.MythicMob;
-import io.lumine.mythic.bukkit.MythicBukkit;
 import me.twostinkysocks.boxplugin.compressor.Compressor;
 import me.twostinkysocks.boxplugin.customitems.CustomItemsMain;
 import me.twostinkysocks.boxplugin.event.Listeners;
@@ -21,8 +16,6 @@ import me.twostinkysocks.boxplugin.util.PlaceholderAPIExpansion;
 import me.twostinkysocks.boxplugin.util.Util;
 import net.luckperms.api.LuckPerms;
 import net.luckperms.api.LuckPermsProvider;
-import net.luckperms.api.node.Node;
-import net.luckperms.api.node.types.InheritanceNode;
 import net.milkbowl.vault.economy.Economy;
 import org.bukkit.*;
 import org.bukkit.command.Command;
@@ -40,17 +33,14 @@ import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.util.StringUtil;
 import org.quartz.*;
 import org.quartz.impl.StdSchedulerFactory;
-import su.nexmedia.engine.api.config.JYML;
-import su.nightexpress.excellentcrates.ExcellentCrates;
+import su.nightexpress.excellentcrates.CratesPlugin;
 import su.nightexpress.excellentcrates.key.CrateKey;
 import su.nightexpress.excellentcrates.key.KeyManager;
 
 import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
-import java.time.Duration;
 import java.util.*;
-import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 public final class BoxPlugin extends JavaPlugin implements CommandExecutor, TabCompleter {
@@ -75,7 +65,7 @@ public final class BoxPlugin extends JavaPlugin implements CommandExecutor, TabC
 
     private GhostTokenManager ghostTokenManager;
 
-    private ExcellentCrates excellentCrates;
+    private CratesPlugin excellentCrates;
 
     private Compressor compressor;
 
@@ -170,7 +160,7 @@ public final class BoxPlugin extends JavaPlugin implements CommandExecutor, TabC
         itemLivesManager = new ItemLivesManager();
         lotteryManager = new LotteryManager();
 
-        excellentCrates = (ExcellentCrates) getServer().getPluginManager().getPlugin("ExcellentCrates");
+        excellentCrates = (CratesPlugin) getServer().getPluginManager().getPlugin("ExcellentCrates");
         keyManager = excellentCrates.getKeyManager();
 
         getMarketManager().initializeMarketMultiplier();
@@ -311,7 +301,7 @@ public final class BoxPlugin extends JavaPlugin implements CommandExecutor, TabC
 
     public KeyManager getKeyManager() {return keyManager;}
 
-    public ExcellentCrates getExcellentCrates() {return excellentCrates;}
+    public CratesPlugin getExcellentCrates() {return excellentCrates;}
 
     public YamlConfiguration getOfflineXPFile() {
         return offlineXPFile;
@@ -499,7 +489,7 @@ public final class BoxPlugin extends JavaPlugin implements CommandExecutor, TabC
                     return true;
                 }
                 File commonConfig = new File(BoxPlugin.instance.getExcellentCrates().getDataFolder().getPath(), "/keys/common.yml");
-                BoxPlugin.instance.getKeyManager().giveKey(p, new CrateKey(BoxPlugin.instance.getExcellentCrates(), new JYML(commonConfig)), 1);
+                BoxPlugin.instance.getKeyManager().giveKey(p, new CrateKey(BoxPlugin.instance.getExcellentCrates(), commonConfig), 1);
             } else if(label.equals("resetperks")) {
                 if(!p.hasPermission("boxplugin.resetperks")) {
                     p.sendMessage(ChatColor.RED + "You don't have permission!");
@@ -539,7 +529,7 @@ public final class BoxPlugin extends JavaPlugin implements CommandExecutor, TabC
                         return true;
                     }
                     File commonConfig = new File(BoxPlugin.instance.getExcellentCrates().getDataFolder().getPath(), "/keys/common.yml");
-                    BoxPlugin.instance.getKeyManager().giveKey(p, new CrateKey(BoxPlugin.instance.getExcellentCrates(), new JYML(commonConfig)), 1);
+                    BoxPlugin.instance.getKeyManager().giveKey(p, new CrateKey(BoxPlugin.instance.getExcellentCrates(), commonConfig), 1);
                     p.sendMessage(ChatColor.GREEN + "Gave 1x Common Key!");
                 } else if(args[0].equals("rare")) {
                     if(!p.hasPermission("boxplugin.key.rare")) {
@@ -547,7 +537,7 @@ public final class BoxPlugin extends JavaPlugin implements CommandExecutor, TabC
                         return true;
                     }
                     File rareConfig = new File(BoxPlugin.instance.getExcellentCrates().getDataFolder().getPath(), "/keys/rare.yml");
-                    BoxPlugin.instance.getKeyManager().giveKey(p, new CrateKey(BoxPlugin.instance.getExcellentCrates(), new JYML(rareConfig)), 1);
+                    BoxPlugin.instance.getKeyManager().giveKey(p, new CrateKey(BoxPlugin.instance.getExcellentCrates(), rareConfig), 1);
                     p.sendMessage(ChatColor.GREEN + "Gave 1x Rare Key!");
                 } else if(args[0].equals("epic")) {
                     if(!p.hasPermission("boxplugin.key.epic")) {
@@ -555,7 +545,7 @@ public final class BoxPlugin extends JavaPlugin implements CommandExecutor, TabC
                         return true;
                     }
                     File epicConfig = new File(BoxPlugin.instance.getExcellentCrates().getDataFolder().getPath(), "/keys/epic.yml");
-                    BoxPlugin.instance.getKeyManager().giveKey(p, new CrateKey(BoxPlugin.instance.getExcellentCrates(), new JYML(epicConfig)), 1);
+                    BoxPlugin.instance.getKeyManager().giveKey(p, new CrateKey(BoxPlugin.instance.getExcellentCrates(), epicConfig), 1);
                     p.sendMessage(ChatColor.GREEN + "Gave 1x Epic Key!");
                 } else if(args[0].equals("legendary")) {
                     if(!p.hasPermission("boxplugin.key.legendary")) {
@@ -563,7 +553,7 @@ public final class BoxPlugin extends JavaPlugin implements CommandExecutor, TabC
                         return true;
                     }
                     File legendaryConfig = new File(BoxPlugin.instance.getExcellentCrates().getDataFolder().getPath(), "/keys/legendary_crate.yml");
-                    BoxPlugin.instance.getKeyManager().giveKey(p, new CrateKey(BoxPlugin.instance.getExcellentCrates(), new JYML(legendaryConfig)), 1);
+                    BoxPlugin.instance.getKeyManager().giveKey(p, new CrateKey(BoxPlugin.instance.getExcellentCrates(), legendaryConfig), 1);
                     p.sendMessage(ChatColor.GREEN + "Gave 1x Legendary Key!");
                 } else {
                     p.sendMessage(ChatColor.RED + "Usage: /key <tier>");
@@ -607,7 +597,7 @@ public final class BoxPlugin extends JavaPlugin implements CommandExecutor, TabC
                     int total = BoxPlugin.instance.getXpManager().getCumulativeLevelUpReward(BoxPlugin.instance.getXpManager().getLevel(p));
                     HashMap<Integer, ItemStack> toDrop = p.getInventory().addItem(Util.itemArray(total, Util::gigaCoin));
                     toDrop.forEach((index, item) -> {
-                        Item entity = (Item) p.getWorld().spawnEntity(p.getLocation(), EntityType.DROPPED_ITEM);
+                        Item entity = (Item) p.getWorld().spawnEntity(p.getLocation(), EntityType.ITEM);
                         entity.setItemStack(item);
                     });
                     p.sendMessage(ChatColor.GREEN + "Claimed " + total + " giga coins!");

@@ -227,7 +227,7 @@ public class AugmentedRailgun extends CustomItem {
                 if(d instanceof ItemFrame) return;
                 if(d instanceof LivingEntity) {
                     if(d.getUniqueId().equals(p.getUniqueId())) continue;
-                    ((LivingEntity) d).addPotionEffect(new PotionEffect(PotionEffectType.SLOW, 30, 2, true, false));
+                    ((LivingEntity) d).addPotionEffect(new PotionEffect(PotionEffectType.SLOWNESS, 30, 2, true, false));
                 }
                 if(d instanceof Player && ((Player) d).isBlocking()) {
                     Util.hitThroughShield(p, (HumanEntity) d, 100, 30);
