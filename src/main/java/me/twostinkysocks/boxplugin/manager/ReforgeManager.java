@@ -1918,6 +1918,7 @@ public class ReforgeManager {
         else if (reforgeChoiceChance1 <= 72) {//choose sweeping edge
             if (!item.getType().name().endsWith("_SWORD")) {
                 item = SwordReforge(item, p);
+                return item;
             }
             p.sendMessage(ChatColor.GREEN + "Common reforge: sweeping edge increased!");
             if(reforgeChoiceChance2 <= 60){
