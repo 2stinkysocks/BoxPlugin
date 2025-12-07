@@ -1,11 +1,11 @@
 name: BoxPlugin
 version: '${project.version}'
 main: me.twostinkysocks.boxplugin.BoxPlugin
-api-version: 1.19
+api-version: 1.21.4
 prefix: BoxPlugin
 authors: [ 2stinkysocks ]
-description: Custom plugin for word witero box server
-depend: [ExcellentCrates, MythicMobs, WorldGuard]
+description: Custom plugin AetherConquest.net
+depend: [ExcellentCrates, MythicMobs, WorldGuard, nightcore]
 softdepend: [LuckPerms, HolographicDisplays, PlaceholderAPI]
 commands:
   sus:
@@ -93,6 +93,36 @@ commands:
   redeemtrialrank:
     usage: /<command>
     description: redeem trial of mvp+
+  registeritem:
+    usage: /<command>
+    description: registeres a item to database
+  registeritemupdate:
+    usage: /<command>
+    description: updates a item to database
+  setitemtoparent:
+    usage: /<command>
+    description: sets a item to match a item in data base
+  reskinned:
+    usage: /<command>
+    description: sets the reskinned value of a item
+  removeitemfromparent:
+    usage: /<command>
+    description: removes the item from updated to its parent
+  removefromdatabase:
+    usage: /<command>
+    description: removes item from database
+  setgearscore:
+    usage: /<command>
+    description: sets gear score to item
+  updatelegacyitemsforall:
+    usage: /<command>
+    description: updates all the old items in players inventories
+  removegearscore:
+    usage: /<command>
+    description: clears gearscore from a item
+  listreforges:
+    usage: /<command>
+    description: shows reforges on item
 permissions:
   boxplugin.manageperks:
     default: false
@@ -164,4 +194,7 @@ permissions:
     default: false
   boxplugin.setmarketmultiplier:
     description: setmarketmultiplier
+    default: false
+  boxplugin.manageitems:
+    description: register items and shit
     default: false

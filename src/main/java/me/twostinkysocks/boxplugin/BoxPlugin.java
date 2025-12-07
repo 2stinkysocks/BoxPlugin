@@ -4,8 +4,10 @@ import com.comphenix.protocol.PacketType;
 import com.comphenix.protocol.ProtocolLibrary;
 import com.comphenix.protocol.ProtocolManager;
 import com.comphenix.protocol.events.PacketContainer;
+import me.twostinkysocks.boxplugin.ItemModification.RegisteredItem;
 import me.twostinkysocks.boxplugin.compressor.Compressor;
 import me.twostinkysocks.boxplugin.customitems.CustomItemsMain;
+import me.twostinkysocks.boxplugin.customitems.items.impl.HealSpear;
 import me.twostinkysocks.boxplugin.event.Listeners;
 import me.twostinkysocks.boxplugin.event.PacketListeners;
 import me.twostinkysocks.boxplugin.event.PlayerBoxXpUpdateEvent;
@@ -40,6 +42,7 @@ import su.nightexpress.excellentcrates.key.KeyManager;
 import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
+import java.sql.SQLException;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -56,6 +59,8 @@ public final class BoxPlugin extends JavaPlugin implements CommandExecutor, TabC
     private ScoreboardManager scoreboardManager;
 
     private XPManager xpManager;
+    private GearScoreManager gearScoreManager;
+    private RegisteredItem registeredItem;
 
     private PVPManager pvpManager;
 
@@ -72,6 +77,7 @@ public final class BoxPlugin extends JavaPlugin implements CommandExecutor, TabC
     private MarketManager marketManager;
 
     private XanatosMenuManager xanatosMenuManager;
+    private ReforgeManager reforgeManager;
 
     private ItemLivesManager itemLivesManager;
 
@@ -159,6 +165,9 @@ public final class BoxPlugin extends JavaPlugin implements CommandExecutor, TabC
         xanatosMenuManager = new XanatosMenuManager();
         itemLivesManager = new ItemLivesManager();
         lotteryManager = new LotteryManager();
+        gearScoreManager = new GearScoreManager();
+        reforgeManager = new ReforgeManager();
+        registeredItem = new RegisteredItem();
 
         excellentCrates = (CratesPlugin) getServer().getPluginManager().getPlugin("ExcellentCrates");
         keyManager = excellentCrates.getKeyManager();
@@ -194,6 +203,16 @@ public final class BoxPlugin extends JavaPlugin implements CommandExecutor, TabC
         getCommand("setmarketmultipier").setExecutor(this);
         getCommand("openxanatosgui").setExecutor(this);
         getCommand("redeemtrialrank").setExecutor(this);
+        getCommand("registeritem").setExecutor(this);
+        getCommand("registeritemupdate").setExecutor(this);
+        getCommand("setitemtoparent").setExecutor(this);
+        getCommand("reskinned").setExecutor(this);
+        getCommand("removeitemfromparent").setExecutor(this);
+        getCommand("removefromdatabase").setExecutor(this);
+        getCommand("setgearscore").setExecutor(this);
+        getCommand("updatelegacyitemsforall").setExecutor(this);
+        getCommand("removegearscore").setExecutor(this);
+        getCommand("listreforges").setExecutor(this);
         getServer().getPluginManager().registerEvents(new Listeners(), this);
         load();
         if(Bukkit.getPluginManager().getPlugin("PlaceholderAPI") != null) {
@@ -280,6 +299,13 @@ public final class BoxPlugin extends JavaPlugin implements CommandExecutor, TabC
     public XPManager getXpManager() {
         return xpManager;
     }
+    public RegisteredItem getRegisteredItem(){
+        return registeredItem;
+    }
+
+    public GearScoreManager getGearScoreManager() {
+        return gearScoreManager;
+    }
 
     public LuckPerms getLuckPerms() {return LuckPermsProvider.get();}
 
@@ -322,6 +348,9 @@ public final class BoxPlugin extends JavaPlugin implements CommandExecutor, TabC
     public XanatosMenuManager getXanatosMenuManager() {
         return xanatosMenuManager;
     }
+    public ReforgeManager getReforgeManager(){
+        return reforgeManager;
+    }
 
     public ItemLivesManager getItemLivesManager() {
         return itemLivesManager;
@@ -330,7 +359,6 @@ public final class BoxPlugin extends JavaPlugin implements CommandExecutor, TabC
     public LotteryManager getLotteryManager() {
         return lotteryManager;
     }
-
 //    public StateFlag getEntityInteractFlag() {
 //        return entityInteract;
 //    }
@@ -411,9 +439,8 @@ public final class BoxPlugin extends JavaPlugin implements CommandExecutor, TabC
                             .write(2, to.getLocation().getZ());
                     try {
                         protocolManager.sendServerPacket(to, fakeEXP);
-                    } catch (InvocationTargetException e) {
-                        throw new RuntimeException(
-                                "Cannot send packet " + fakeEXP, e);
+                    } catch (Exception e) {  // ← broad catch to handle any runtime exception
+                        e.printStackTrace();
                     }
                 }
             } else if(label.equals("boxplugin")) {
@@ -705,6 +732,210 @@ public final class BoxPlugin extends JavaPlugin implements CommandExecutor, TabC
                 Bukkit.getServer().dispatchCommand(Bukkit.getConsoleSender(), "lp user " + p.getName() + " parent addtemp mvp+ 3d"); // lmao
                 p.getPersistentDataContainer().set(new NamespacedKey(BoxPlugin.instance, "claimedtrialrank"), PersistentDataType.INTEGER, 1);
                 p.sendMessage(ChatColor.GREEN + "Successfully claimed your MVP+ 3 day trial!");
+            } else if (label.equals("registeritem")) {
+                if(!p.hasPermission("boxplugin.manageitems")) {
+                    p.sendMessage(ChatColor.RED + "You don't have permission!");
+                    return true;
+                }
+                if(args.length == 1){
+                    ItemStack item = p.getInventory().getItemInMainHand();
+                    if(item.getType().isAir()){
+                        p.sendMessage(ChatColor.RED + "You must hold a item for this command");
+                    }else {
+                        try {
+                            getRegisteredItem().RegisterItem(item, args[0]);
+                            p.sendMessage(ChatColor.GREEN + "Successfully stored item " + args[0] + " into the data base");
+                        } catch (SQLException e) {
+                            throw new RuntimeException(e);
+                        }
+                    }
+                }
+                else {
+                    p.sendMessage(ChatColor.RED + "Incorrect Usage: use /registeritem [name to register]");
+                }
+                return true;
+
+            } else if (label.equals("registeritemupdate")) {
+                if(!p.hasPermission("boxplugin.manageitems")) {
+                    p.sendMessage(ChatColor.RED + "You don't have permission!");
+                    return true;
+                }
+                if(args.length == 1){
+                    ItemStack item = p.getInventory().getItemInMainHand();
+                    if(item.getType().isAir()){
+                        p.sendMessage(ChatColor.RED + "You must hold a item for this command");
+                    }else {
+                        try {
+                            getRegisteredItem().RegisterItem(item, args[0]);
+                            p.sendMessage(ChatColor.GREEN + "Successfully updated item " + args[0] + " into the data base");
+                        } catch (SQLException e) {
+                            throw new RuntimeException(e);
+                        }
+                    }
+                }
+                else {
+                    p.sendMessage(ChatColor.RED + "Incorrect Usage: use /registeritemupdate [name to update]");
+                }
+                return true;
+
+            } else if (label.equals("setitemtoparent")) {
+                if(!p.hasPermission("boxplugin.manageitems")) {
+                    p.sendMessage(ChatColor.RED + "You don't have permission!");
+                    return true;
+                }
+                if(args.length == 1){
+                    ItemStack item = p.getInventory().getItemInMainHand();
+                    if(item.getType().isAir()){
+                        p.sendMessage(ChatColor.RED + "You must hold a item for this command");
+                    }else {
+                        try {
+                            getRegisteredItem().SetItemToBelongToRegisteredItem(item, args[0]);
+                            p.sendMessage(ChatColor.GREEN + "Successfully registered " + args[0] + " to this item");
+                        } catch (SQLException e) {
+                            throw new RuntimeException(e);
+                        }
+                    }
+                    p.getInventory().setItemInMainHand(item);
+                }
+                else {
+                    p.sendMessage(ChatColor.RED + "Incorrect Usage: use /setitemtoparent [parent to set]");
+                }
+                return true;
+
+            } else if (label.equals("reskinned")) {
+                if(!p.hasPermission("boxplugin.manageitems")) {
+                    p.sendMessage(ChatColor.RED + "You don't have permission!");
+                    return true;
+                }
+                if(args.length == 1){
+                    ItemStack item = p.getInventory().getItemInMainHand();
+                    if(item.getType().isAir()){
+                        p.sendMessage(ChatColor.RED + "You must hold a item for this command");
+                    }else {
+                        boolean status = false;
+
+                        if(Objects.equals(args[0], "true")){
+                            status = true;
+                            p.sendMessage(ChatColor.GREEN + "Successfully set this item to reskinned variant");
+                        } else if (Objects.equals(args[0], "false")) {
+                            status = false;
+                            p.sendMessage(ChatColor.GREEN + "Successfully removed this item from reskinned variant");
+                        }
+                        getRegisteredItem().SetReskinnedStatus(item, status);
+                    }
+                    p.getInventory().setItemInMainHand(item);
+                }
+                else {
+                    p.sendMessage(ChatColor.RED + "Incorrect Usage: use /reskinned [true / false]");
+                }
+                return true;
+
+            } else if (label.equals("removeitemfromparent")) {
+                if(!p.hasPermission("boxplugin.manageitems")) {
+                    p.sendMessage(ChatColor.RED + "You don't have permission!");
+                    return true;
+                }
+                ItemStack item = p.getInventory().getItemInMainHand();
+
+                try {
+                    getRegisteredItem().RemoveItemFromBelongingToParent(item);
+                    p.sendMessage(ChatColor.GREEN + "Successfully removed this item from its parent");
+                    p.getInventory().setItemInMainHand(item);
+                } catch (SQLException e) {
+                    throw new RuntimeException(e);
+                }
+                return true;
+            } else if (label.equals("removefromdatabase")) {
+                if(args.length == 1){
+                    try {
+                        getRegisteredItem().RemoveFromDatabase(args[0]);
+                        p.sendMessage(ChatColor.GREEN + "Successfully removed item " + args[0] + " from the data base");
+                    } catch (SQLException e) {
+                        throw new RuntimeException(e);
+                    }
+                }
+                else {
+                    p.sendMessage(ChatColor.RED + "Incorrect Usage: use /removefromdatabase [name to remove]");
+                }
+                return true;
+
+            } else if (label.equals("setgearscore")) {
+                if(!p.hasPermission("boxplugin.manageitems")) {
+                    p.sendMessage(ChatColor.RED + "You don't have permission!");
+                    return true;
+                }
+                if(args.length == 1){
+                    ItemStack item = p.getInventory().getItemInMainHand();
+                    int gearScore;
+                    if(item.getType().isAir()){
+                        p.sendMessage(ChatColor.RED + "You must hold a item for this command");
+                    }else {
+                        try{
+                            gearScore = Integer.parseInt(args[0]);
+
+                            item = GearScoreManager.setGearScore(item, gearScore);
+                            p.getInventory().setItemInMainHand(item);
+
+                        } catch (NumberFormatException e){
+                            p.sendMessage(ChatColor.RED + "Incorrect Usage: use /setgearscore [score]");
+                        }
+                    }
+                }
+                else {
+                    p.sendMessage(ChatColor.RED + "Incorrect Usage: use /setgearscore [score]");
+                }
+                return true;
+
+            } else if (label.equals("updatelegacyitemsforall")) {
+                if(!p.hasPermission("boxplugin.manageitems")) {
+                    p.sendMessage(ChatColor.RED + "You don't have permission!");
+                    return true;
+                }
+                for(Player players : Bukkit.getOnlinePlayers()){
+                    try {
+                        getRegisteredItem().UpdateLegacyItems(players);
+                    } catch (SQLException e) {
+                        throw new RuntimeException(e);
+                    }
+                }
+                return true;
+
+            } else if (label.equals("removegearscore")) {
+                if(!p.hasPermission("boxplugin.manageitems")) {
+                    p.sendMessage(ChatColor.RED + "You don't have permission!");
+                    return true;
+                }
+                ItemStack item = p.getInventory().getItemInMainHand();
+                if(item.getType().isAir()){
+                    p.sendMessage(ChatColor.RED + "You must hold a item for this command");
+                }else {
+                    ItemMeta itemMeta = GearScoreManager.RemoveGearScore(item.getItemMeta());
+                    item.setItemMeta(itemMeta);
+                    p.getInventory().setItemInMainHand(item);
+                }
+                return true;
+
+            } else if (label.equals("listreforges")) {
+                ItemStack item = p.getInventory().getItemInMainHand();
+                if(item.getType().isAir()){
+                    p.sendMessage(ChatColor.RED + "You must hold a item for this command");
+                    return true;
+                }else {
+                    if(getReforgeManager().hasReforges(item)){
+                        List reforgeList = getReforgeManager().getReforgeList(item);
+                        p.sendMessage(ChatColor.GOLD + "Your item has " + getReforgeManager().getNumReforges(item) + " reforges:");
+                        int listSize = reforgeList.size();
+
+                        for(int i = 0; i < listSize; i++){
+                            String reforgeInfo = reforgeList.get(i).toString();
+                            p.sendMessage(ChatColor.DARK_AQUA + "" + (i + 1) + ": " + reforgeInfo);
+                        }
+                    } else {
+                        p.sendMessage(ChatColor.RED + "This item is not reforged");
+                    }
+                }
+                return true;
+
             }
         }
 
@@ -772,7 +1003,49 @@ public final class BoxPlugin extends JavaPlugin implements CommandExecutor, TabC
                 StringUtil.copyPartialMatches(args[1], Arrays.stream(PerksManager.Perk.values()).filter(per -> per.instance instanceof Upgradable).map(per -> per.instance.getKey()).collect(Collectors.toList()), completions);
                 return completions;
             }
+        } else if (alias.equals("registeritemupdate")) {
+            if(args.length == 1) {
+                ArrayList<String> registeredNames;
+                try {
+                    registeredNames = getRegisteredItem().GetAllRegisteredNames();
+                } catch (SQLException e) {
+                    throw new RuntimeException(e);
+                }
+
+                StringUtil.copyPartialMatches(args[0], registeredNames, completions);
+                return completions;
+            }
+        } else if (alias.equals("setitemtoparent")) {
+            if(args.length == 1) {
+                ArrayList<String> registeredNames;
+                try {
+                    registeredNames = getRegisteredItem().GetAllRegisteredNames();
+                } catch (SQLException e) {
+                    throw new RuntimeException(e);
+                }
+
+                StringUtil.copyPartialMatches(args[0], registeredNames, completions);
+                return completions;
+            }
+        } else if (alias.equals("removefromdatabase")) {
+            if(args.length == 1) {
+                ArrayList<String> registeredNames;
+                try {
+                    registeredNames = getRegisteredItem().GetAllRegisteredNames();
+                } catch (SQLException e) {
+                    throw new RuntimeException(e);
+                }
+
+                StringUtil.copyPartialMatches(args[0], registeredNames, completions);
+                return completions;
+            }
+        } else if(alias.equals("reskinned")) {
+            if(args.length == 1) {
+                StringUtil.copyPartialMatches(args[0], List.of("true", "false"), completions);
+                return completions;
+            }
         }
+
         return List.of();
     }
 }

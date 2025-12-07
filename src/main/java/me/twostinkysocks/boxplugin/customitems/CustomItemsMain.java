@@ -59,6 +59,9 @@ public class CustomItemsMain implements CommandExecutor, TabCompleter {
         registerItem(new TalismanOfEnergy(this));
         registerItem(new ClusterGrenade(this));
         registerItem(new HealSpear(this));
+        HealSpear healSpear = new HealSpear(this);
+        registerItem(healSpear);
+        BoxPlugin.instance.getServer().getPluginManager().registerEvents(healSpear, BoxPlugin.instance);
         registerItem(new Hyperion(this));
         registerItem(new MilkPotion(this));
         registerItem(new ThrowableLava(this));

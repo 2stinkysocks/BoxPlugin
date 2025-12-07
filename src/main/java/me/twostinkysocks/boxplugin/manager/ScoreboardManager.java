@@ -3,6 +3,7 @@ package me.twostinkysocks.boxplugin.manager;
 import me.twostinkysocks.boxplugin.BoxPlugin;
 import me.twostinkysocks.boxplugin.util.Util;
 import org.bukkit.Bukkit;
+import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
 import org.bukkit.scoreboard.DisplaySlot;
 import org.bukkit.scoreboard.Objective;
@@ -59,7 +60,7 @@ public class ScoreboardManager {
         for(int i = 0; i < list.size(); i++) {
             String emptyName = new String(new char[i+1]).replace("\0", "§r");
             Team team = scoreboard.registerNewTeam(emptyName);
-            String text = Util.colorize(list.get(i).replaceAll("%level%", "" + BoxPlugin.instance.getXpManager().getLevel(p)).replaceAll("%needed-xp%","" + BoxPlugin.instance.getXpManager().getNeededXp(p)).replaceAll("%streak%", "" + BoxPlugin.instance.getPvpManager().getStreak(p)).replaceAll("%bounty%", "" + BoxPlugin.instance.getPvpManager().getBounty(p))).replaceAll("%rubies%", "" + BoxPlugin.instance.getMarketManager().getRubies(p)).replaceAll("%coins%", "" + BoxPlugin.instance.getMarketManager().getCoinsBalance(p));
+            String text = Util.colorize(list.get(i).replaceAll("%level%", "" + BoxPlugin.instance.getXpManager().getLevel(p)).replaceAll("%needed-xp%","" + BoxPlugin.instance.getXpManager().getNeededXp(p)).replaceAll("%streak%", "" + BoxPlugin.instance.getPvpManager().getStreak(p)).replaceAll("%bounty%", "" + BoxPlugin.instance.getPvpManager().getBounty(p))).replaceAll("%rubies%", "" + BoxPlugin.instance.getMarketManager().getRubies(p)).replaceAll("%coins%", "" + BoxPlugin.instance.getMarketManager().getCoinsBalance(p)).replaceAll("%gearscore%", "" + GearScoreManager.GetPlayerGearscore(p));
             team.setSuffix(text);
             team.addEntry(emptyName);
             objective.getScore(emptyName).setScore(list.size()-i);

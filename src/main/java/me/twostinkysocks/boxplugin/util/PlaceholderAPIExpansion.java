@@ -2,6 +2,7 @@ package me.twostinkysocks.boxplugin.util;
 
 import me.clip.placeholderapi.expansion.PlaceholderExpansion;
 import me.twostinkysocks.boxplugin.BoxPlugin;
+import me.twostinkysocks.boxplugin.manager.GearScoreManager;
 import org.bukkit.ChatColor;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.entity.Player;
@@ -54,6 +55,15 @@ public class PlaceholderAPIExpansion extends PlaceholderExpansion {
             if(player instanceof Player) {
                 Player p = (Player) player;
                 return BoxPlugin.instance.getGhostTokenManager().hasGhostItems(p) ? ChatColor.WHITE + "\uD83D\uDC7B" + ChatColor.GRAY + " Ghost Items " + ChatColor.WHITE + "\uD83D\uDC7B" : "";
+            } else {
+                return "";
+            }
+        }
+
+        if(params.equalsIgnoreCase("gearscore")) {
+            if(player instanceof Player) {
+                Player p = (Player) player;
+                return String.valueOf(GearScoreManager.GetPlayerGearscore(p));
             } else {
                 return "";
             }

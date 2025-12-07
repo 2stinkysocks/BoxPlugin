@@ -1,10 +1,10 @@
 package me.twostinkysocks.boxplugin.customitems.items.impl;
 
+import me.twostinkysocks.boxplugin.util.Laser;
 import me.twostinkysocks.boxplugin.BoxPlugin;
 import me.twostinkysocks.boxplugin.customitems.CustomItemsMain;
 import me.twostinkysocks.boxplugin.customitems.items.CustomItem;
 import me.twostinkysocks.boxplugin.manager.PerksManager;
-import me.twostinkysocks.boxplugin.util.Laser;
 import me.twostinkysocks.boxplugin.util.MathUtil;
 import me.twostinkysocks.boxplugin.util.RayTrace;
 import me.twostinkysocks.boxplugin.util.Util;
@@ -14,6 +14,7 @@ import org.bukkit.entity.*;
 import org.bukkit.event.block.Action;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
+import org.bukkit.util.RayTraceResult;
 import org.bukkit.util.Vector;
 
 import java.math.BigDecimal;
@@ -65,9 +66,24 @@ public class AugmentedRailgun extends CustomItem {
     }
 
     private void spawnEffects(Player p, UUID instanceUUID, Vector direction) throws ReflectiveOperationException {
+        //old 1.19 version idk
+//        Location startLoc = p.getLocation().clone().add(0, 1, 0);
+//
+//        Location endLoc = p.getTargetBlock(Set.of(Material.values()), 50).getLocation();
+//
+//        Location middle = new Location(startLoc.getWorld(), (startLoc.getX()+endLoc.getX())/2, (startLoc.getY()+endLoc.getY())/2, (startLoc.getZ()+endLoc.getZ())/2);
+
+        //new clanker given 1.21 version
         Location startLoc = p.getLocation().clone().add(0, 1, 0);
-        Location endLoc = p.getTargetBlock(Set.of(Material.values()), 50).getLocation();
-        Location middle = new Location(startLoc.getWorld(), (startLoc.getX()+endLoc.getX())/2, (startLoc.getY()+endLoc.getY())/2, (startLoc.getZ()+endLoc.getZ())/2);
+        Vector dir = startLoc.getDirection().normalize();
+        Location endLoc = startLoc.clone().add(dir.multiply(50));
+        Location middle = new Location(
+                startLoc.getWorld(),
+                (startLoc.getX() + endLoc.getX()) / 2,
+                (startLoc.getY() + endLoc.getY()) / 2,
+                (startLoc.getZ() + endLoc.getZ()) / 2
+        );
+
         p.getWorld().playSound(startLoc, Sound.BLOCK_CONDUIT_ACTIVATE, 0.5f, 2f);
         p.getWorld().playSound(startLoc, Sound.BLOCK_BEACON_ACTIVATE, 0.5f, 2f);
         p.getWorld().playSound(endLoc, Sound.BLOCK_CONDUIT_ACTIVATE, 0.5f, 2f);
@@ -138,6 +154,8 @@ public class AugmentedRailgun extends CustomItem {
                 task.cancel();
             }
         }, 4, 1);
+
+
         Laser laser = new Laser.GuardianLaser(startLoc, endLoc, -1, -1);
         laser.start(BoxPlugin.instance);
 
@@ -148,11 +166,14 @@ public class AugmentedRailgun extends CustomItem {
 
             Vector translation = direction.clone().normalize().multiply(1);
             Location locationidk = startLocClone.clone().add(translation);
+
             spawnCircle(p, locationidk, translation, 0.5, 50, 0);
             translation = direction.clone().normalize().multiply(2);
+
             spawnCircle(p, locationidk, translation, 0.5, 50, 0);
             translation = direction.clone().normalize().multiply(3);
             spawnCircle(p, locationidk, translation, 0.5, 50, 0);
+
             p.getWorld().spawnParticle(Particle.LAVA, locationidk, 50, 0.3, 0.3, 0.3);
 
             startLocClone.add(direction.clone().normalize().multiply(3));
@@ -203,7 +224,9 @@ public class AugmentedRailgun extends CustomItem {
     private void shoot(Player p) throws ReflectiveOperationException {
         UUID instanceUUID = UUID.randomUUID();
         Location startLoc = p.getLocation().clone().add(0, 1, 0);
-        spawnEffects(p, instanceUUID, p.getLocation().getDirection());
+
+        spawnEffects(p, instanceUUID, p.getLocation().getDirection().normalize());
+
         Bukkit.getScheduler().runTaskLater(BoxPlugin.instance, () -> {
             List<Entity> nearbyEntities = new ArrayList<>(startLoc.getWorld().getNearbyEntities(startLoc, 50, 50, 50));
 
