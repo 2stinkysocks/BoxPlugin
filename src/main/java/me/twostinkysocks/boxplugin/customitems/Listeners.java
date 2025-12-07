@@ -3,6 +3,8 @@ package me.twostinkysocks.boxplugin.customitems;
 import com.google.common.util.concurrent.AtomicDouble;
 import me.twostinkysocks.boxplugin.BoxPlugin;
 import me.twostinkysocks.boxplugin.customitems.items.CustomItem;
+import me.twostinkysocks.boxplugin.customitems.items.impl.HealSpear;
+import me.twostinkysocks.boxplugin.manager.PerksManager;
 import me.twostinkysocks.boxplugin.util.Util;
 import org.bukkit.*;
 import org.bukkit.entity.*;
@@ -202,9 +204,9 @@ public class Listeners implements Listener {
                             ((Player) entity).setCooldown(Material.SHIELD, 30);
                         }
                         if(entity instanceof Player && ((Player) entity).isBlocking()) {
-                            Util.hitThroughShield((Entity) e.getEntity().getShooter(), (Player) entity, 50, 30);
+                            Util.hitThroughShield((Entity) e.getEntity().getShooter(), (Player) entity, 25, 30);
                         } else {
-                            entity.damage(50, (Entity) e.getEntity().getShooter());
+                            entity.damage(40, (Entity) e.getEntity().getShooter());
                         }
                         if(entity.getUniqueId().equals(((Entity) e.getEntity().getShooter()).getUniqueId()) && e.getEntity().getShooter() instanceof Player && ((Player) e.getEntity().getShooter()).getHealth() < 1) {
                             ((Player)e.getEntity().getShooter()).setHealth(1);
@@ -212,8 +214,13 @@ public class Listeners implements Listener {
                         damage = damage - entity.getHealth();
                         double finalDamage = damage;
                         Player p = (Player) e.getEntity().getShooter();
+                        double maxHealCap = p.getMaxHealth() * 0.33; //33% of max hp
                         Util.debug(p, "Healed for " + Math.min(finalDamage*0.7, 0));
-                        p.setHealth(Math.min(p.getHealth() + (finalDamage*0.7), p.getMaxHealth()));
+                        if(finalDamage * 0.7 > maxHealCap){// implements heal cap
+                            p.setHealth(Math.min(p.getHealth() + maxHealCap, p.getMaxHealth()));
+                        } else {
+                            p.setHealth(Math.min(p.getHealth() + (finalDamage*0.7), p.getMaxHealth()));
+                        }
                     }
                 }
                 i.getAndAdd(1);

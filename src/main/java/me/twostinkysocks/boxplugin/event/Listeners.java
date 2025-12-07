@@ -1,7 +1,9 @@
 package me.twostinkysocks.boxplugin.event;
 
 import me.twostinkysocks.boxplugin.BoxPlugin;
+import me.twostinkysocks.boxplugin.ItemModification.RegisteredItem;
 import me.twostinkysocks.boxplugin.customitems.items.impl.CageStaff;
+import me.twostinkysocks.boxplugin.manager.GearScoreManager;
 import me.twostinkysocks.boxplugin.manager.PerksManager;
 import me.twostinkysocks.boxplugin.manager.PerksManager.Perk;
 import me.twostinkysocks.boxplugin.perks.PerkXPBoost;
@@ -9,8 +11,8 @@ import me.twostinkysocks.boxplugin.util.Util;
 import org.bukkit.*;
 import org.bukkit.attribute.Attribute;
 import org.bukkit.block.Block;
-import org.bukkit.craftbukkit.v1_21_R1.inventory.CraftInventoryCrafting;
-import org.bukkit.craftbukkit.v1_21_R1.inventory.CraftInventoryPlayer;
+import org.bukkit.craftbukkit.v1_21_R3.inventory.CraftInventoryCrafting;
+import org.bukkit.craftbukkit.v1_21_R3.inventory.CraftInventoryPlayer;
 import org.bukkit.entity.*;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
@@ -19,10 +21,7 @@ import org.bukkit.event.block.*;
 import org.bukkit.event.entity.*;
 import org.bukkit.event.hanging.HangingBreakByEntityEvent;
 import org.bukkit.event.hanging.HangingBreakEvent;
-import org.bukkit.event.inventory.ClickType;
-import org.bukkit.event.inventory.InventoryAction;
-import org.bukkit.event.inventory.InventoryClickEvent;
-import org.bukkit.event.inventory.InventoryDragEvent;
+import org.bukkit.event.inventory.*;
 import org.bukkit.event.player.*;
 import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemStack;
@@ -30,11 +29,17 @@ import org.bukkit.persistence.PersistentDataType;
 
 import java.io.File;
 import java.io.IOException;
+import java.sql.SQLException;
 import java.util.*;
 import java.util.stream.Collectors;
 
 
 public class Listeners implements Listener {
+
+    public RegisteredItem getRegisteredItem(){
+        RegisteredItem RegisteredItem = new RegisteredItem();
+        return RegisteredItem;
+    }
 
     @EventHandler
     public void entityDeath(EntityDeathEvent e) {
@@ -92,6 +97,26 @@ public class Listeners implements Listener {
             }
         }
     }
+    @EventHandler
+    public void onInventoryOpen(InventoryOpenEvent e){//update gear score on inventory update
+        Player p = (Player) e.getPlayer();
+        Bukkit.getScheduler().runTaskLater(BoxPlugin.instance, () -> {//let it register item in inventory first
+            GearScoreManager.UpdatePlayerGearscore(p);
+            BoxPlugin.instance.getScoreboardManager().updatePlayerScoreboard(p);
+        }, 10);
+    }
+
+    @EventHandler
+    public void onPickup(EntityPickupItemEvent e){//update gear score on item pickup
+        if (!(e.getEntity() instanceof Player player)){
+            return;
+        }
+
+        Bukkit.getScheduler().runTaskLater(BoxPlugin.instance, () -> {//let it register item in inventory first
+            GearScoreManager.UpdatePlayerGearscore(player);
+            BoxPlugin.instance.getScoreboardManager().updatePlayerScoreboard(player);
+        }, 10);
+    }
 
     @EventHandler
     public void entityInteract(PlayerInteractEntityEvent e) {
@@ -110,6 +135,10 @@ public class Listeners implements Listener {
             e.setCancelled(true);
             BoxPlugin.instance.getPerksManager().openMainGui(p);
         }
+        Bukkit.getScheduler().runTaskLater(BoxPlugin.instance, () -> {//let it register item in inventory first
+            GearScoreManager.UpdatePlayerGearscore(p);
+            BoxPlugin.instance.getScoreboardManager().updatePlayerScoreboard(p);
+        }, 10);
     }
 
     @EventHandler
@@ -142,7 +171,7 @@ public class Listeners implements Listener {
             if(BoxPlugin.instance.getPerksManager().getSelectedMegaPerks(p).contains(PerksManager.MegaPerk.MEGA_LIFESTEAL)) {
                 if(p.getLocation().distance(e.getEntity().getLocation()) < 6) {
                     Util.debug(p, "Healed for " + (e.getFinalDamage() * 0.15) + " from lifesteal");
-                    p.setHealth(Math.min(p.getHealth() + (e.getFinalDamage() * 0.15), p.getAttribute(Attribute.GENERIC_MAX_HEALTH).getValue()));
+                    p.setHealth(Math.min(p.getHealth() + (e.getFinalDamage() * 0.15), p.getAttribute(Attribute.MAX_HEALTH).getValue()));
 
                 }
             }
@@ -249,7 +278,7 @@ public class Listeners implements Listener {
     }
 
     @EventHandler
-    public void onJoin(PlayerJoinEvent e) {
+    public void onJoin(PlayerJoinEvent e) throws SQLException {
         Player p = e.getPlayer();
         Bukkit.getScheduler().runTaskLater(BoxPlugin.instance, () -> {
             if(p.getPersistentDataContainer().has(new NamespacedKey(BoxPlugin.instance, "PREVIOUS_HEALTH"), PersistentDataType.DOUBLE)) {
@@ -275,6 +304,23 @@ public class Listeners implements Listener {
             p.getPersistentDataContainer().set(new NamespacedKey(BoxPlugin.instance, "xp"), PersistentDataType.INTEGER, 0);
         }
 
+        //set gearscore and items
+        Bukkit.getScheduler().runTaskLater(BoxPlugin.instance, () -> {//let it register item in inventory first
+            try {
+                if(getRegisteredItem().UpdateLegacyItems(p)){
+                    p.sendMessage(ChatColor.GOLD + "Old items were found in your inventory and updated automatically!");
+                }
+            } catch (SQLException ex) {
+                throw new RuntimeException(ex);
+            }
+            try {
+                getRegisteredItem().UpdateCurrentItems(p);
+            } catch (SQLException ex) {
+                throw new RuntimeException(ex);
+            }
+            GearScoreManager.UpdatePlayerGearscore(p);
+        }, 20);
+
         // legacy xp
 
         if(BoxPlugin.instance.getXpManager().getXP(p) == 0) { // add flag by default if new player
@@ -287,7 +333,7 @@ public class Listeners implements Listener {
                 p.sendMessage(ChatColor.RED + "Leveling up now rewards coins over time, which you haven't claimed!");
                 p.sendMessage(ChatColor.RED + "" + ChatColor.BOLD + "You cannot gain xp until you claim your levelup rewards with " + ChatColor.GREEN + ChatColor.BOLD + "/claimlegacyrewards");
                 p.sendMessage(ChatColor.RED + "Make sure to clear your inventory before claiming rewards!");
-            },5);
+            },20);
         }
 
         //
@@ -373,6 +419,10 @@ public class Listeners implements Listener {
                 player.playSound(player.getLocation(), Sound.ENTITY_ENDERMAN_TELEPORT, 0.25f, 0.5f);
             }
         }
+        Bukkit.getScheduler().runTaskLater(BoxPlugin.instance, () -> {//let it register item in inventory first
+            GearScoreManager.UpdatePlayerGearscore(player);
+            BoxPlugin.instance.getScoreboardManager().updatePlayerScoreboard(player);
+        }, 10);
     }
 
     @EventHandler
@@ -393,6 +443,10 @@ public class Listeners implements Listener {
                 }
             }
         }
+        Bukkit.getScheduler().runTaskLater(BoxPlugin.instance, () -> {//let it register item in inventory first
+            GearScoreManager.UpdatePlayerGearscore(player);
+            BoxPlugin.instance.getScoreboardManager().updatePlayerScoreboard(player);
+        }, 10);
     }
 
     @EventHandler(priority = EventPriority.MONITOR)
@@ -436,6 +490,8 @@ public class Listeners implements Listener {
             p.sendMessage(ChatColor.RED + "You can't drop soulbound items!");
             p.playSound(p.getLocation(), Sound.ENTITY_ENDERMAN_TELEPORT, 0.25f, 0.5f);
         }
+        GearScoreManager.UpdatePlayerGearscore(p);
+        BoxPlugin.instance.getScoreboardManager().updatePlayerScoreboard(p);
     }
 
     @EventHandler
@@ -512,12 +568,24 @@ public class Listeners implements Listener {
         int causexp = BoxPlugin.instance.getXpManager().getXP(cause);
         int targetlevel = BoxPlugin.instance.getXpManager().getLevel(target);
 
+        double dropChanceConst1 = 0.8; //raise
+        double dropChanceConst2 = 1.6;
+
         double xpdiff = ((double) BoxPlugin.instance.getXpManager().getXP(cause)) / BoxPlugin.instance.getXpManager().getXP(target);
-        double dropChance = 205.0 - (100.0*xpdiff);
+        double gearScoreDiff = ((double) GearScoreManager.GetPlayerGearscore(cause) / GearScoreManager.GetPlayerGearscore(target));
+
+        double dropChanceFromXp = 205.0 - (100.0*xpdiff);
+        double dropChanceFromGearScore = 205.0 - (100.0*gearScoreDiff);
+
+        if(dropChanceFromGearScore < 0){
+            dropChanceFromGearScore = 0;
+        }
+
+        double dropChance = (dropChanceConst1)*(Math.pow(dropChanceFromGearScore, dropChanceConst2)) + ((1 - dropChanceConst1)*(dropChanceFromXp)); //big fucky formula that works in favoring gearscore
         double percentChance = Math.max(Math.min(1.0, dropChance / 100.0), 0.05);
 
         Util.dropPercent(e, percentChance);
-        target.sendMessage(ChatColor.RED + "You lost " + (int)(100*percentChance) + "% of your items due to the level difference between you and the other player!");
+        target.sendMessage(ChatColor.RED + "You lost " + (int)(100*percentChance) + "% of your items due to the level and gear score difference between you and the other player!");
         // skulls
         if(xpdiff <= 2) {
             e.getDrops().add(new ItemStack(Material.SKELETON_SKULL, BoxPlugin.instance.getPvpManager().getBounty(target)));
@@ -583,7 +651,7 @@ public class Listeners implements Listener {
             return;
         }
 
-        if((afterlevel/5) > (beforelevel/5)) {
+        if((afterlevel/5) > (beforelevel/5) || (afterlevel/6) > (beforelevel/5)) {
             int toGive = BoxPlugin.instance.getXpManager().getLevelUpRewardLevelToLevel(BoxPlugin.instance.getXpManager().convertXPToLevel(e.getBeforeXP()), BoxPlugin.instance.getXpManager().getLevel(p));
             HashMap<Integer, ItemStack> toDrop = p.getInventory().addItem(Util.itemArray(toGive, Util::gigaCoin));
             toDrop.forEach((index, item) -> {

@@ -8,7 +8,10 @@ import org.bukkit.*;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
+import org.bukkit.event.EventHandler;
+import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
+import org.bukkit.event.entity.ProjectileLaunchEvent;
 import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
@@ -19,7 +22,7 @@ import java.math.MathContext;
 import java.util.HashMap;
 import java.util.UUID;
 
-public class HealSpear extends CustomItem {
+public class HealSpear extends CustomItem implements Listener {
 
     private HashMap<UUID, Long> cooldown;
 
@@ -34,9 +37,7 @@ public class HealSpear extends CustomItem {
         setClick((e, a) -> {
             Player p = e.getPlayer();
             if(a == Action.RIGHT_CLICK_AIR || a == Action.RIGHT_CLICK_BLOCK) {
-                if(p.hasPermission("customitems.cooldownbypass") || !cooldown.containsKey(p.getUniqueId()) || cooldown.get(p.getUniqueId()) < System.currentTimeMillis()) {
-                    cooldown.put(p.getUniqueId(), System.currentTimeMillis() + (long)(45000 * (BoxPlugin.instance.getPerksManager().getSelectedMegaPerks(p).contains(PerksManager.MegaPerk.MEGA_COOLDOWN_REDUCTION) ? 0.5 : 1)));
-                } else {
+                if(!p.hasPermission("customitems.cooldownbypass") && cooldown.containsKey(p.getUniqueId()) && cooldown.get(p.getUniqueId()) > System.currentTimeMillis()) {
                     e.setCancelled(true);
                     BigDecimal bd = new BigDecimal(((double)(cooldown.get(p.getUniqueId()) - System.currentTimeMillis()))/1000.0);
                     bd = bd.round(new MathContext(2));
@@ -45,6 +46,7 @@ public class HealSpear extends CustomItem {
                 }
             }
         });
+
         Bukkit.getScheduler().runTaskTimer(BoxPlugin.instance, () -> {
             for(World world : Bukkit.getWorlds()) {
                 for(Entity entity : world.getEntities()) {
@@ -55,6 +57,7 @@ public class HealSpear extends CustomItem {
             }
         }, 1L, 1L);
     }
+
     @Override
     public ItemStack getItemStack() {
         ItemStack stack = super.getItemStack();
@@ -63,5 +66,15 @@ public class HealSpear extends CustomItem {
         meta.addItemFlags(ItemFlag.HIDE_UNBREAKABLE, ItemFlag.HIDE_ENCHANTS);
         stack.setItemMeta(meta);
         return stack;
+    }
+
+    @EventHandler
+    public void projectile(ProjectileLaunchEvent e) {
+        if(e.getEntity().getShooter() instanceof Player) {
+            Player p = (Player) e.getEntity().getShooter();
+            if(p.getInventory().getItemInMainHand().hasItemMeta() && p.getInventory().getItemInMainHand().getItemMeta().getPersistentDataContainer().has(new NamespacedKey(BoxPlugin.instance, "ITEM_ID"), PersistentDataType.STRING) && p.getInventory().getItemInMainHand().getItemMeta().getPersistentDataContainer().get(new NamespacedKey(BoxPlugin.instance, "ITEM_ID"), PersistentDataType.STRING).equals("HEAL_SPEAR")) {
+                cooldown.put(p.getUniqueId(), System.currentTimeMillis() + (long)(45000 * (BoxPlugin.instance.getPerksManager().getSelectedMegaPerks(p).contains(PerksManager.MegaPerk.MEGA_COOLDOWN_REDUCTION) ? 0.5 : 1)));
+            }
+        }
     }
 }

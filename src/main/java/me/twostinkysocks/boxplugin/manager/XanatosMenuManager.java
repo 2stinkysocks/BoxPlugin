@@ -43,8 +43,8 @@ public class XanatosMenuManager {
 
         GuiItem reforgeGui = new GuiItem(reforge, e -> {
             e.setCancelled(true);
-            p.playSound(p.getLocation(), Sound.BLOCK_FIRE_EXTINGUISH, 3.0F, 1.0F);
-            p.sendMessage(ChatColor.RED + "Coming Soon");
+            p.playSound(p.getLocation(), Sound.BLOCK_NOTE_BLOCK_PLING, 0.5f, 2f);
+            BoxPlugin.instance.getReforgeManager().openGui(p);
         });
 
         GuiItem livesGui = new GuiItem(lives, e -> {

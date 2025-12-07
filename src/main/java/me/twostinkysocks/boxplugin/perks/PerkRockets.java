@@ -110,6 +110,9 @@ public class PerkRockets extends AbstractPerk {
     }
 
     private void addRocketsToInventory(Player p, int count) {
+        if(count < 1){
+            count = 32;
+        }
         ItemStack stack = new ItemStack(Material.FIREWORK_ROCKET, count);
         FireworkMeta meta = (FireworkMeta) stack.getItemMeta();
         meta.setPower(3);

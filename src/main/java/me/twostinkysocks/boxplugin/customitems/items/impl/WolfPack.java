@@ -50,9 +50,9 @@ public class WolfPack extends CustomItem {
             if(e.getDamager() instanceof LivingEntity) {
                 wolf.setTarget((LivingEntity) e.getDamager());
             }
-            wolf.getAttribute(Attribute.GENERIC_MAX_HEALTH).setBaseValue(40);
+            wolf.getAttribute(Attribute.MAX_HEALTH).setBaseValue(40);
             wolf.setHealth(40);
-            wolf.getAttribute(Attribute.GENERIC_ATTACK_DAMAGE).setBaseValue(8);
+            wolf.getAttribute(Attribute.ATTACK_DAMAGE).setBaseValue(8);
         }
         p.getWorld().playSound(p.getLocation(), Sound.ENTITY_WOLF_HOWL, 0.5f, 1f);
         p.getWorld().spawnParticle(Particle.SMOKE, p.getLocation(), 10, 0, 0, 0, 0.5);

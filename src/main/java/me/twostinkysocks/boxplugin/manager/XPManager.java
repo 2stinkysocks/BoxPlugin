@@ -65,7 +65,7 @@ public class XPManager {
 
     public int getLevelUpReward(int level) {
         int coins = level/2;
-        if(coins > 128) coins = 128;
+        if(coins > 192) coins = 192;
         return coins;
     }
 

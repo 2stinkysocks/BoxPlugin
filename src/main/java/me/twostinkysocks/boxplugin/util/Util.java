@@ -7,7 +7,7 @@ import net.md_5.bungee.api.ChatColor;
 import net.minecraft.world.entity.LivingEntity;
 import org.apache.commons.codec.binary.Base64;
 import org.bukkit.*;
-import org.bukkit.craftbukkit.v1_21_R1.entity.CraftHumanEntity;
+import org.bukkit.craftbukkit.v1_21_R3.entity.CraftHumanEntity;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.HumanEntity;
@@ -18,9 +18,12 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.inventory.meta.SkullMeta;
 import org.bukkit.persistence.PersistentDataType;
+import org.bukkit.profile.PlayerProfile;
+import org.bukkit.profile.PlayerTextures;
 import org.bukkit.util.Vector;
 
 import java.lang.reflect.Field;
+import java.net.URL;
 import java.util.*;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.function.Function;
@@ -371,29 +374,51 @@ public class Util {
             // don't care if armor is null
         }
     }
-    public static ItemStack getSkull(String url) {
+    public static ItemStack getSkull(String url) {//new method for 1.21+
         ItemStack skull = new ItemStack(Material.PLAYER_HEAD, 1);
         if (url == null || url.isEmpty())
             return skull;
+
         SkullMeta skullMeta = (SkullMeta) skull.getItemMeta();
-        GameProfile profile = new GameProfile(UUID.randomUUID(), null);
-        byte[] encodedData = Base64.encodeBase64(String.format("{textures:{SKIN:{url:\"%s\"}}}", url).getBytes());
-        profile.getProperties().put("textures", new Property("textures", new String(encodedData)));
-        Field profileField = null;
+
+        PlayerProfile profile = Bukkit.createPlayerProfile(UUID.randomUUID());
+        PlayerTextures profileTextures = profile.getTextures();
         try {
-            profileField = skullMeta.getClass().getDeclaredField("profile");
-        } catch (NoSuchFieldException | SecurityException e) {
+            profileTextures.setSkin(new URL(url));
+            skullMeta.setOwnerProfile(profile);
+            skull.setItemMeta(skullMeta);
+        } catch (Exception e) {
             e.printStackTrace();
         }
-        profileField.setAccessible(true);
-        try {
-            profileField.set(skullMeta, profile);
-        } catch (IllegalArgumentException | IllegalAccessException e) {
-            e.printStackTrace();
-        }
-        skull.setItemMeta(skullMeta);
+
         return skull;
     }
+
+//    public static ItemStack getSkull(String url) {//old method
+//        ItemStack skull = new ItemStack(Material.PLAYER_HEAD, 1);
+//        if (url == null || url.isEmpty())
+//            return skull;
+//
+//        SkullMeta skullMeta = (SkullMeta) skull.getItemMeta();
+//
+//        GameProfile profile = Bukkit.createPlayerProfile(UUID.randomUUID());//this needs to be fixed if re added
+//        byte[] encodedData = Base64.encodeBase64(String.format("{textures:{SKIN:{url:\"%s\"}}}", url).getBytes());
+//        profile.getProperties().put("textures", new Property("textures", new String(encodedData)));
+//        Field profileField = null;
+//        try {
+//            profileField = skullMeta.getClass().getDeclaredField("profile");
+//        } catch (Exception e) {
+//            e.printStackTrace();
+//        }
+//        profileField.setAccessible(true);
+//        try {
+//            profileField.set(skullMeta, profile);
+//        } catch (Exception e) {
+//            e.printStackTrace();
+//        }
+//        skull.setItemMeta(skullMeta);
+//        return skull;
+//    }
 
     public static Set<Location> sphere(Location location, int radius, boolean hollow){
         Set<Location> blocks = new HashSet<Location>();

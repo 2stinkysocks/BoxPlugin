@@ -16,6 +16,7 @@ import org.bukkit.persistence.PersistentDataType;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Random;
 
 public class ItemLivesManager {
 
@@ -111,7 +112,7 @@ public class ItemLivesManager {
         ItemStack strip = new ItemStack(Material.REDSTONE);
         ItemMeta stripMeta = strip.getItemMeta();
         stripMeta.setDisplayName(ChatColor.DARK_RED + "" + ChatColor.BOLD + "Remove all lives");
-        stripMeta.setLore(List.of(ChatColor.RED + "Remove lives and get refunded 90%", ChatColor.RED + "of the rubies."));
+        stripMeta.setLore(List.of(ChatColor.RED + "Remove lives and get refunded either", ChatColor.RED + "80% or 100% of the rubies."));
         strip.setItemMeta(stripMeta);
         GuiItem stripGui = new GuiItem(strip, e -> {
             e.setCancelled(true);
@@ -120,10 +121,28 @@ public class ItemLivesManager {
                 p.sendMessage(ChatColor.RED + "No item in slot!");
                 return;
             }
+            if(!hasLives(e.getView().getTopInventory().getItem(13))){
+                p.playSound(p.getLocation(), Sound.BLOCK_FIRE_EXTINGUISH, 3.0F, 1.0F);
+                p.sendMessage(ChatColor.RED + "This item does not have lives!");
+                return;
+            }
             int stripped = stripLives(e.getView().getTopInventory().getItem(13));
-            BoxPlugin.instance.getMarketManager().addRubies(p, (int) (stripped*1.5*0.9));
+            Random luck = new Random();
+            int randLuck = luck.nextInt(10);
+            double rubyMult = 1;
+            if(randLuck <= 4){//50% chance to lose 20% of rubies
+                rubyMult = 0.8;
+                p.sendMessage(ChatColor.GOLD + "" + ChatColor.BOLD + "Xanatos: OOPS! I messed up a bit, lives are tricky to work with...");
+            }
+
+            BoxPlugin.instance.getMarketManager().addRubies(p, (int) (stripped*1.5*rubyMult));
             p.playSound(p.getLocation(), Sound.BLOCK_NOTE_BLOCK_PLING, 0.5f, 2f);
-            p.sendMessage(ChatColor.GREEN + "Stripped " + stripped + " lives from your item (and gained " + (int) (stripped*1.5*0.9) + " rubies)!");
+
+            if(rubyMult == 1){
+                p.sendMessage(ChatColor.GREEN + "Stripped " + stripped + " lives from your item and gained all rubies back (" + (int) (stripped*1.5*rubyMult) + " rubies)!");
+            } else {
+                p.sendMessage(ChatColor.GREEN + "Stripped " + stripped + " lives from your item and returned 80% of rubies (" + (int) (stripped*1.5*rubyMult) + " rubies)!");
+            }
         });
 
         for(int i = 3; i < 6; i++) {
@@ -164,6 +183,11 @@ public class ItemLivesManager {
         if(Util.isSoulbound(item)) return false;
         if(amount < 1) return false;
         if(amount > 10) return false;
+
+        if(item.getAmount() > 1){
+            p.sendMessage(ChatColor.RED + "You cannot put lives on stacked items!");
+            return false;
+        }
         int initialLives = 0;
         if(hasLives(item)) {
             initialLives = getLives(item);
