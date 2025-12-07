@@ -61,8 +61,8 @@ public class LotteryManager {
             }
             Player winner = Bukkit.getPlayer(Util.randomFromList(purchasedTickets.keySet().stream().toList()));
             if(winner != null) {
-                File lotteryConfig = new File(BoxPlugin.instance.getExcellentCrates().getDataFolder().getPath(), "/keys/lottery.yml");
-                BoxPlugin.instance.getKeyManager().giveKey(winner, new CrateKey(BoxPlugin.instance.getExcellentCrates(), lotteryConfig), 1);
+                CrateKey key = BoxPlugin.instance.getKeyManager().getKeyById("lottery");
+                BoxPlugin.instance.getKeyManager().giveKey(winner, key, 1);
                 Bukkit.broadcastMessage(ChatColor.GREEN + winner.getName() + " wins the lottery!");
             } else {
                 Bukkit.broadcastMessage(ChatColor.RED + "The lottery ran into an error.");

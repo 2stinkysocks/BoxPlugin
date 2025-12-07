@@ -515,8 +515,12 @@ public final class BoxPlugin extends JavaPlugin implements CommandExecutor, TabC
                     p.sendMessage(ChatColor.RED + "You don't have permission!");
                     return true;
                 }
-                File commonConfig = new File(BoxPlugin.instance.getExcellentCrates().getDataFolder().getPath(), "/keys/common.yml");
-                BoxPlugin.instance.getKeyManager().giveKey(p, new CrateKey(BoxPlugin.instance.getExcellentCrates(), commonConfig), 1);
+                CrateKey key = BoxPlugin.instance.getKeyManager().getKeyById("common");
+                if (key == null) {
+                    p.sendMessage(ChatColor.RED + "Key not found.");
+                    return true;
+                }
+                BoxPlugin.instance.getKeyManager().giveKey(p, key, 1);
             } else if(label.equals("resetperks")) {
                 if(!p.hasPermission("boxplugin.resetperks")) {
                     p.sendMessage(ChatColor.RED + "You don't have permission!");
@@ -555,32 +559,48 @@ public final class BoxPlugin extends JavaPlugin implements CommandExecutor, TabC
                         p.sendMessage(ChatColor.RED + "You don't have permission to get that key type!");
                         return true;
                     }
-                    File commonConfig = new File(BoxPlugin.instance.getExcellentCrates().getDataFolder().getPath(), "/keys/common.yml");
-                    BoxPlugin.instance.getKeyManager().giveKey(p, new CrateKey(BoxPlugin.instance.getExcellentCrates(), commonConfig), 1);
+                    CrateKey key = BoxPlugin.instance.getKeyManager().getKeyById("common");
+                    if (key == null) {
+                        p.sendMessage(ChatColor.RED + "Key not found.");
+                        return true;
+                    }
+                    BoxPlugin.instance.getKeyManager().giveKey(p, key, 1);
                     p.sendMessage(ChatColor.GREEN + "Gave 1x Common Key!");
                 } else if(args[0].equals("rare")) {
                     if(!p.hasPermission("boxplugin.key.rare")) {
                         p.sendMessage(ChatColor.RED + "You don't have permission to get that key type!");
                         return true;
                     }
-                    File rareConfig = new File(BoxPlugin.instance.getExcellentCrates().getDataFolder().getPath(), "/keys/rare.yml");
-                    BoxPlugin.instance.getKeyManager().giveKey(p, new CrateKey(BoxPlugin.instance.getExcellentCrates(), rareConfig), 1);
+                    CrateKey key = BoxPlugin.instance.getKeyManager().getKeyById("rare");
+                    if (key == null) {
+                        p.sendMessage(ChatColor.RED + "Key not found.");
+                        return true;
+                    }
+                    BoxPlugin.instance.getKeyManager().giveKey(p, key, 1);
                     p.sendMessage(ChatColor.GREEN + "Gave 1x Rare Key!");
                 } else if(args[0].equals("epic")) {
                     if(!p.hasPermission("boxplugin.key.epic")) {
                         p.sendMessage(ChatColor.RED + "You don't have permission to get that key type!");
                         return true;
                     }
-                    File epicConfig = new File(BoxPlugin.instance.getExcellentCrates().getDataFolder().getPath(), "/keys/epic.yml");
-                    BoxPlugin.instance.getKeyManager().giveKey(p, new CrateKey(BoxPlugin.instance.getExcellentCrates(), epicConfig), 1);
+                    CrateKey key = BoxPlugin.instance.getKeyManager().getKeyById("epic");
+                    if (key == null) {
+                        p.sendMessage(ChatColor.RED + "Key not found.");
+                        return true;
+                    }
+                    BoxPlugin.instance.getKeyManager().giveKey(p, key, 1);
                     p.sendMessage(ChatColor.GREEN + "Gave 1x Epic Key!");
                 } else if(args[0].equals("legendary")) {
                     if(!p.hasPermission("boxplugin.key.legendary")) {
                         p.sendMessage(ChatColor.RED + "You don't have permission to get that key type!");
                         return true;
                     }
-                    File legendaryConfig = new File(BoxPlugin.instance.getExcellentCrates().getDataFolder().getPath(), "/keys/legendary_crate.yml");
-                    BoxPlugin.instance.getKeyManager().giveKey(p, new CrateKey(BoxPlugin.instance.getExcellentCrates(), legendaryConfig), 1);
+                    CrateKey key = BoxPlugin.instance.getKeyManager().getKeyById("legendary_crate");
+                    if (key == null) {
+                        p.sendMessage(ChatColor.RED + "Key not found.");
+                        return true;
+                    }
+                    BoxPlugin.instance.getKeyManager().giveKey(p, key, 1);
                     p.sendMessage(ChatColor.GREEN + "Gave 1x Legendary Key!");
                 } else {
                     p.sendMessage(ChatColor.RED + "Usage: /key <tier>");
