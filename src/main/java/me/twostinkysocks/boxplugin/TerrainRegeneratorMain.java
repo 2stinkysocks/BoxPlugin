@@ -284,7 +284,8 @@ public final class TerrainRegeneratorMain implements Listener, CommandExecutor, 
         for(int i = 0; i < this.config.getInt("entities." + name + ".count"); i++) {
             if(this.config.isSet("entities." + name + ".isMythic") && this.config.getBoolean("entities." + name + ".isMythic")) {
                 int xp = this.config.isSet("entities." + name + ".xp") ? this.config.getInt("entities." + name + ".xp") : 0;
-                UUID uuid = MythicMobsIntegration.spawnWithData(name, xp, loc);
+                String mythicName = this.config.getString("entities." + name + ".mythic-name", name);
+                UUID uuid = MythicMobsIntegration.spawnWithData(mythicName, xp, loc);
                 if(!spawnedEntities.containsKey(name) && this.config.getBoolean("entities." + name + ".kill-existing")) {
                     spawnedEntities.put(name, new ArrayList<>());
                 }
@@ -498,7 +499,7 @@ public final class TerrainRegeneratorMain implements Listener, CommandExecutor, 
 
     @EventHandler
     public void onEntityTarget(EntityTargetEvent e) {
-        if(e.getEntity() instanceof Warden && e.getTarget() instanceof Silverfish) {
+        if(e.getEntity() instanceof Warden && (e.getTarget() instanceof Silverfish || e.getTarget() instanceof PiglinBrute || e.getTarget() instanceof Piglin)) {
             net.minecraft.world.entity.monster.warden.Warden nmsWarden = ((CraftWarden) e.getEntity()).getHandle();
             nmsWarden.setAttackTarget(null);
             nmsWarden.getBrain().eraseMemory(MemoryModuleType.ANGRY_AT);

@@ -331,9 +331,22 @@ public class ReforgeManager {
             Random luck = new Random();
             int randLuck = luck.nextInt(10);
             double rubyMult = 1;
-            if(randLuck <= 2){//30% chance to lose 20% of rubies
-                p.sendMessage(ChatColor.GOLD + "" + ChatColor.BOLD + "Xanatos:" + ChatColor.GOLD + " OOPS! I messed up a bit...");
-                rubyMult = 0.8;
+
+            if(getNumReforges(item) == 1){
+                if(randLuck <= 5){//60% chance to lose 20% of rubies
+                    p.sendMessage(ChatColor.GOLD + "" + ChatColor.BOLD + "Xanatos:" + ChatColor.GOLD + " OOPS! I messed up a bit...");
+                    rubyMult = 0.8;
+                }
+            } else if(getNumReforges(item) == 3){
+                if(randLuck <= 4){//50% chance to lose 20% of rubies
+                    p.sendMessage(ChatColor.GOLD + "" + ChatColor.BOLD + "Xanatos:" + ChatColor.GOLD + " OOPS! I messed up a bit...");
+                    rubyMult = 0.8;
+                }
+            } else {
+                if(randLuck <= 2){//30% chance to lose 20% of rubies
+                    p.sendMessage(ChatColor.GOLD + "" + ChatColor.BOLD + "Xanatos:" + ChatColor.GOLD + " OOPS! I messed up a bit...");
+                    rubyMult = 0.8;
+                }
             }
 
             BoxPlugin.instance.getMarketManager().addRubies(p, (int) (numReforges*REFORGECOST*rubyMult));
