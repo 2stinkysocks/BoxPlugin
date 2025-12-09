@@ -1,12 +1,14 @@
 package me.twostinkysocks.boxplugin.compressor;
 
 import me.twostinkysocks.boxplugin.compressor.items.*;
+import me.twostinkysocks.boxplugin.util.Util;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 
 public class Compressor {
 
@@ -87,7 +89,8 @@ public class Compressor {
 
 
     public void compressAll(Player p) {
-        HashMap<Compressible, Integer> compressibleBlocksInInventory = new HashMap<>();
+        LinkedHashMap<Compressible, Integer> compressibleBlocksInInventory = new LinkedHashMap<>();
+        Util.debug(p, "Beginning item count step");
         for(ItemStack item : p.getInventory().getContents()) {
             if(isCompressible(item)) {
                 Compressible compressible = getCompressibleInstance(item);
@@ -98,6 +101,13 @@ public class Compressor {
                 }
             }
         }
+
+        Util.debug(p, "Found compressible items (in order):");
+        for(Compressible c : compressibleBlocksInInventory.keySet()) {
+            Util.debug(p, c.getClass().getSimpleName() + " - " + compressibleBlocksInInventory.get(c));
+        }
+
+        Util.debug(p, "Beginning compression step");
         // compressibleBlocksInInventory maps compressible block types to number of that item in inventory
         for(Compressible compressible : compressibleBlocksInInventory.keySet()) {
             int inputItems = compressibleBlocksInInventory.get(compressible); // input items in inventory
@@ -106,12 +116,24 @@ public class Compressor {
             int requiredInput = conversions * compressible.getInput();
             int requiredInputStacks = requiredInput/64;
             int requiredInputRemainder = requiredInput - (requiredInputStacks*64);
+            Util.debug(p, "For item " + compressible.getClass().getSimpleName() + " with count " + inputItems);
+            Util.debug(p, "Can perform " + conversions + " compressions for this item");
+            if(conversions <= 0) {
+                Util.debug(p, "Skipping since 0 compressions...");
+                continue;
+            }
+            Util.debug(p, "Total output items for this item: " + outputItems);
+            Util.debug(p, "Required input items for this item: " + requiredInput);
+            Util.debug(p, "This is " + requiredInputStacks + " stacks and " + requiredInputRemainder + " remainder.");
+            Util.debug(p, "Removing items...");
             for(int i = 0; i < requiredInputStacks; i++) {
                 removeItems(p.getInventory(), compressible, 64);
             }
             removeItems(p.getInventory(), compressible, requiredInputRemainder);
+            Util.debug(p, "Adding " + outputItems + " compressed items for " + compressible.getClass().getSimpleName() + "\n");
             p.getInventory().addItem(compressible.getCompressedItemStack(outputItems));
         }
+        Util.debug(p, "Finished compression step");
     }
 
     private void removeItems(Inventory inventory, Compressible compressible, int amount) {
