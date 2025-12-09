@@ -207,7 +207,7 @@ public final class TerrainRegeneratorMain implements Listener, CommandExecutor, 
                             int y = this.config.getInt("entities." + name + ".y");
                             int z = this.config.getInt("entities." + name + ".z");
                             int radius = this.config.getInt("entities." + name + ".maxradius");
-                            if(entity.getLocation().distance(new Location(Bukkit.getWorld(this.config.getString("entities." + name + ".world")), x, y, z)) > radius) {
+                            if(entity.getWorld() != Bukkit.getWorld(this.config.getString("entities." + name + ".world")) ||  entity.getLocation().distance(new Location(Bukkit.getWorld(this.config.getString("entities." + name + ".world")), x, y, z)) > radius) {
                                 entity.teleport(new Location(Bukkit.getWorld(this.config.getString("entities." + name + ".world")), x, y, z));
                                 toDeAgro.add(entity);
                             }
