@@ -121,29 +121,30 @@ public class GearScoreManager {
 
     public static void UpdatePlayerGearscore(Player p){
         int totalGearscore = 0;
-        ItemStack item;
-
-        item = p.getInventory().getHelmet();
-        if(item != null && item.hasItemMeta() && HasGearScore(item)){//next for are amor slots
-            totalGearscore += GetGearScore(item);
-        }
-        item = p.getInventory().getChestplate();
-        if(item != null && item.hasItemMeta() && HasGearScore(item)){
-            totalGearscore += GetGearScore(item);
-        }
-        item = p.getInventory().getLeggings();
-        if(item != null && item.hasItemMeta() && HasGearScore(item)){
-            totalGearscore += GetGearScore(item);
-        }
-        item = p.getInventory().getBoots();
-        if(item != null && item.hasItemMeta() && HasGearScore(item)){
-            totalGearscore += GetGearScore(item);
-        }
-
-        item = p.getInventory().getItemInOffHand();
-        if(item != null && item.hasItemMeta() && HasGearScore(item)){//off hand
-            totalGearscore += GetGearScore(item);
-        }
+        //not needed to check armror slots and offhand each
+//        ItemStack item;
+//
+//        item = p.getInventory().getHelmet();
+//        if(item != null && item.hasItemMeta() && HasGearScore(item)){//next for are amor slots
+//            totalGearscore += GetGearScore(item);
+//        }
+//        item = p.getInventory().getChestplate();
+//        if(item != null && item.hasItemMeta() && HasGearScore(item)){
+//            totalGearscore += GetGearScore(item);
+//        }
+//        item = p.getInventory().getLeggings();
+//        if(item != null && item.hasItemMeta() && HasGearScore(item)){
+//            totalGearscore += GetGearScore(item);
+//        }
+//        item = p.getInventory().getBoots();
+//        if(item != null && item.hasItemMeta() && HasGearScore(item)){
+//            totalGearscore += GetGearScore(item);
+//        }
+//
+//        item = p.getInventory().getItemInOffHand();
+//        if(item != null && item.hasItemMeta() && HasGearScore(item)){//off hand
+//            totalGearscore += GetGearScore(item);
+//        }
 
         for(ItemStack inventoryItem : p.getInventory().getContents()) {//everything else
             if(inventoryItem != null && inventoryItem.hasItemMeta() && HasGearScore(inventoryItem)){
