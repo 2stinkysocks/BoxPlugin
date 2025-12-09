@@ -337,13 +337,13 @@ public class Util {
      */
     public static void dropPercent(PlayerDeathEvent e, double dropChancePerSlot) {
         Player target = e.getEntity();
-        int outof = (int)(Math.round(1/dropChancePerSlot));
+        //int outof = (int)(Math.round(1/dropChancePerSlot));
         Util.debug(target, "Losing " + (int)(dropChancePerSlot*100) + "% of items");
         e.setKeepInventory(true);
         e.getDrops().clear();
         for(int i = 0; i < e.getEntity().getInventory().getSize(); i++) {
-            int rand = (int)(Math.random() * (outof) + 1);
-            if(rand == 1) {
+            //int rand = (int)(Math.random() * (outof) + 1);
+            if(Math.random() < dropChancePerSlot) {
                 if(e.getEntity().getInventory().getItem(i) != null) {
                     ItemStack item = e.getEntity().getInventory().getItem(i);
                     if(BoxPlugin.instance.getItemLivesManager().hasLives(item)) {
@@ -360,8 +360,8 @@ public class Util {
         try {
             ArrayList<ItemStack> armor = new ArrayList<>(List.of(e.getEntity().getInventory().getArmorContents()));
             for(int i = 0; i < e.getEntity().getInventory().getArmorContents().length; i++) {
-                int rand = (int)(Math.random() * (outof) + 1);
-                if(rand == 1) {
+                //int rand = (int)(Math.random() * (outof) + 1);
+                if(Math.random() < dropChancePerSlot) {
                     if(e.getEntity().getInventory().getArmorContents()[i] != null) {
                         Util.debug(target, "Lost " + e.getEntity().getInventory().getArmorContents()[i].getType());
                         e.getDrops().add(e.getEntity().getInventory().getArmorContents()[i]);
