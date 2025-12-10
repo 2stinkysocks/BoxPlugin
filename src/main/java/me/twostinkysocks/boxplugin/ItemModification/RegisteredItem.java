@@ -438,6 +438,11 @@ public class RegisteredItem {
                 armorMeta.setTrim(armorTrim);
 
                 itemMeta = armorMeta;
+            } else{ //remove old unused trims
+                ArmorMeta armorMeta = (ArmorMeta) itemMeta;
+                if(armorMeta.hasTrim()){
+                    armorMeta.setTrim(null);
+                }
             }
 
             if(registeredItem.isColrable && itemMeta instanceof ColorableArmorMeta){

@@ -786,6 +786,7 @@ public final class BoxPlugin extends JavaPlugin implements CommandExecutor, TabC
                         p.sendMessage(ChatColor.RED + "You must hold a item for this command");
                     }else {
                         try {
+                            getRegisteredItem().RemoveFromDatabase(args[0]);
                             getRegisteredItem().RegisterItem(item, args[0]);
                             p.sendMessage(ChatColor.GREEN + "Successfully updated item " + args[0] + " into the data base");
                         } catch (SQLException e) {
