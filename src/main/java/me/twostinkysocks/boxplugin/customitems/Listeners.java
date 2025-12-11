@@ -28,8 +28,9 @@ import java.util.UUID;
 import java.util.stream.Collectors;
 
 public class Listeners implements Listener {
-
     private ArrayList<CustomItem> items;
+
+    double finalDamage;
 
     public Listeners(ArrayList<CustomItem> items) {
         this.items = items;
@@ -147,6 +148,7 @@ public class Listeners implements Listener {
             e.getEntity().getWorld().playSound(e.getEntity().getLocation().add(-10,0,-10), Sound.BLOCK_BEACON_POWER_SELECT, 1f, 1.7f);
             e.getEntity().getWorld().playSound(e.getEntity().getLocation().add(-10,0,-10), Sound.BLOCK_CONDUIT_ACTIVATE, 1f, 2f);
 
+            finalDamage = 0;
             Bukkit.getScheduler().runTaskTimer(BoxPlugin.instance, task -> {
                 if(i.get() == 0.0) {
                     e.getEntity().getWorld().playSound(e.getEntity().getLocation(), Sound.ENTITY_WARDEN_HEARTBEAT, 1f, 0.5f);
@@ -196,10 +198,11 @@ public class Listeners implements Listener {
                     e.getEntity().getWorld().playSound(e.getEntity().getLocation().add(-10,0,10), Sound.ENTITY_EVOKER_CAST_SPELL, 1f, 0.8f);
                 }
                 Util.spawnTallCircle(e.getEntity().getWorld(), location, new Vector(0, 1, 0), i.get(), 100, new Particle.DustOptions(Color.fromRGB(71, 145, 255), 1.5F));
+                double damage = 0;
                 for(LivingEntity entity : near20) {
                     if(!(entity instanceof ArmorStand) && !(entity instanceof ItemFrame) && !(entity instanceof FallingBlock) && !damaged.contains(entity.getUniqueId()) && entity.getLocation().distance(location) <= i.get()) {
                         damaged.add(entity.getUniqueId());
-                        double damage = entity.getHealth();
+                        damage = entity.getHealth();
                         if(entity instanceof Player && ((Player) entity).isBlocking()) {
                             ((Player) entity).setCooldown(Material.SHIELD, 30);
                         }
@@ -212,19 +215,25 @@ public class Listeners implements Listener {
                             ((Player)e.getEntity().getShooter()).setHealth(1);
                         }
                         damage = damage - entity.getHealth();
-                        double finalDamage = damage;
-                        Player p = (Player) e.getEntity().getShooter();
-                        double maxHealCap = p.getMaxHealth() * 0.33; //33% of max hp
-                        Util.debug(p, "Healed for " + Math.min(finalDamage*0.7, 0));
-                        if(finalDamage * 0.7 > maxHealCap){// implements heal cap
-                            p.setHealth(Math.min(p.getHealth() + maxHealCap, p.getMaxHealth()));
-                        } else {
-                            p.setHealth(Math.min(p.getHealth() + (finalDamage*0.7), p.getMaxHealth()));
-                        }
+                        finalDamage += damage;
                     }
                 }
+
                 i.getAndAdd(1);
                 if(i.get() > 15) {
+                    Player p = (Player) e.getEntity().getShooter();
+                    double maxHealCap = p.getMaxHealth() * 0.5; //50% of max hp
+                    double maxHealCap2 = 60;
+                    if((finalDamage * 0.7 > maxHealCap) && (finalDamage * 0.7 < maxHealCap2)){// implements heal cap
+                        p.setHealth(Math.min((p.getHealth() + maxHealCap), p.getMaxHealth()));
+                        Util.debug(p, "Healed for " + Math.max(maxHealCap, 0));
+                    } else if (finalDamage * 0.7 > maxHealCap2) {
+                        p.setHealth(Math.min((p.getHealth() + maxHealCap2), p.getMaxHealth()));
+                        Util.debug(p, "Healed for " + Math.max(maxHealCap2, 0));
+                    } else {
+                        p.setHealth(Math.min((p.getHealth() + (finalDamage*0.7)), p.getMaxHealth()));
+                        Util.debug(p, "Healed for " + Math.max(finalDamage*0.7, 0));
+                    }
                     task.cancel();
                 }
             }, 20L, 1L);
