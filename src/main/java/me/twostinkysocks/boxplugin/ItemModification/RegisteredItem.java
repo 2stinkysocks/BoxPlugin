@@ -4,6 +4,7 @@ import java.sql.*;
 import java.util.*;
 
 import com.google.common.collect.ArrayListMultimap;
+import com.google.common.collect.LinkedHashMultimap;
 import com.google.common.collect.Multimap;
 import com.google.gson.Gson;
 import me.twostinkysocks.boxplugin.BoxPlugin;
@@ -32,7 +33,7 @@ import su.nightexpress.nightcore.util.bridge.RegistryType;
 public class RegisteredItem {
     private Connection connection;
     private static final Gson gson = new Gson();
-    public Multimap<Attribute, AttributeModifier> attributeMap = ArrayListMultimap.create();
+    public List<AttributeData> attributeList = new ArrayList<>();
     public Map<Enchantment, Integer> enchantHashMap = new HashMap<Enchantment, Integer>();
     public String name = null;
     public String registeredName = null;
@@ -137,22 +138,24 @@ public class RegisteredItem {
             newItem.serializedEnchantsMap.put(enchantKey, level);
         }
         //set our attribute map
-        for(Map.Entry<Attribute, AttributeModifier> entry : attributeMap.entries()){
-            Attribute attribute = entry.getKey();
-            AttributeModifier attributeModifier = entry.getValue();
-            AttributeModifier.Operation operation = attributeModifier.getOperation();
-            EquipmentSlotGroup slot = attributeModifier.getSlotGroup();
+//        for(Map.Entry<Attribute, AttributeModifier> entry : attributeMap.entries()){
+//            Attribute attribute = entry.getKey();
+//            AttributeModifier attributeModifier = entry.getValue();
+//            AttributeModifier.Operation operation = attributeModifier.getOperation();
+//            EquipmentSlotGroup slot = attributeModifier.getSlotGroup();
+//
+//            AttributeData currentData = new AttributeData();
+//
+//            currentData.attributeType = attribute.name();
+//            currentData.attributeModifierKey = attributeModifier.getKey().getKey();
+//            currentData.attributeValue = attributeModifier.getAmount();
+//            currentData.attributeOperation = operation.name();
+//            currentData.attributeSlot = (slot == null ? "" : slot.toString());
+//
+//            newItem.attributesList.add(currentData);
+//        }
 
-            AttributeData currentData = new AttributeData();
-
-            currentData.attributeType = attribute.name();
-            currentData.attributeModifierKey = attributeModifier.getKey().getKey();
-            currentData.attributeValue = attributeModifier.getAmount();
-            currentData.attributeOperation = operation.name();
-            currentData.attributeSlot = (slot == null ? "" : slot.toString());
-
-            newItem.attributesList.add(currentData);
-        }
+        newItem.attributesList = (ArrayList<AttributeData>) attributeList;
 
         if(armorTrim != null){
             newItem.armorTrimPattern = trimPattern.getKey().toString();
@@ -215,9 +218,21 @@ public class RegisteredItem {
         if(itemMeta.hasEnchants()){
             enchantHashMap.putAll(itemMeta.getEnchants());
         }
-        attributeMap.clear();
+
+        if(attributeList != null){
+            attributeList.clear();
+        }
         if(itemMeta.hasAttributeModifiers()){
-            attributeMap.putAll(itemMeta.getAttributeModifiers());
+            for (Map.Entry<Attribute, AttributeModifier> entry : itemMeta.getAttributeModifiers().entries()) {
+                AttributeModifier modifier = entry.getValue();
+                AttributeData data = new AttributeData();
+                data.attributeType = entry.getKey().name();
+                data.attributeModifierKey = modifier.getKey().getKey();
+                data.attributeValue = modifier.getAmount();
+                data.attributeOperation = modifier.getOperation().name();
+                data.attributeSlot = modifier.getSlotGroup() == null ? "" : modifier.getSlotGroup().toString();
+                attributeList.add(data);
+            }
         }
 
         registeredName = nameToSavAs;
@@ -232,6 +247,8 @@ public class RegisteredItem {
         }
         if(itemMeta.isUnbreakable()){
             isUnbreakable = true;
+        } else {
+            isUnbreakable = false;
         }
         if(isArmor(item)){
             ArmorMeta armorMeta = (ArmorMeta) itemMeta;
@@ -343,11 +360,20 @@ public class RegisteredItem {
         if(enchantHashMap != null){
             enchantHashMap.clear();
         }
-        if(attributeMap != null){
-            attributeMap.clear();
+        if(attributeList != null){
+            attributeList.clear();
         }
         if(lore != null){
             lore = null;
+        }
+        if(armorTrim != null){
+            armorTrim = null;
+        }
+        if(trimMaterial != null){
+            trimMaterial = null;
+        }
+        if(trimPattern != null){
+            trimPattern = null;
         }
 
         NamespacedKey keyReforge = new NamespacedKey(BoxPlugin.instance, "isReforged");
@@ -397,6 +423,9 @@ public class RegisteredItem {
                 enchantHashMap.put(enchant, entry.getValue());
             }
         }
+
+        LinkedHashMultimap<Attribute, AttributeModifier> attributeHashMap = LinkedHashMultimap.create();
+
         for(AttributeData attributeData : registeredItem.attributesList){
             Attribute attribute = Attribute.valueOf(attributeData.attributeType);
 
@@ -406,7 +435,7 @@ public class RegisteredItem {
 
             AttributeModifier attributeModifier = new AttributeModifier(attributeKey, attributeData.attributeValue, operation, slot);
 
-            attributeMap.put(attribute, attributeModifier);
+            attributeHashMap.put(attribute, attributeModifier);
         }
 
         if(!lore.isEmpty()){
@@ -415,7 +444,7 @@ public class RegisteredItem {
             itemMeta.setLore(null);
         }
 
-        itemMeta.setAttributeModifiers(attributeMap);
+        itemMeta.setAttributeModifiers(attributeHashMap);
         itemMeta.setDisplayName(Util.colorize(name));
         if(!itemData.getOrDefault(keyReskin, PersistentDataType.BOOLEAN, false)){//ignore item model if its reskinned
             item.setType(itemModel);
