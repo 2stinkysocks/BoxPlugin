@@ -1,11 +1,8 @@
 package me.twostinkysocks.boxplugin.util;
 
-import com.mojang.authlib.GameProfile;
-import com.mojang.authlib.properties.Property;
 import me.twostinkysocks.boxplugin.BoxPlugin;
 import net.md_5.bungee.api.ChatColor;
 import net.minecraft.world.entity.LivingEntity;
-import org.apache.commons.codec.binary.Base64;
 import org.bukkit.*;
 import org.bukkit.craftbukkit.v1_21_R3.entity.CraftHumanEntity;
 import org.bukkit.enchantments.Enchantment;
@@ -22,7 +19,6 @@ import org.bukkit.profile.PlayerProfile;
 import org.bukkit.profile.PlayerTextures;
 import org.bukkit.util.Vector;
 
-import java.lang.reflect.Field;
 import java.net.URL;
 import java.util.*;
 import java.util.concurrent.ThreadLocalRandom;
@@ -192,7 +188,7 @@ public class Util {
             double y = radius * Math.sin(t);
             double z = 0;
             Vector v = new Vector(x,y,z);
-            v = MathUtil.rotateFunction(v, new Location(w, 0,0,0).setDirection(direction));
+            v = RenderUtil.rotateFunction(v, new Location(w, 0,0,0).setDirection(direction));
             w.spawnParticle(Particle.SCULK_SOUL, new Location(w, circleLocation.getX() + v.getX(), circleLocation.getY() + v.getY(), circleLocation.getZ() + v.getZ()), 4, 0.5, 0.8, 0.5, 0);
         }
 
@@ -209,7 +205,7 @@ public class Util {
 //            double y = radius * Math.sin(t);
 //            double z = 0;
 //            Vector v = new Vector(x,y,z);
-//            v = MathUtil.rotateFunction(v, new Location(p.getWorld(), 0,0,0).setDirection(direction));
+//            v = RenderUtil.rotateFunction(v, new Location(p.getWorld(), 0,0,0).setDirection(direction));
 //            p.getWorld().spawnParticle(Particle.DRIP_LAVA, new Location(p.getWorld(), circleLocation.getX() + v.getX(), circleLocation.getY() + v.getY(), circleLocation.getZ() + v.getZ()), 0, 0, 0, 0);
 //        }
         //
@@ -223,7 +219,7 @@ public class Util {
             double y = radius * Math.sin(t);
             double z = 0;
             Vector v = new Vector(x,y,z);
-            v = MathUtil.rotateFunction(v, new Location(w, 0,0,0).setDirection(direction));
+            v = RenderUtil.rotateFunction(v, new Location(w, 0,0,0).setDirection(direction));
             w.spawnParticle(Particle.END_ROD, new Location(w, circleLocation.getX() + v.getX(), circleLocation.getY() + v.getY(), circleLocation.getZ() + v.getZ()), 1, 0, 0.1, 0, 0);
         }
     }

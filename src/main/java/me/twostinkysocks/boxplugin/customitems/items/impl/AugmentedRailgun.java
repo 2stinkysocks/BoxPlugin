@@ -5,7 +5,7 @@ import me.twostinkysocks.boxplugin.BoxPlugin;
 import me.twostinkysocks.boxplugin.customitems.CustomItemsMain;
 import me.twostinkysocks.boxplugin.customitems.items.CustomItem;
 import me.twostinkysocks.boxplugin.manager.PerksManager;
-import me.twostinkysocks.boxplugin.util.MathUtil;
+import me.twostinkysocks.boxplugin.util.RenderUtil;
 import me.twostinkysocks.boxplugin.util.RayTrace;
 import me.twostinkysocks.boxplugin.util.Util;
 import org.bukkit.*;
@@ -14,7 +14,6 @@ import org.bukkit.entity.*;
 import org.bukkit.event.block.Action;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
-import org.bukkit.util.RayTraceResult;
 import org.bukkit.util.Vector;
 
 import java.math.BigDecimal;
@@ -288,7 +287,7 @@ public class AugmentedRailgun extends CustomItem {
             double y = radius * Math.sin(t);
             double z = 0;
             Vector v = new Vector(x,y,z);
-            v = MathUtil.rotateFunction(v, new Location(p.getWorld(), 0,0,0).setDirection(direction));
+            v = RenderUtil.rotateFunction(v, new Location(p.getWorld(), 0,0,0).setDirection(direction));
             p.getWorld().spawnParticle(Particle.ELECTRIC_SPARK, new Location(p.getWorld(), circleLocation.getX() + v.getX(), circleLocation.getY() + v.getY(), circleLocation.getZ() + v.getZ()), 1, 0, 0, 0, speed);
         }
 
@@ -305,7 +304,7 @@ public class AugmentedRailgun extends CustomItem {
 //            double y = radius * Math.sin(t);
 //            double z = 0;
 //            Vector v = new Vector(x,y,z);
-//            v = MathUtil.rotateFunction(v, new Location(p.getWorld(), 0,0,0).setDirection(direction));
+//            v = RenderUtil.rotateFunction(v, new Location(p.getWorld(), 0,0,0).setDirection(direction));
 //            p.getWorld().spawnParticle(Particle.DRIP_LAVA, new Location(p.getWorld(), circleLocation.getX() + v.getX(), circleLocation.getY() + v.getY(), circleLocation.getZ() + v.getZ()), 0, 0, 0, 0);
 //        }
         //
@@ -319,7 +318,7 @@ public class AugmentedRailgun extends CustomItem {
             double y = radius * Math.sin(t);
             double z = 0;
             Vector v = new Vector(x,y,z);
-            v = MathUtil.rotateFunction(v, new Location(p.getWorld(), 0,0,0).setDirection(direction));
+            v = RenderUtil.rotateFunction(v, new Location(p.getWorld(), 0,0,0).setDirection(direction));
             p.getWorld().spawnParticle(Particle.ELECTRIC_SPARK, new Location(p.getWorld(), circleLocation.getX() + v.getX(), circleLocation.getY() + v.getY(), circleLocation.getZ() + v.getZ()), 1, 0, 0, 0);
         }
 
@@ -336,7 +335,7 @@ public class AugmentedRailgun extends CustomItem {
 //            double y = radius * Math.sin(t);
 //            double z = 0;
 //            Vector v = new Vector(x,y,z);
-//            v = MathUtil.rotateFunction(v, new Location(p.getWorld(), 0,0,0).setDirection(direction));
+//            v = RenderUtil.rotateFunction(v, new Location(p.getWorld(), 0,0,0).setDirection(direction));
 //            p.getWorld().spawnParticle(Particle.DRIP_LAVA, new Location(p.getWorld(), circleLocation.getX() + v.getX(), circleLocation.getY() + v.getY(), circleLocation.getZ() + v.getZ()), 0, 0, 0, 0);
 //        }
         //
