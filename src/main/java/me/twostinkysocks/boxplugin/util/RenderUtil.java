@@ -1,9 +1,10 @@
 package me.twostinkysocks.boxplugin.util;
 
 import org.bukkit.Location;
+import org.bukkit.Particle;
 import org.bukkit.util.Vector;
 
-public class MathUtil {
+public class RenderUtil {
 
     public static Vector rotateFunction(Vector v, Location loc) {
         double yawR = loc.getYaw()/180.0*Math.PI;
