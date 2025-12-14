@@ -72,10 +72,11 @@ public class PerksManager {
     }
 
     public enum MegaPerk {
-        MEGA_SPEED(new MegaPerkSpeed()),
+        //MEGA_SPEED(new MegaPerkSpeed()), no more mega speed lol, upgradeable normal now
         MEGA_STRENGTH(new MegaPerkStrength()),
         MEGA_RESISTANCE(new MegaPerkResistance()),
         MEGA_REGENERATION(new MegaPerkRegeneration()),
+
         MEGA_COOLDOWN_REDUCTION(new MegaPerkCooldownReduction()),
         MEGA_LIFESTEAL(new MegaPerkLifeSteal());
 
@@ -225,10 +226,13 @@ public class PerksManager {
                 });
             }
         }
-        if(BoxPlugin.instance.getXpManager().getLevel(p) < 150) {
+        if(!BoxPlugin.instance.getMarketManager().has3rdPerk(p)) {
             ItemStack itemThree = new ItemStack(Material.BEDROCK);
             ItemMeta itemThreeMeta = itemThree.getItemMeta();
-            itemThreeMeta.setDisplayName(ChatColor.RED + "Unlocks at level 150");
+            itemThreeMeta.setDisplayName(ChatColor.RED + "Unlocked from Progression Pillars");
+            itemThreeMeta.setLore(List.of(
+                    ChatColor.RED + "Visit the " + ChatColor.AQUA + "" + ChatColor.BOLD + "Banker" + ChatColor.RED +" to claim"
+            ));
             itemThree.setItemMeta(itemThreeMeta);
             perkThree = new GuiItem(itemThree, e -> {
                 e.setCancelled(true);

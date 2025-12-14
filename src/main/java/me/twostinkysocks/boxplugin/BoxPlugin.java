@@ -213,6 +213,7 @@ public final class BoxPlugin extends JavaPlugin implements CommandExecutor, TabC
         getCommand("updatelegacyitemsforall").setExecutor(this);
         getCommand("removegearscore").setExecutor(this);
         getCommand("listreforges").setExecutor(this);
+        getCommand("resetpillars").setExecutor(this);
         getServer().getPluginManager().registerEvents(new Listeners(), this);
         load();
         if(Bukkit.getPluginManager().getPlugin("PlaceholderAPI") != null) {
@@ -957,6 +958,18 @@ public final class BoxPlugin extends JavaPlugin implements CommandExecutor, TabC
                 }
                 return true;
 
+            } else if (label.equals("resetpillars")) {
+                if(!p.hasPermission("boxplugin.resetpillars")) {
+                    p.sendMessage(ChatColor.RED + "You don't have permission!");
+                    return true;
+                }
+                if(args.length == 0 || Bukkit.getPlayer(args[0]) == null) {
+                    p.sendMessage(ChatColor.RED + "Usage: /resetpillars <player>");
+                    return true;
+                }
+                BoxPlugin.instance.getMarketManager().resetPillarProgression(Bukkit.getPlayer(args[0]));
+                p.sendMessage(ChatColor.GREEN + "Cleared pillar progress!");
+                return true;
             }
         }
 
@@ -980,7 +993,7 @@ public final class BoxPlugin extends JavaPlugin implements CommandExecutor, TabC
         } else if(alias.equals("sus")) {
             StringUtil.copyPartialMatches(args[0], Bukkit.getOnlinePlayers().stream().map(p -> p.getName()).collect(Collectors.toList()), completions);
             return completions;
-        } else if(alias.equals("resetperks")) {
+        } else if(alias.equals("resetperks") || alias.equals("resetpillars")) {
             if(args.length == 1) {
                 StringUtil.copyPartialMatches(args[0], Bukkit.getOnlinePlayers().stream().map(p -> p.getName()).collect(Collectors.toList()), completions);
                 return completions;

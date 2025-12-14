@@ -224,12 +224,12 @@ public class Listeners implements Listener {
                     Player p = (Player) e.getEntity().getShooter();
                     double maxHealCap = p.getMaxHealth() * 0.5; //50% of max hp
                     double maxHealCap2 = 60;
-                    if((finalDamage * 0.7 > maxHealCap) && (finalDamage * 0.7 < maxHealCap2)){// implements heal cap
-                        p.setHealth(Math.min((p.getHealth() + maxHealCap), p.getMaxHealth()));
-                        Util.debug(p, "Healed for " + Math.max(maxHealCap, 0));
-                    } else if (finalDamage * 0.7 > maxHealCap2) {
+                    if((finalDamage * 0.7 > maxHealCap) && (finalDamage * 0.7 > maxHealCap2)){// implements heal cap
                         p.setHealth(Math.min((p.getHealth() + maxHealCap2), p.getMaxHealth()));
                         Util.debug(p, "Healed for " + Math.max(maxHealCap2, 0));
+                    } else if (finalDamage * 0.7 > maxHealCap) {
+                        p.setHealth(Math.min((p.getHealth() + maxHealCap), p.getMaxHealth()));
+                        Util.debug(p, "Healed for " + Math.max(maxHealCap, 0));
                     } else {
                         p.setHealth(Math.min((p.getHealth() + (finalDamage*0.7)), p.getMaxHealth()));
                         Util.debug(p, "Healed for " + Math.max(finalDamage*0.7, 0));
@@ -350,4 +350,32 @@ public class Listeners implements Listener {
             i.getJoin().accept(e.getPlayer());
         }
     }
+
+//    @EventHandler
+//    public void onCombatStart(CombatStartEvent e) {
+//        Player p = e.getPlayer();
+//        long start = System.currentTimeMillis();
+//
+//        BukkitTask task = Bukkit.getScheduler().runTaskTimer(plugin, () -> {
+//            Combat combat = CombatLogX.getInstance().getCombatManager().getCombat(p);
+//            if (combat == null || !combat.isInCombat()) {
+//                task.cancel();
+//                return;
+//            }
+//
+//            long elapsed = (System.currentTimeMillis() - start) / 1000;
+//
+//            if (elapsed == 5) doAt5s(p);
+//            if (elapsed == 10) doAt10s(p);
+//            if (elapsed == 20) doAt20s(p);
+//        }, 20L, 20L);
+//
+//        runningTasks.put(p.getUniqueId(), task);
+//    }
+//
+//    @EventHandler
+//    public void onCombatEnd(CombatEndEvent e) {
+//        BukkitTask task = runningTasks.remove(e.getPlayer().getUniqueId());
+//        if (task != null) task.cancel();
+//    }
 }

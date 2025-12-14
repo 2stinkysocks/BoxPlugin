@@ -123,6 +123,9 @@ commands:
   listreforges:
     usage: /<command>
     description: shows reforges on item
+  resetpillars:
+    usage: /<command>
+    description: resets player pillar progression
 permissions:
   boxplugin.manageperks:
     default: false
@@ -197,4 +200,7 @@ permissions:
     default: false
   boxplugin.manageitems:
     description: register items and shit
+    default: false
+  boxplugin.resetpillars:
+    description: reset pillars and shit
     default: false

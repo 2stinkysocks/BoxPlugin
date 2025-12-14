@@ -30,7 +30,7 @@ public class CompressibleBone extends Compressible {
         ItemMeta meta = item.getItemMeta();
         meta.addEnchant(Enchantment.MENDING, 1, true);
         meta.addItemFlags(ItemFlag.HIDE_ENCHANTS);
-        meta.setDisplayName(ChatColor.WHITE + "" + ChatColor.BOLD + "Compressed Bone");
+        meta.setDisplayName(ChatColor.WHITE + "" + ChatColor.BOLD + "Big Bone");
         item.setItemMeta(meta);
         return item;
     }

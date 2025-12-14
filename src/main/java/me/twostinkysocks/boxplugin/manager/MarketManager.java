@@ -19,12 +19,20 @@ import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.inventory.meta.SkullMeta;
 import org.bukkit.persistence.PersistentDataType;
 
+import javax.swing.*;
 import java.math.BigDecimal;
 import java.util.*;
 
 public class MarketManager {
 
     private HashMap<UUID, Integer> selectedCoins = new HashMap<>();
+
+    public final NamespacedKey ProgressionPillarStoneKey = new NamespacedKey(BoxPlugin.instance, "ProgPillar1");
+    public final NamespacedKey ProgressionPillarObsidianKey = new NamespacedKey(BoxPlugin.instance, "ProgPillar2");
+    public final NamespacedKey ProgressionPillarGlassCannonKey = new NamespacedKey(BoxPlugin.instance, "ProgPillar3");
+    public final NamespacedKey ProgressionPillarSpeedKey = new NamespacedKey(BoxPlugin.instance, "ProgPillar4");
+    public final NamespacedKey ProgressionPillarTankKey = new NamespacedKey(BoxPlugin.instance, "ProgPillar5");
+    public final NamespacedKey thirdPerkKey = new NamespacedKey(BoxPlugin.instance, "3rdPerk");
 
     public void openGui(Player p) {
         ChestGui gui = new ChestGui(3, "Market");
@@ -136,12 +144,33 @@ public class MarketManager {
         lotteryMeta.setLore(lore);
         lottery.setItemMeta(lotteryMeta);
 
+        //icon for progression pillars
+        ItemStack progPillar = new ItemStack(Material.POLISHED_DEEPSLATE_WALL);
+        ItemMeta progPillarMeta = progPillar.getItemMeta();
+        progPillarMeta.addItemFlags(ItemFlag.HIDE_ENCHANTS);
+        progPillarMeta.addEnchant(Enchantment.MENDING, 1, true);
+        progPillarMeta.setDisplayName(ChatColor.AQUA + "" + ChatColor.BOLD + "Progression Pillars");
+        progPillarMeta.setLore(List.of(
+                "",
+                ChatColor.DARK_AQUA + "Trade in progression pillars for",
+                ChatColor.RED + "rubies, " + ChatColor.AQUA + "XP, " + ChatColor.DARK_AQUA + "and " + ChatColor.GREEN + "Perk slots!",
+                "",
+                ChatColor.RED + "NOTE: each progression pillar can only be",
+                ChatColor.RED + "used once!"
+        ));
+        progPillar.setItemMeta(progPillarMeta);
+
         // gui items
         GuiItem guiMarket = new GuiItem(market, e -> e.setCancelled(true));
         GuiItem guiDeposit = new GuiItem(deposit, e -> {
             e.setCancelled(true);
             p.playSound(p.getLocation(), Sound.BLOCK_NOTE_BLOCK_PLING, 0.5f, 2f);
             openDepositMenu(p);
+        });
+        GuiItem guiPillars = new GuiItem(progPillar, e -> {
+            e.setCancelled(true);
+            p.playSound(p.getLocation(), Sound.BLOCK_NOTE_BLOCK_PLING, 0.5f, 2f);
+            openPillarGUI(p);
         });
         GuiItem guiWithdraw = new GuiItem(withdraw, e -> {
             e.setCancelled(true);
@@ -178,7 +207,7 @@ public class MarketManager {
         pane.addItem(guiBalance, 0, 2);
         pane.addItem(guiRubies, 8, 2);
         pane.addItem(guiLottery, 4, 2);
-
+        pane.addItem(guiPillars, 4, 1);
         gui.addPane(pane);
         gui.copy().show(p);
     }
@@ -731,6 +760,281 @@ public class MarketManager {
         gui.copy().show(p);
     }
 
+    public void openPillarGUI(Player p) {
+        ChestGui gui = new ChestGui(3, "Claim Pillars");
+        StaticPane pane = new StaticPane(9, 3);
+
+        ItemStack stonePillar = new ItemStack(Material.COBBLESTONE_WALL);
+        ItemMeta stonePillarMeta = stonePillar.getItemMeta();
+        stonePillarMeta.addItemFlags(ItemFlag.HIDE_ENCHANTS);
+        stonePillarMeta.addEnchant(Enchantment.MENDING, 1, true);
+        stonePillarMeta.setDisplayName(ChatColor.DARK_GRAY + "" + ChatColor.BOLD + "Progression Pillar");
+        stonePillarMeta.setLore(List.of(
+                "",
+                ChatColor.GREEN + "Obtain the Stone Golem Progression Pillar to",
+                ChatColor.GREEN + "claim a 1 time reward of " + ChatColor.RED + "10 rubies,",
+                ChatColor.GREEN + "and "+ ChatColor.AQUA + "10000 XP"
+        ));
+        stonePillar.setItemMeta(stonePillarMeta);
+
+        ItemStack obsidianPillar = new ItemStack(Material.DEEPSLATE_TILE_WALL);
+        ItemMeta obsidianPillarMeta = obsidianPillar.getItemMeta();
+        obsidianPillarMeta.addItemFlags(ItemFlag.HIDE_ENCHANTS);
+        obsidianPillarMeta.addEnchant(Enchantment.MENDING, 1, true);
+        obsidianPillarMeta.setDisplayName(ChatColor.DARK_PURPLE + "" + ChatColor.BOLD + "Progression Pillar");
+        obsidianPillarMeta.setLore(List.of(
+                "",
+                ChatColor.GREEN + "Obtain the Obsidian Progression Pillar to",
+                ChatColor.GREEN + "claim a 1 time reward of " + ChatColor.RED + "15 rubies,",
+                ChatColor.GREEN + "and "+ ChatColor.AQUA + "25000 XP"
+        ));
+        obsidianPillar.setItemMeta(obsidianPillarMeta);
+
+        ItemStack glassCannonPillar = new ItemStack(Material.RED_NETHER_BRICK_WALL);
+        ItemMeta glassCannonPillarMeta = glassCannonPillar.getItemMeta();
+        glassCannonPillarMeta.addItemFlags(ItemFlag.HIDE_ENCHANTS);
+        glassCannonPillarMeta.addEnchant(Enchantment.MENDING, 1, true);
+        glassCannonPillarMeta.setDisplayName(ChatColor.RED + "" + ChatColor.BOLD + "Progression Pillar");
+        glassCannonPillarMeta.setLore(List.of(
+                "",
+                ChatColor.GREEN + "Obtain the Glass Cannon Progression Pillar to",
+                ChatColor.GREEN + "claim a " + ChatColor.DARK_AQUA + "3rd Perk Slot",
+                "",
+                ChatColor.GREEN + "or claim a 1 time reward of " + ChatColor.RED + "20 rubies,",
+                ChatColor.GREEN + "and "+ ChatColor.AQUA + "60000 XP " + ChatColor.GREEN + "if already owned"
+        ));
+        glassCannonPillar.setItemMeta(glassCannonPillarMeta);
+
+        ItemStack speedPillar = new ItemStack(Material.PRISMARINE_WALL);
+        ItemMeta speedPillarMeta = speedPillar.getItemMeta();
+        speedPillarMeta.addItemFlags(ItemFlag.HIDE_ENCHANTS);
+        speedPillarMeta.addEnchant(Enchantment.MENDING, 1, true);
+        speedPillarMeta.setDisplayName(ChatColor.AQUA + "" + ChatColor.BOLD + "Progression Pillar");
+        speedPillarMeta.setLore(List.of(
+                "",
+                ChatColor.GREEN + "Obtain the Speed Progression Pillar to",
+                ChatColor.GREEN + "claim a " + ChatColor.DARK_AQUA + "3rd Perk Slot",
+                "",
+                ChatColor.GREEN + "or claim a 1 time reward of " + ChatColor.RED + "20 rubies,",
+                ChatColor.GREEN + "and "+ ChatColor.AQUA + "60000 XP " + ChatColor.GREEN + "if already owned"
+        ));
+        speedPillar.setItemMeta(speedPillarMeta);
+
+        ItemStack tankPillar = new ItemStack(Material.TUFF_WALL);
+        ItemMeta tankPillarMeta = tankPillar.getItemMeta();
+        tankPillarMeta.addItemFlags(ItemFlag.HIDE_ENCHANTS);
+        tankPillarMeta.addEnchant(Enchantment.MENDING, 1, true);
+        tankPillarMeta.setDisplayName(ChatColor.DARK_BLUE + "" + ChatColor.BOLD + "Progression Pillar");
+        tankPillarMeta.setLore(List.of(
+                "",
+                ChatColor.GREEN + "Obtain the Tank Progression Pillar to",
+                ChatColor.GREEN + "claim a " + ChatColor.DARK_AQUA + "3rd Perk Slot",
+                "",
+                ChatColor.GREEN + "or claim a 1 time reward of " + ChatColor.RED + "20 rubies,",
+                ChatColor.GREEN + "and "+ ChatColor.AQUA + "60000 XP " + ChatColor.GREEN + "if already owned"
+        ));
+        tankPillar.setItemMeta(tankPillarMeta);
+
+        ItemStack cancel = new ItemStack(Material.BARRIER);
+        ItemMeta cancelMeta = cancel.getItemMeta();
+        cancelMeta.setDisplayName(ChatColor.RED + "Go back");
+        cancel.setItemMeta(cancelMeta);
+
+        ItemStack completed = new ItemStack(Material.EMERALD_BLOCK);
+        ItemMeta completedMeta = completed.getItemMeta();
+        completedMeta.setDisplayName(ChatColor.GREEN + "Completed!");
+        completed.setItemMeta(completedMeta);
+
+        gui.setOnGlobalClick(e -> {
+            e.setCancelled(true);
+        });
+
+        GuiItem stonePillarGUI = new GuiItem(stonePillar, e -> {
+            e.setCancelled(true);
+            boolean hasPillar = false;
+            for(int i = 0; i < e.getView().getBottomInventory().getSize(); i++) {
+                if(isStonePillar(e.getView().getBottomInventory().getItem(i))) {
+                    hasPillar = true;
+                    if(e.getView().getBottomInventory().getItem(i).getAmount() > 1){
+                        int itemAmmount;
+                        ItemStack item = e.getView().getBottomInventory().getItem(i);
+                        itemAmmount = item.getAmount();
+                        itemAmmount --;
+                        item.setAmount(itemAmmount);
+                        e.getView().getBottomInventory().setItem(i, item);
+                    } else {
+                        e.getView().getBottomInventory().setItem(i, null);
+                    }
+                    setLvl1Progression(p, true);
+                    p.playSound(p.getLocation(), Sound.BLOCK_NOTE_BLOCK_PLING, 0.5f, 2f);
+                    openGui(p);
+                }
+            }
+            if(!hasPillar){
+                p.playSound(p.getLocation(), Sound.BLOCK_FIRE_EXTINGUISH, 3.0F, 1.0F);
+                p.sendMessage(ChatColor.RED + "You don't this pillar");
+            }
+            BoxPlugin.instance.getScoreboardManager().queueUpdate(p);
+        });
+
+        GuiItem obsidianPillarGUI = new GuiItem(obsidianPillar, e -> {
+            e.setCancelled(true);
+            boolean hasPillar = false;
+            for(int i = 0; i < e.getView().getBottomInventory().getSize(); i++) {
+                if(isObsidianPillar(e.getView().getBottomInventory().getItem(i))) {
+                    hasPillar = true;
+                    if(e.getView().getBottomInventory().getItem(i).getAmount() > 1){
+                        int itemAmmount;
+                        ItemStack item = e.getView().getBottomInventory().getItem(i);
+                        itemAmmount = item.getAmount();
+                        itemAmmount --;
+                        item.setAmount(itemAmmount);
+                        e.getView().getBottomInventory().setItem(i, item);
+                    } else {
+                        e.getView().getBottomInventory().setItem(i, null);
+                    }
+                    setLvl2Progression(p, true);
+                    p.playSound(p.getLocation(), Sound.BLOCK_NOTE_BLOCK_PLING, 0.5f, 2f);
+                    openGui(p);
+                }
+            }
+            if(!hasPillar){
+                p.playSound(p.getLocation(), Sound.BLOCK_FIRE_EXTINGUISH, 3.0F, 1.0F);
+                p.sendMessage(ChatColor.RED + "You don't this pillar");
+            }
+            BoxPlugin.instance.getScoreboardManager().queueUpdate(p);
+        });
+
+        GuiItem glassCannonPillarGUI = new GuiItem(glassCannonPillar, e -> {
+            e.setCancelled(true);
+            boolean hasPillar = false;
+            for(int i = 0; i < e.getView().getBottomInventory().getSize(); i++) {
+                if(isGlassCannonPillar(e.getView().getBottomInventory().getItem(i))) {
+                    hasPillar = true;
+                    if(e.getView().getBottomInventory().getItem(i).getAmount() > 1){
+                        int itemAmmount;
+                        ItemStack item = e.getView().getBottomInventory().getItem(i);
+                        itemAmmount = item.getAmount();
+                        itemAmmount --;
+                        item.setAmount(itemAmmount);
+                        e.getView().getBottomInventory().setItem(i, item);
+                    } else {
+                        e.getView().getBottomInventory().setItem(i, null);
+                    }
+                    setLvl3Progression(p, true);
+                    p.playSound(p.getLocation(), Sound.BLOCK_NOTE_BLOCK_PLING, 0.5f, 2f);
+                    openGui(p);
+                }
+            }
+            if(!hasPillar){
+                p.playSound(p.getLocation(), Sound.BLOCK_FIRE_EXTINGUISH, 3.0F, 1.0F);
+                p.sendMessage(ChatColor.RED + "You don't this pillar");
+            }
+            BoxPlugin.instance.getScoreboardManager().queueUpdate(p);
+        });
+
+        GuiItem speedPillarGUI = new GuiItem(speedPillar, e -> {
+            e.setCancelled(true);
+            boolean hasPillar = false;
+            for(int i = 0; i < e.getView().getBottomInventory().getSize(); i++) {
+                if(isSpeedPillar(e.getView().getBottomInventory().getItem(i))) {
+                    hasPillar = true;
+                    if(e.getView().getBottomInventory().getItem(i).getAmount() > 1){
+                        int itemAmmount;
+                        ItemStack item = e.getView().getBottomInventory().getItem(i);
+                        itemAmmount = item.getAmount();
+                        itemAmmount --;
+                        item.setAmount(itemAmmount);
+                        e.getView().getBottomInventory().setItem(i, item);
+                    } else {
+                        e.getView().getBottomInventory().setItem(i, null);
+                    }
+                    setLvl4Progression(p, true);
+                    p.playSound(p.getLocation(), Sound.BLOCK_NOTE_BLOCK_PLING, 0.5f, 2f);
+                    openGui(p);
+                }
+            }
+            if(!hasPillar){
+                p.playSound(p.getLocation(), Sound.BLOCK_FIRE_EXTINGUISH, 3.0F, 1.0F);
+                p.sendMessage(ChatColor.RED + "You don't this pillar");
+            }
+            BoxPlugin.instance.getScoreboardManager().queueUpdate(p);
+        });
+
+        GuiItem tankPillarGUI = new GuiItem(tankPillar, e -> {
+            e.setCancelled(true);
+            boolean hasPillar = false;
+            for(int i = 0; i < e.getView().getBottomInventory().getSize(); i++) {
+                if(isTankPillar(e.getView().getBottomInventory().getItem(i))) {
+                    hasPillar = true;
+                    if(e.getView().getBottomInventory().getItem(i).getAmount() > 1){
+                        int itemAmmount;
+                        ItemStack item = e.getView().getBottomInventory().getItem(i);
+                        itemAmmount = item.getAmount();
+                        itemAmmount --;
+                        item.setAmount(itemAmmount);
+                        e.getView().getBottomInventory().setItem(i, item);
+                    } else {
+                        e.getView().getBottomInventory().setItem(i, null);
+                    }
+                    setLvl5Progression(p, true);
+                    p.playSound(p.getLocation(), Sound.BLOCK_NOTE_BLOCK_PLING, 0.5f, 2f);
+                    openGui(p);
+                }
+            }
+            if(!hasPillar){
+                p.playSound(p.getLocation(), Sound.BLOCK_FIRE_EXTINGUISH, 3.0F, 1.0F);
+                p.sendMessage(ChatColor.RED + "You don't this pillar");
+            }
+            BoxPlugin.instance.getScoreboardManager().queueUpdate(p);
+        });
+
+        GuiItem cancelGui = new GuiItem(cancel, e -> {
+            e.setCancelled(true);
+            openGui(p);
+        });
+
+        GuiItem completedGUI = new GuiItem(completed, e -> {
+            e.setCancelled(true);
+        });
+
+        if(hasLvl1Progression(p)){
+            pane.addItem(completedGUI, 2, 1);
+        } else {
+            pane.addItem(stonePillarGUI, 2, 1);
+        }
+
+        if(hasLvl2Progression(p)){
+            pane.addItem(completedGUI, 3, 1);
+        } else {
+            pane.addItem(obsidianPillarGUI, 3, 1);
+        }
+
+        if(hasLvl3Progression(p)){
+            pane.addItem(completedGUI, 4, 1);
+        } else {
+            pane.addItem(glassCannonPillarGUI, 4, 1);
+        }
+
+        if(hasLvl4Progression(p)){
+            pane.addItem(completedGUI, 5, 1);
+        } else {
+            pane.addItem(speedPillarGUI, 5, 1);
+        }
+
+        if(hasLvl5Progression(p)){
+            pane.addItem(completedGUI, 6, 1);
+        } else {
+            pane.addItem(tankPillarGUI, 6, 1);
+        }
+
+        pane.addItem(cancelGui, 4, 2);
+
+        gui.addPane(pane);
+
+        gui.copy().show(p);
+    }
+
     public double getMarketMultiplier() {
         return Bukkit.getWorld("Xanatos").getPersistentDataContainer().get(new NamespacedKey(BoxPlugin.instance, "MARKET_MULTIPLIER"), PersistentDataType.DOUBLE);
     }
@@ -781,6 +1085,178 @@ public class MarketManager {
 
     public void addRubies(Player p, int amount) {
         setRubies(p, getRubies(p)+amount);
+    }
+
+    public boolean has3rdPerk(Player p){
+        if(p.getPersistentDataContainer().has(thirdPerkKey)){
+            return p.getPersistentDataContainer().get(thirdPerkKey, PersistentDataType.BOOLEAN);
+        } else {
+            return false;
+        }
+    }
+
+    public void set3rdPerk(Player p, Boolean val){
+        p.getPersistentDataContainer().set(thirdPerkKey, PersistentDataType.BOOLEAN, val);
+    }
+
+    public boolean isStonePillar(ItemStack item){
+        if(item != null && item.getType() == Material.COBBLESTONE_WALL){
+            ItemMeta itemMeta = item.getItemMeta();
+            if(itemMeta != null && itemMeta.hasEnchant(Enchantment.UNBREAKING) &&
+                    (itemMeta.getEnchantLevel(Enchantment.UNBREAKING) == 6) &&
+                    itemMeta.hasLore() && itemMeta.hasItemFlag(ItemFlag.HIDE_ENCHANTS) &&
+                    itemMeta.getDisplayName().contains("Progression Pillar")){
+                return true;
+            }
+        }
+        return false;
+    }
+    public boolean isObsidianPillar(ItemStack item){
+        if(item != null && item.getType() == Material.DEEPSLATE_TILE_WALL){
+            ItemMeta itemMeta = item.getItemMeta();
+            if(itemMeta != null && itemMeta.hasEnchant(Enchantment.UNBREAKING) &&
+                    (itemMeta.getEnchantLevel(Enchantment.UNBREAKING) == 6) &&
+                    itemMeta.hasLore() && itemMeta.hasItemFlag(ItemFlag.HIDE_ENCHANTS) &&
+                    itemMeta.getDisplayName().contains("Progression Pillar")){
+                return true;
+            }
+        }
+        return false;
+    }
+    public boolean isGlassCannonPillar(ItemStack item){
+        if(item != null && item.getType() == Material.RED_NETHER_BRICK_WALL){
+            ItemMeta itemMeta = item.getItemMeta();
+            if(itemMeta != null && itemMeta.hasEnchant(Enchantment.UNBREAKING) &&
+                    (itemMeta.getEnchantLevel(Enchantment.UNBREAKING) == 6) &&
+                    itemMeta.hasLore() && itemMeta.hasItemFlag(ItemFlag.HIDE_ENCHANTS) &&
+                    itemMeta.getDisplayName().contains("Progression Pillar")){
+                return true;
+            }
+        }
+        return false;
+    }
+    public boolean isSpeedPillar(ItemStack item){
+        if(item != null && item.getType() == Material.PRISMARINE_WALL){
+            ItemMeta itemMeta = item.getItemMeta();
+            if(itemMeta != null && itemMeta.hasEnchant(Enchantment.UNBREAKING) &&
+                    (itemMeta.getEnchantLevel(Enchantment.UNBREAKING) == 6) &&
+                    itemMeta.hasLore() && itemMeta.hasItemFlag(ItemFlag.HIDE_ENCHANTS) &&
+                    itemMeta.getDisplayName().contains("Progression Pillar")){
+                return true;
+            }
+        }
+        return false;
+    }
+    public boolean isTankPillar(ItemStack item){
+        if(item != null && item.getType() == Material.TUFF_WALL){
+            ItemMeta itemMeta = item.getItemMeta();
+            if(itemMeta != null && itemMeta.hasEnchant(Enchantment.UNBREAKING) &&
+                    (itemMeta.getEnchantLevel(Enchantment.UNBREAKING) == 6) &&
+                    itemMeta.hasLore() && itemMeta.hasItemFlag(ItemFlag.HIDE_ENCHANTS) &&
+                    itemMeta.getDisplayName().contains("Progression Pillar")){
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public void resetPillarProgression(Player p){
+        setLvl1Progression(p, false);
+        setLvl2Progression(p, false);
+        setLvl3Progression(p, false);
+        setLvl4Progression(p, false);
+        setLvl5Progression(p, false);
+    }
+    public void setLvl1Progression(Player p, Boolean val){
+        p.getPersistentDataContainer().set(ProgressionPillarStoneKey, PersistentDataType.BOOLEAN, val);
+        if(val){
+            addRubies(p, 10);
+            BoxPlugin.instance.getXpManager().addXP(p, 10000);
+            p.sendMessage(ChatColor.GREEN + "Added 10 rubies and 10000 XP to you account!");
+        }
+    }
+    public void setLvl2Progression(Player p, Boolean val){
+        p.getPersistentDataContainer().set(ProgressionPillarObsidianKey, PersistentDataType.BOOLEAN, val);
+        if(val){
+            addRubies(p, 15);
+            BoxPlugin.instance.getXpManager().addXP(p, 25000);
+            p.sendMessage(ChatColor.GREEN + "Added 15 rubies and 25000 XP to you account!");
+        }
+    }
+    public void setLvl3Progression(Player p, Boolean val){
+        p.getPersistentDataContainer().set(ProgressionPillarGlassCannonKey, PersistentDataType.BOOLEAN, val);
+        if(val && has3rdPerk(p)){
+            addRubies(p, 20);
+            BoxPlugin.instance.getXpManager().addXP(p, 60000);
+            p.sendMessage(ChatColor.GREEN + "Added 20 rubies and 60000 XP to you account!");
+        } else {
+            set3rdPerk(p, val);
+            if(val){
+                p.sendMessage(ChatColor.GREEN + "Unlocked 3rd perk slot!");
+            }
+        }
+    }
+    public void setLvl4Progression(Player p, Boolean val){
+        p.getPersistentDataContainer().set(ProgressionPillarSpeedKey, PersistentDataType.BOOLEAN, val);
+        if(val && has3rdPerk(p)){
+            addRubies(p, 20);
+            BoxPlugin.instance.getXpManager().addXP(p, 60000);
+            p.sendMessage(ChatColor.GREEN + "Added 20 rubies and 60000 XP to you account!");
+        } else {
+            set3rdPerk(p, val);
+            if(val){
+                p.sendMessage(ChatColor.GREEN + "Unlocked 3rd perk slot!");
+            }
+        }
+    }
+    public void setLvl5Progression(Player p, Boolean val){
+        p.getPersistentDataContainer().set(ProgressionPillarTankKey, PersistentDataType.BOOLEAN, val);
+        if(val && has3rdPerk(p)){
+            addRubies(p, 20);
+            BoxPlugin.instance.getXpManager().addXP(p, 60000);
+            p.sendMessage(ChatColor.GREEN + "Added 20 rubies and 60000 XP to you account!");
+        } else {
+            set3rdPerk(p, val);
+            if(val){
+                p.sendMessage(ChatColor.GREEN + "Unlocked 3rd perk slot!");
+            }
+        }
+    }
+
+    public boolean hasLvl1Progression(Player p){
+        if(p.getPersistentDataContainer().has(ProgressionPillarStoneKey)){
+            return p.getPersistentDataContainer().get(ProgressionPillarStoneKey, PersistentDataType.BOOLEAN);
+        } else {
+            return false;
+        }
+    }
+    public boolean hasLvl2Progression(Player p){
+        if(p.getPersistentDataContainer().has(ProgressionPillarObsidianKey)){
+            return p.getPersistentDataContainer().get(ProgressionPillarObsidianKey, PersistentDataType.BOOLEAN);
+        } else {
+            return false;
+        }
+    }
+    public boolean hasLvl3Progression(Player p){
+        if(p.getPersistentDataContainer().has(ProgressionPillarGlassCannonKey)){
+            return p.getPersistentDataContainer().get(ProgressionPillarGlassCannonKey, PersistentDataType.BOOLEAN);
+        } else {
+            return false;
+        }
+    }
+    public boolean hasLvl4Progression(Player p){
+        if(p.getPersistentDataContainer().has(ProgressionPillarSpeedKey)){
+            return p.getPersistentDataContainer().get(ProgressionPillarSpeedKey, PersistentDataType.BOOLEAN);
+        } else {
+            return false;
+        }
+    }
+    public boolean hasLvl5Progression(Player p){
+        if(p.getPersistentDataContainer().has(ProgressionPillarTankKey)){
+            return p.getPersistentDataContainer().get(ProgressionPillarTankKey, PersistentDataType.BOOLEAN);
+        } else {
+            return false;
+        }
     }
 
 }

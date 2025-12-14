@@ -23,7 +23,10 @@ public class MegaPerkStrength extends AbstractPerk {
         meta.addItemFlags(ItemFlag.HIDE_ENCHANTS, ItemFlag.HIDE_ATTRIBUTES, ItemFlag.HIDE_ADDITIONAL_TOOLTIP);
         meta.setLore(List.of(
                 "",
-                ChatColor.GRAY + "Gain permanent Strength IV"
+                ChatColor.GRAY + "Gain permanent Strength IV",
+                "",
+                ChatColor.GOLD + "Increases up to Strength X",
+                ChatColor.GOLD + "over time in combat"
         ));
         guiItem.setItemMeta(meta);
 

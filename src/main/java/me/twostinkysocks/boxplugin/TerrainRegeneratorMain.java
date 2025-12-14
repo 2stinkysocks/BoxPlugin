@@ -500,14 +500,14 @@ public final class TerrainRegeneratorMain implements Listener, CommandExecutor, 
 
     @EventHandler
     public void onEntityTarget(EntityTargetEvent e) {
-        if(e.getEntity() instanceof Warden && (e.getTarget() instanceof Silverfish || e.getTarget() instanceof PiglinBrute || e.getTarget() instanceof Piglin)) {
+        if(e.getEntity() instanceof Warden && !(e.getTarget() instanceof Player)) {
             net.minecraft.world.entity.monster.warden.Warden nmsWarden = ((CraftWarden) e.getEntity()).getHandle();
             nmsWarden.setAttackTarget(null);
             nmsWarden.getBrain().eraseMemory(MemoryModuleType.ANGRY_AT);
             e.setTarget(null);
             e.setCancelled(true);
         }
-        if(e.getEntity() instanceof Silverfish && e.getTarget() instanceof Warden) {
+        if(!(e.getEntity() instanceof Player) && e.getTarget() instanceof Warden) {
             net.minecraft.world.entity.monster.warden.Warden nmsWarden = ((CraftWarden) e.getTarget()).getHandle();
             nmsWarden.setAttackTarget(null);
             nmsWarden.getBrain().eraseMemory(MemoryModuleType.ATTACK_TARGET);
