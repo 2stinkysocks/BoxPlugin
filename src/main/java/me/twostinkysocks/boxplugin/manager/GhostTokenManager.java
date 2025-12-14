@@ -250,7 +250,12 @@ public class GhostTokenManager {
                         ItemStack currentItem = e.getInventory().getItem(e.getSlot());
                         ItemMeta currentItemMeta = e.getCurrentItem().getItemMeta();
                         List<String> currentLore = currentItemMeta.getLore();
-                        lore.addAll(List.of("", ChatColor.GOLD + "Cost: " + (Reclaimable.getByName(currentItem.getItemMeta().getDisplayName()).cost * (item.getType() == Material.SHIELD ? 2 : 1)) + " Xanatos coins"));
+                        int coins = Reclaimable.getByName(currentItem.getItemMeta().getDisplayName()).cost;
+                        if(BoxPlugin.instance.getReforgeManager().hasReforges(currentItem)){
+                            int bonusCoins = BoxPlugin.instance.getReforgeManager().getNumReforges(currentItem) * 40000;
+                            coins += bonusCoins;
+                        }
+                        lore.addAll(List.of("", ChatColor.GOLD + "" + ChatColor.BOLD + "Reclaim cost: " + coins + " Xanatos coins"));
                         currentItemMeta.setLore(currentLore);
                         currentItem.setItemMeta(currentItemMeta);
                         e.getInventory().setItem(e.getSlot(), item);
@@ -273,7 +278,12 @@ public class GhostTokenManager {
                         ItemMeta currentItemMeta = e.getCurrentItem().getItemMeta();
                         List<String> lore = currentItemMeta.getLore();
                         if(lore == null) lore = new ArrayList<>();
-                        lore.addAll(List.of("", ChatColor.GOLD + "" + ChatColor.BOLD + "Reclaim cost: " + (Reclaimable.getByName(currentItem.getItemMeta().getDisplayName()).cost* (currentItem.getType() == Material.SHIELD ? 2 : 1)) + " Xanatos coins"));
+                        int coins = Reclaimable.getByName(currentItem.getItemMeta().getDisplayName()).cost;
+                        if(BoxPlugin.instance.getReforgeManager().hasReforges(currentItem)){
+                            int bonusCoins = BoxPlugin.instance.getReforgeManager().getNumReforges(currentItem) * 40000;
+                            coins += bonusCoins;
+                        }
+                        lore.addAll(List.of("", ChatColor.GOLD + "" + ChatColor.BOLD + "Reclaim cost: " + coins + " Xanatos coins"));
                         currentItemMeta.setLore(lore);
                         currentItem.setItemMeta(currentItemMeta);
                         e.getView().getTopInventory().setItem(13, currentItem);
@@ -316,6 +326,10 @@ public class GhostTokenManager {
                 return;
             }
             int coins = reclaimable.cost * (item.getType() == Material.SHIELD ? 2 : 1);
+            if(BoxPlugin.instance.getReforgeManager().hasReforges(item)){
+                int bonusCoins = BoxPlugin.instance.getReforgeManager().getNumReforges(item) * 40000;
+                coins += bonusCoins;
+            }
             if(BoxPlugin.instance.getMarketManager().getCoinsBalance(p) < coins) {
                 p.sendMessage(ChatColor.RED + "You don't have enough money in your bank!");
                 p.playSound(p.getLocation(), Sound.BLOCK_FIRE_EXTINGUISH, 3.0F, 1.0F);

@@ -320,7 +320,7 @@ public class ReforgeManager {
 
     public ItemStack stripReforges(ItemStack item, Player p) throws SQLException {
         ItemMeta itemMeta = item.getItemMeta();
-        if(itemMeta == null){
+        if(itemMeta == null || BoxPlugin.instance.getGhostTokenManager().isGhostItem(item)){
             p.sendMessage(ChatColor.RED + "This item is not valid!");
             p.playSound(p.getLocation(), Sound.BLOCK_FIRE_EXTINGUISH, 3.0F, 1.0F);
             return item;
@@ -1776,7 +1776,7 @@ public class ReforgeManager {
                 item = setReforgeList(item, "+ 5% move speed");
             } else if (reforgeChoiceChance2 <= 90) {
                 p.sendMessage(ChatColor.DARK_AQUA + "Obtained tier II");
-                ModifyAtribute.ModifyPercentMoveSpeed(item, 0.8, EquipmentSlotGroup.HAND);
+                ModifyAtribute.ModifyPercentMoveSpeed(item, 0.08, EquipmentSlotGroup.HAND);
                 item = ModifyAtribute.ModifyGearScore(item, 6);
                 item = setReforgeList(item, "+ 8% move speed");
             } else if (reforgeChoiceChance1 <= 100) {

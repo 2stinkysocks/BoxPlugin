@@ -214,6 +214,8 @@ public final class BoxPlugin extends JavaPlugin implements CommandExecutor, TabC
         getCommand("removegearscore").setExecutor(this);
         getCommand("listreforges").setExecutor(this);
         getCommand("resetpillars").setExecutor(this);
+        getCommand("getrubies").setExecutor(this);
+        getCommand("setrubies").setExecutor(this);
         getServer().getPluginManager().registerEvents(new Listeners(), this);
         load();
         if(Bukkit.getPluginManager().getPlugin("PlaceholderAPI") != null) {
@@ -970,6 +972,36 @@ public final class BoxPlugin extends JavaPlugin implements CommandExecutor, TabC
                 BoxPlugin.instance.getMarketManager().resetPillarProgression(Bukkit.getPlayer(args[0]));
                 p.sendMessage(ChatColor.GREEN + "Cleared pillar progress!");
                 return true;
+            } else if (label.equals("getrubies")) {
+                if(!p.hasPermission("boxplugin.manageitems")) {
+                    p.sendMessage(ChatColor.RED + "You don't have permission!");
+                    return true;
+                }
+                if(args.length != 1){
+                    p.sendMessage(ChatColor.RED + "Incorrect Usage: use /getrubes [player name]");
+                    return true;
+                }
+                Player target = Bukkit.getPlayer(args[0]);
+
+                sender.sendMessage(target.getName() + " has " + getMarketManager().getRubies(target) + " rubies");
+                return true;
+
+            } else if (label.equals("setrubies")) {
+                if(!p.hasPermission("boxplugin.manageitems")) {
+                    p.sendMessage(ChatColor.RED + "You don't have permission!");
+                    return true;
+                }
+                if(args.length != 2){
+                    p.sendMessage(ChatColor.RED + "Incorrect Usage: use /setrubies [player name] ammount");
+                    return true;
+                }
+                Player target = Bukkit.getPlayer(args[0]);
+                int ammount = Integer.parseInt(args[1]);
+                getMarketManager().setRubies(target, ammount);
+
+                sender.sendMessage(target.getName() + " now has " + getMarketManager().getRubies(target) + " rubies");
+                return true;
+
             }
         }
 
@@ -993,7 +1025,7 @@ public final class BoxPlugin extends JavaPlugin implements CommandExecutor, TabC
         } else if(alias.equals("sus")) {
             StringUtil.copyPartialMatches(args[0], Bukkit.getOnlinePlayers().stream().map(p -> p.getName()).collect(Collectors.toList()), completions);
             return completions;
-        } else if(alias.equals("resetperks") || alias.equals("resetpillars")) {
+        } else if(alias.equals("resetperks") || alias.equals("resetpillars") || alias.equals("getrubies") || alias.equals("setrubies")) {
             if(args.length == 1) {
                 StringUtil.copyPartialMatches(args[0], Bukkit.getOnlinePlayers().stream().map(p -> p.getName()).collect(Collectors.toList()), completions);
                 return completions;
