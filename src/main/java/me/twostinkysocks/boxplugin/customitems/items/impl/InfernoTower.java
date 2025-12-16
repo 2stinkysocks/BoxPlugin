@@ -100,10 +100,7 @@ public class InfernoTower extends CustomItem {
             if(task.isCancelled()) return; // just in case
 
             renderSphere(
-                    p.getLocation().clone().add(0,3,0),
-                    30,
-                    0.5
-                    );
+                    p.getLocation().clone().add(0,3,0), 30, 0.5);
 
             if(renderTimers.containsKey(p.getUniqueId())) {
                 renderTimers.put(p.getUniqueId(), renderTimers.get(p.getUniqueId())+1);

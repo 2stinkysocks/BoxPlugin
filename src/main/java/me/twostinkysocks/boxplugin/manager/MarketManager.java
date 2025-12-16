@@ -601,7 +601,7 @@ public class MarketManager {
             i.setItemStack(item);
         }
         p.playSound(p.getLocation(), Sound.BLOCK_NOTE_BLOCK_PLING, 0.5f, 2f);
-        if (amount == 0){
+        if (orig == 0){
             p.sendMessage(ChatColor.GREEN + "Withdrew 0 coins.");
         }
         else {

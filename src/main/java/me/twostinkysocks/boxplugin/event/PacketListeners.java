@@ -14,7 +14,14 @@ public class PacketListeners {
         ) {
             @Override
             public void onPacketSending(PacketEvent event) {
+                String worldName = event.getPlayer().getWorld().getName();
+                int effectId = event.getPacket().getIntegers().read(0);
 
+                if (effectId == 1018) {
+                    if ("Xanatos_the_end".equals(worldName)) {
+                        event.setCancelled(true);
+                    }
+                }
             }
         });
     }

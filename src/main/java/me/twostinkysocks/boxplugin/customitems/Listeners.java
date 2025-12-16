@@ -350,32 +350,4 @@ public class Listeners implements Listener {
             i.getJoin().accept(e.getPlayer());
         }
     }
-
-//    @EventHandler
-//    public void onCombatStart(CombatStartEvent e) {
-//        Player p = e.getPlayer();
-//        long start = System.currentTimeMillis();
-//
-//        BukkitTask task = Bukkit.getScheduler().runTaskTimer(plugin, () -> {
-//            Combat combat = CombatLogX.getInstance().getCombatManager().getCombat(p);
-//            if (combat == null || !combat.isInCombat()) {
-//                task.cancel();
-//                return;
-//            }
-//
-//            long elapsed = (System.currentTimeMillis() - start) / 1000;
-//
-//            if (elapsed == 5) doAt5s(p);
-//            if (elapsed == 10) doAt10s(p);
-//            if (elapsed == 20) doAt20s(p);
-//        }, 20L, 20L);
-//
-//        runningTasks.put(p.getUniqueId(), task);
-//    }
-//
-//    @EventHandler
-//    public void onCombatEnd(CombatEndEvent e) {
-//        BukkitTask task = runningTasks.remove(e.getPlayer().getUniqueId());
-//        if (task != null) task.cancel();
-//    }
 }

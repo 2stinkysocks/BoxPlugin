@@ -5,7 +5,7 @@ api-version: 1.21.4
 prefix: BoxPlugin
 authors: [ 2stinkysocks ]
 description: Custom plugin AetherConquest.net
-depend: [ExcellentCrates, MythicMobs, WorldGuard, nightcore]
+depend: [ExcellentCrates, MythicMobs, WorldGuard, nightcore, CombatLogX]
 softdepend: [LuckPerms, HolographicDisplays, PlaceholderAPI]
 commands:
   sus:
@@ -126,6 +126,12 @@ commands:
   resetpillars:
     usage: /<command>
     description: resets player pillar progression
+  getrubies:
+    usage: /<command>
+    description: gets player rubies
+  setrubies:
+    usage: /<command>
+    description: sets player rubies
 permissions:
   boxplugin.manageperks:
     default: false

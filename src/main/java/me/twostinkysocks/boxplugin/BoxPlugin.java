@@ -12,6 +12,7 @@ import me.twostinkysocks.boxplugin.event.Listeners;
 import me.twostinkysocks.boxplugin.event.PacketListeners;
 import me.twostinkysocks.boxplugin.event.PlayerBoxXpUpdateEvent;
 import me.twostinkysocks.boxplugin.manager.*;
+import me.twostinkysocks.boxplugin.perks.MegaPerkHeartSteal;
 import me.twostinkysocks.boxplugin.perks.Upgradable;
 import me.twostinkysocks.boxplugin.util.MarketJob;
 import me.twostinkysocks.boxplugin.util.PlaceholderAPIExpansion;
@@ -82,6 +83,7 @@ public final class BoxPlugin extends JavaPlugin implements CommandExecutor, TabC
     private ItemLivesManager itemLivesManager;
 
     private LotteryManager lotteryManager;
+    private MegaPerkHeartSteal megaperkHeartSteal;
 
     private Economy econ = null;
 
@@ -168,6 +170,7 @@ public final class BoxPlugin extends JavaPlugin implements CommandExecutor, TabC
         gearScoreManager = new GearScoreManager();
         reforgeManager = new ReforgeManager();
         registeredItem = new RegisteredItem();
+        megaperkHeartSteal = new MegaPerkHeartSteal();
 
         excellentCrates = (CratesPlugin) getServer().getPluginManager().getPlugin("ExcellentCrates");
         keyManager = excellentCrates.getKeyManager();
@@ -361,6 +364,9 @@ public final class BoxPlugin extends JavaPlugin implements CommandExecutor, TabC
 
     public LotteryManager getLotteryManager() {
         return lotteryManager;
+    }
+    public MegaPerkHeartSteal getMegaPerkHeartSteal() {
+        return megaperkHeartSteal;
     }
 //    public StateFlag getEntityInteractFlag() {
 //        return entityInteract;

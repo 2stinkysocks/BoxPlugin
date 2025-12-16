@@ -1,12 +1,20 @@
 package me.twostinkysocks.boxplugin.event;
 
+import com.comphenix.protocol.events.PacketEvent;
+import com.comphenix.protocol.wrappers.EnumWrappers;
+import com.github.sirblobman.combatlogx.api.ICombatLogX;
+import com.github.sirblobman.combatlogx.api.event.PlayerTagEvent;
+import com.github.sirblobman.combatlogx.api.listener.CombatListener;
+import com.github.sirblobman.combatlogx.api.manager.ICombatManager;
 import me.twostinkysocks.boxplugin.BoxPlugin;
 import me.twostinkysocks.boxplugin.ItemModification.RegisteredItem;
 import me.twostinkysocks.boxplugin.customitems.items.impl.CageStaff;
 import me.twostinkysocks.boxplugin.manager.GearScoreManager;
 import me.twostinkysocks.boxplugin.manager.PerksManager;
 import me.twostinkysocks.boxplugin.manager.PerksManager.Perk;
+import me.twostinkysocks.boxplugin.perks.MegaPerkHeartSteal;
 import me.twostinkysocks.boxplugin.perks.PerkXPBoost;
+import me.twostinkysocks.boxplugin.util.RenderUtil;
 import me.twostinkysocks.boxplugin.util.Util;
 import org.bukkit.*;
 import org.bukkit.attribute.Attribute;
@@ -28,6 +36,10 @@ import org.bukkit.event.player.*;
 import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.persistence.PersistentDataType;
+import org.bukkit.potion.PotionEffect;
+import org.bukkit.potion.PotionEffectType;
+import org.bukkit.scheduler.BukkitTask;
+import org.bukkit.util.Vector;
 
 import java.io.File;
 import java.io.IOException;
@@ -37,6 +49,11 @@ import java.util.stream.Collectors;
 
 
 public class Listeners implements Listener {
+
+    private Set<UUID> running = new HashSet<>(); //used for megaperk strength
+    record Pair(UUID player, UUID target) {}
+    private Map<Pair, Integer> entityHits = new HashMap<>();
+    private Map<Pair, Boolean> completedStacks = new HashMap<>();
 
     public RegisteredItem getRegisteredItem(){
         RegisteredItem RegisteredItem = new RegisteredItem();
@@ -168,6 +185,7 @@ public class Listeners implements Listener {
 
     @EventHandler
     public void entityDamage(EntityDamageByEntityEvent e) {
+        NamespacedKey readyForHpKey = new NamespacedKey(BoxPlugin.instance, "has_been_tagged");
         if(e.getDamager() instanceof Player && (e.getCause() == EntityDamageEvent.DamageCause.ENTITY_ATTACK || e.getCause() == EntityDamageEvent.DamageCause.ENTITY_SWEEP_ATTACK)) {
             Player p = (Player) e.getDamager();
             if(BoxPlugin.instance.getPerksManager().getSelectedMegaPerks(p).contains(PerksManager.MegaPerk.MEGA_LIFESTEAL)) {
@@ -175,6 +193,100 @@ public class Listeners implements Listener {
                     Util.debug(p, "Healed for " + (e.getFinalDamage() * 0.15) + " from lifesteal");
                     p.setHealth(Math.min(p.getHealth() + (e.getFinalDamage() * 0.15), p.getAttribute(Attribute.MAX_HEALTH).getValue()));
 
+                }
+            }
+
+            if(BoxPlugin.instance.getPerksManager().getSelectedMegaPerks(p).contains(PerksManager.MegaPerk.MEGA_HEARTSTEEL)) {
+                if(!(e.getEntity() instanceof LivingEntity)){
+                    return;
+                }
+                LivingEntity target = (LivingEntity) e.getEntity();
+                if(target instanceof Player || target.getMaxHealth() >= 100){
+                    Pair key = new Pair(p.getUniqueId(), target.getUniqueId());
+                    if(entityHits.containsKey(key)){
+                        int oldHits = entityHits.get(key);
+                        entityHits.put(key, oldHits + 1);
+                    } else {
+                        entityHits.put(key, 1);
+                    }
+                    if(completedStacks.getOrDefault(key, false)){ //cancel if already claimed
+                        Util.debug(p, target.getName() + " Has had HP claimed already");
+                        return;
+                    }
+                    if(target.getPersistentDataContainer().has(readyForHpKey)){ //cancel if already tagged
+                        if(target.getPersistentDataContainer().get(readyForHpKey, PersistentDataType.BOOLEAN)){
+                            return;
+                        }
+                    }
+                    target.getPersistentDataContainer().set(readyForHpKey, PersistentDataType.BOOLEAN, true);
+
+                    Particle.DustOptions finalDust = new Particle.DustOptions(Color.fromRGB(200, 16, 66), 1.0F);
+                    Particle.DustOptions halfwayDust = new Particle.DustOptions(Color.fromRGB(147, 103, 214), 0.75F);
+                    Particle.DustOptions startDust = new Particle.DustOptions(Color.fromRGB(148, 197, 227), 0.5F);
+
+                    int[] i = {0};//num seconds until ready
+                    boolean[] claimedHealth = {false};//if health has been claimed
+                    int[] hitsAtReady = {0};
+                    double entityHieght = target.getHeight();
+
+                    Bukkit.getScheduler().runTaskTimer(BoxPlugin.instance, task -> {
+                        if(task.isCancelled()) return; // just in case
+
+                        Location origin = target.getLocation().clone();
+                        origin.add(0, (entityHieght + 1), 0);
+
+                        if(i[0] == 6){
+                            Util.debug(p, "Started heart steal stack timer on " + target.getName());
+                            p.playSound(p.getLocation(), Sound.UI_HUD_BUBBLE_POP, 4f, 0.8f);
+                        } else if (i[0] == 16) {
+                            p.playSound(p.getLocation(), Sound.UI_HUD_BUBBLE_POP, 4f, 1f);
+                        } else if (i[0] == 26) {
+                            p.playSound(p.getLocation(), Sound.UI_HUD_BUBBLE_POP, 4f, 1.4f);
+                            p.playSound(p.getLocation(), Sound.ENTITY_WARDEN_HEARTBEAT, 1f, 2f);
+                            Util.debug(p, "Stack is ready to be claimed from " + target.getName());
+                            hitsAtReady[0] = entityHits.getOrDefault(key, 0);
+                        }
+                        if(i[0] <= 16 && i[0] >= 6){
+                            RenderUtil.renderDustOrb(origin, 5, 0.05, startDust);
+                        } else if(i[0] <= 26 && i[0] > 16){
+                            RenderUtil.renderDustOrb(origin, 8, 0.075, halfwayDust);
+                        } else if(i[0] > 26){
+                            RenderUtil.renderDustOrb(origin, 10, 0.1, finalDust);
+                        }
+                        if(entityHits.getOrDefault(key, 0) > hitsAtReady[0] && i[0] >= 26){
+                            completedStacks.put(key, true);
+                            claimedHealth[0] = true;
+                            p.sendMessage(ChatColor.GREEN + "Claimed 1 stack from " + target.getName());
+                            int currentStacks = BoxPlugin.instance.getMegaPerkHeartSteal().getStacks(p);
+                            BoxPlugin.instance.getMegaPerkHeartSteal().setStacks(p, currentStacks + 1);
+                            int bonusHP = BoxPlugin.instance.getMegaPerkHeartSteal().stacksToHealth(p);
+                            BoxPlugin.instance.getMegaPerkHeartSteal().updateHealth(p);
+                            target.damage(currentStacks);
+                            Util.debug(p, "you now have: " + BoxPlugin.instance.getMegaPerkHeartSteal().getStacks(p) + " stacks, granting you: " + bonusHP + " health");
+                            Util.debug(p, "dealt " + currentStacks + " damage to " + target.getName());
+
+                            //sfx
+                            p.playSound(p.getLocation(), Sound.UI_HUD_BUBBLE_POP, 1f, 0.8f);
+                            p.playSound(p.getLocation(), Sound.BLOCK_BONE_BLOCK_BREAK, 0.9f, 1.8f);
+                            p.playSound(p.getLocation(), Sound.BLOCK_AMETHYST_BLOCK_RESONATE, 1f, 0.8f);
+                            p.playSound(p.getLocation(), Sound.BLOCK_ANVIL_LAND, 0.1f, 1.6f);
+                            p.playSound(p.getLocation(), Sound.BLOCK_ANVIL_LAND, 0.1f, 0.6f);
+                            p.playSound(p.getLocation(), Sound.BLOCK_MEDIUM_AMETHYST_BUD_PLACE, 0.55f, 0.5f);
+                            p.playSound(p.getLocation(), Sound.BLOCK_NOTE_BLOCK_XYLOPHONE, 1f, 0.5f);
+                            p.playSound(p.getLocation(), Sound.ENTITY_GUARDIAN_DEATH, 0.35f, 2f);
+                            p.playSound(p.getLocation(), Sound.BLOCK_CREAKING_HEART_BREAK, 0.5f, 1.5f);
+
+                            RenderUtil.renderParticleOrb(origin, 8, 0.08, Particle.SCULK_SOUL, 0.02);
+                            target.getPersistentDataContainer().set(readyForHpKey, PersistentDataType.BOOLEAN, false);
+                            task.cancel();
+                        }
+                        if(target.isDead() || claimedHealth[0] || i[0] == 200){//cancel if dead, claimed, or 20 seconds since activated
+                            target.getPersistentDataContainer().set(readyForHpKey, PersistentDataType.BOOLEAN, false);
+                            task.cancel();
+                        }
+
+                        i[0]++;
+                    }, 0, 2);
                 }
             }
         }
@@ -518,6 +630,17 @@ public class Listeners implements Listener {
         Player cause = e.getEntity().getKiller();
         Player target = e.getEntity();
 
+        if(target != null && BoxPlugin.instance.getPerksManager().getSelectedMegaPerks(target).contains(PerksManager.MegaPerk.MEGA_HEARTSTEEL)){//if you die, reset claimable for all entities
+            if(completedStacks != null){
+                completedStacks.keySet().removeIf(key -> key.player.equals(target.getUniqueId()));
+            }
+        }
+        if(cause != null && BoxPlugin.instance.getPerksManager().getSelectedMegaPerks(cause).contains(PerksManager.MegaPerk.MEGA_HEARTSTEEL)){//reset claimable to killer when target dies
+            if(completedStacks != null){
+                completedStacks.keySet().removeIf(key -> key.player.equals(cause.getUniqueId()) && key.target.equals(target.getUniqueId()));
+            }
+        }
+
         BoxPlugin.instance.getGhostTokenManager().onPreDeath(e.getDrops(), e.getEntity());
 
         for(Perk perk : BoxPlugin.instance.getPerksManager().getSelectedPerks(target)) {
@@ -700,5 +823,74 @@ public class Listeners implements Listener {
             e.setCancelled(true);
         }
     }
+
+    @EventHandler
+    public void onCombatStart(PlayerTagEvent e) {
+        Player p = e.getPlayer();
+        if(!BoxPlugin.instance.getPerksManager().getSelectedMegaPerks(p).contains(PerksManager.MegaPerk.MEGA_STRENGTH)){
+            return;
+        }
+        if (running.contains(p.getUniqueId())) {
+            return;
+        }
+        running.add(p.getUniqueId());
+        final long[] lastInCombat = { System.currentTimeMillis() };
+        final long start = System.currentTimeMillis();
+        ICombatLogX combatLogX = (ICombatLogX) Bukkit.getPluginManager().getPlugin("CombatLogX");
+
+        ICombatManager combatManager = combatLogX.getCombatManager();
+
+        final BukkitTask[] task = new BukkitTask[1];
+
+        task[0] = Bukkit.getScheduler().runTaskTimer(BoxPlugin.instance, () -> {
+
+            if(combatManager.isInCombat(p)) {
+                lastInCombat[0] = System.currentTimeMillis();
+            }
+
+            long elapsedTime = (System.currentTimeMillis() - start) / 1000;
+            long outOfCombatTime = (System.currentTimeMillis() - lastInCombat[0]) / 1000;
+
+            if(outOfCombatTime == 0){
+                p.sendMessage(ChatColor.RED + "Your strength will fade within 30 seconds of no combat!");
+            }
+
+            if(outOfCombatTime >= 30){
+                p.sendMessage(ChatColor.RED + "Your strength has faded back to normal");
+                p.removePotionEffect(PotionEffectType.STRENGTH);
+                p.addPotionEffect(new PotionEffect(PotionEffectType.STRENGTH, Integer.MAX_VALUE, 3, true, false));
+                running.remove(p.getUniqueId());
+                task[0].cancel();
+                return;
+            }
+
+            if (elapsedTime == 30) {
+                p.sendMessage(ChatColor.GOLD + "Your strength has increased...");
+                p.addPotionEffect(new PotionEffect(PotionEffectType.STRENGTH, Integer.MAX_VALUE, 4, true, false));
+            }
+            if (elapsedTime == 60) {
+                p.sendMessage(ChatColor.GOLD + "Your strength has increased...");
+                p.addPotionEffect(new PotionEffect(PotionEffectType.STRENGTH, Integer.MAX_VALUE, 5, true, false));
+            }
+            if (elapsedTime == 90) {
+                p.sendMessage(ChatColor.GOLD + "Your strength has increased...");
+                p.addPotionEffect(new PotionEffect(PotionEffectType.STRENGTH, Integer.MAX_VALUE, 6, true, false));
+            }
+            if (elapsedTime == 120) {
+                p.sendMessage(ChatColor.GOLD + "Your strength has increased...");
+                p.addPotionEffect(new PotionEffect(PotionEffectType.STRENGTH, Integer.MAX_VALUE, 7, true, false));
+            }
+            if (elapsedTime == 150) {
+                p.sendMessage(ChatColor.GOLD + "Your strength has increased...");
+                p.addPotionEffect(new PotionEffect(PotionEffectType.STRENGTH, Integer.MAX_VALUE, 8, true, false));
+            }
+            if (elapsedTime == 180) {
+                p.sendMessage(ChatColor.GOLD + "" + ChatColor.BOLD + "Your strength has reached max power!" + ChatColor.RED + " +30 attack damage!");
+                p.addPotionEffect(new PotionEffect(PotionEffectType.STRENGTH, Integer.MAX_VALUE, 9, true, false));
+            }
+        }, 20L, 20L);
+
+    }
+
 
 }

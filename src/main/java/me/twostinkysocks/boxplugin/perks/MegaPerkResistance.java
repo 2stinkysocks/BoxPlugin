@@ -89,7 +89,7 @@ public class MegaPerkResistance extends AbstractPerk {
             perk1 = selectedPerks.get(0);
             perk2 = selectedPerks.get(1);
         }
-        if(perk1 != null && perk2 != null){
+        if(perk1 == null || perk2 == null){
             return false;
         }
         if((perk1.equals(PerksManager.MegaPerk.MEGA_RESISTANCE) && perk2.equals(PerksManager.MegaPerk.MEGA_REGENERATION))

@@ -73,6 +73,7 @@ public class PerksManager {
 
     public enum MegaPerk {
         //MEGA_SPEED(new MegaPerkSpeed()), no more mega speed lol, upgradeable normal now
+        MEGA_HEARTSTEEL(new MegaPerkHeartSteal()),
         MEGA_STRENGTH(new MegaPerkStrength()),
         MEGA_RESISTANCE(new MegaPerkResistance()),
         MEGA_REGENERATION(new MegaPerkRegeneration()),
@@ -299,6 +300,10 @@ public class PerksManager {
                 ItemMeta meta = item.getItemMeta();
                 List<String> newItemTwoLore = meta.getLore() == null ? new ArrayList<>() : meta.getLore();
                 newItemTwoLore.add("");
+                if(selected.equals(MegaPerk.MEGA_HEARTSTEEL)){
+                    newItemTwoLore.add(ChatColor.GREEN + "Your stacks: " + BoxPlugin.instance.getMegaPerkHeartSteal().getStacks(p));
+                    newItemTwoLore.add("");
+                }
                 newItemTwoLore.add(ChatColor.GRAY + "Click to change perk");
                 meta.setLore(newItemTwoLore);
                 item.setItemMeta(meta);
@@ -334,6 +339,10 @@ public class PerksManager {
                 ItemMeta meta = item.getItemMeta();
                 List<String> newItemTwoLore = meta.getLore() == null ? new ArrayList<>() : meta.getLore();
                 newItemTwoLore.add("");
+                if(selected.equals(MegaPerk.MEGA_HEARTSTEEL)){
+                    newItemTwoLore.add(ChatColor.GREEN + "Your stacks: " + BoxPlugin.instance.getMegaPerkHeartSteal().getStacks(p));
+                    newItemTwoLore.add("");
+                }
                 newItemTwoLore.add(ChatColor.GRAY + "Click to change perk");
                 meta.setLore(newItemTwoLore);
                 item.setItemMeta(meta);
@@ -414,6 +423,10 @@ public class PerksManager {
             List<String> newLore = meta.getLore();
             assert newLore != null;
             if(ownsMegaPerk(p, perk)) { // show "owned"
+                if(perk.equals(MegaPerk.MEGA_HEARTSTEEL)){
+                    newLore.add("");
+                    newLore.add(ChatColor.GREEN + "Your stacks: " + BoxPlugin.instance.getMegaPerkHeartSteal().getStacks(p));
+                }
                 newLore.add("");
                 newLore.add(ChatColor.GREEN + "Owned");
                 newLore.add(ChatColor.GRAY + "Click to equip");
@@ -867,6 +880,10 @@ public class PerksManager {
             ArrayList<MegaPerk> newList = new ArrayList<>(l);
             return newList;
         }
+    }
+
+    public MegaPerk getMegaPerk(MegaPerk megaPerk){
+        return megaPerk;
     }
 
 

@@ -23,7 +23,11 @@ public class XPManager {
                 BoxPlugin.instance.getXpManager().addXP(p, BoxPlugin.instance.getConfig().getInt("xp-equation-constant") * 10);
                 int afterxp = BoxPlugin.instance.getXpManager().getXP(p);
                 CrateKey key = BoxPlugin.instance.getKeyManager().getKeyById("common");
-                BoxPlugin.instance.getKeyManager().giveKey(p, key, 1);
+                if(key != null){
+                    BoxPlugin.instance.getKeyManager().giveKey(p, key, 1);
+                } else {
+                    System.out.println("key not found");
+                }
                 Bukkit.getPluginManager().callEvent(new PlayerBoxXpUpdateEvent(p, beforexp, afterxp));
             });
             Bukkit.broadcastMessage(ChatColor.translateAlternateColorCodes('&', "&a&lFREE REWARDS! &7You earned " + BoxPlugin.instance.getConfig().getInt("xp-equation-constant") * 10 + " xp and 1 common crate key!"));
