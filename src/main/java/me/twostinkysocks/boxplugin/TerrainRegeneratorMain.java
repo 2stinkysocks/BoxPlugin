@@ -191,7 +191,7 @@ public final class TerrainRegeneratorMain implements Listener, CommandExecutor, 
                     Entity entity = Bukkit.getEntity(uuid);
                     if(entity instanceof Warden) {
                         Warden warden = (Warden) entity;
-                        if(warden.getTarget() != null && warden.getTarget() instanceof Silverfish) {
+                        if(warden.getTarget() != null && !(warden.getTarget() instanceof Player)) {
                             warden.setAnger(warden.getTarget(), 0);
                         }
                     }

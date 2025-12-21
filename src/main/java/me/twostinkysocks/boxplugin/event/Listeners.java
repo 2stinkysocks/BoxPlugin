@@ -261,9 +261,9 @@ public class Listeners implements Listener {
                             BoxPlugin.instance.getMegaPerkHeartSteal().setStacks(p, currentStacks + 1);
                             int bonusHP = BoxPlugin.instance.getMegaPerkHeartSteal().stacksToHealth(p);
                             BoxPlugin.instance.getMegaPerkHeartSteal().updateHealth(p);
-                            target.damage(currentStacks);
+                            target.damage(currentStacks*1.5);
                             Util.debug(p, "you now have: " + BoxPlugin.instance.getMegaPerkHeartSteal().getStacks(p) + " stacks, granting you: " + bonusHP + " health");
-                            Util.debug(p, "dealt " + currentStacks + " damage to " + target.getName());
+                            Util.debug(p, "dealt " + (currentStacks*1.5) + " damage to " + target.getName());
 
                             //sfx
                             p.playSound(p.getLocation(), Sound.UI_HUD_BUBBLE_POP, 1f, 0.8f);
@@ -653,8 +653,8 @@ public class Listeners implements Listener {
         if(cause == null) {
             BoxPlugin.instance.getPvpManager().resetStreak(target);
             BoxPlugin.instance.getScoreboardManager().queueUpdate(target);
-            Util.dropPercent(e, 0.15);
-            target.sendMessage(ChatColor.RED + "You lost 15% of your items from dying to a non-player!");
+            Util.dropPercent(e, 0.10);
+            target.sendMessage(ChatColor.RED + "You lost 10% of your items from dying to a non-player!");
             BoxPlugin.instance.getGhostTokenManager().onPostDeath(e.getDrops(), e.getEntity());
             return;
         }

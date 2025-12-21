@@ -35,6 +35,7 @@ public class ReforgeManager {
 
     public final NamespacedKey isReforgedKey = new NamespacedKey(BoxPlugin.instance, "isReforged"); // boolean type
     public final NamespacedKey reforgeStatusKey = new NamespacedKey(BoxPlugin.instance, "numReforges"); // integer type
+    public final NamespacedKey freeReforgeStatusKey = new NamespacedKey(BoxPlugin.instance, "numFreeReforges"); // integer type
     public final NamespacedKey reforgeListKey = new NamespacedKey(BoxPlugin.instance, "currentReforgesStored"); //list type
     private List<String> reforgeList = new ArrayList<>();
 
@@ -78,6 +79,47 @@ public class ReforgeManager {
         item.setItemMeta(itemMeta);
         return item;
     }
+
+    public boolean hasFreeReforges(@NotNull ItemStack item){
+        ItemMeta itemMeta = item.getItemMeta();
+        if(itemMeta.getPersistentDataContainer().has(freeReforgeStatusKey)){
+            if(itemMeta.getPersistentDataContainer().get(isReforgedKey, PersistentDataType.INTEGER) >= 1){
+                return true;
+            }
+        }
+        return false;
+    }
+    public int getNumFreeReforges(@NotNull ItemStack item) {
+        ItemMeta itemMeta = item.getItemMeta();
+        int freeReforges = 0;
+        if (itemMeta == null || !itemMeta.getPersistentDataContainer().has(freeReforgeStatusKey)) {
+            return freeReforges;
+        }
+        if (itemMeta.getPersistentDataContainer().has(freeReforgeStatusKey)) {
+            freeReforges = itemMeta.getPersistentDataContainer().get(freeReforgeStatusKey, PersistentDataType.INTEGER);
+        }
+        return freeReforges;
+    }
+
+
+        public ItemStack setNumFreeReforges(@NotNull ItemStack item){
+        ItemMeta itemMeta = item.getItemMeta();
+        int numFreeReforges = 1;
+
+        if(itemMeta == null){
+            return item;
+        }
+
+        if(hasFreeReforges(item)){
+            numFreeReforges += getNumFreeReforges(item);
+            itemMeta.getPersistentDataContainer().set(freeReforgeStatusKey, PersistentDataType.INTEGER, numFreeReforges);
+        } else {
+            itemMeta.getPersistentDataContainer().set(freeReforgeStatusKey, PersistentDataType.INTEGER, numFreeReforges);
+        }
+        item.setItemMeta(itemMeta);
+        return item;
+    }
+
 
     public ItemStack setReforgeList(ItemStack item, String reforge){
         ItemMeta itemMeta = item.getItemMeta();
@@ -209,6 +251,7 @@ public class ReforgeManager {
                     }
                     p.sendMessage(ChatColor.GOLD + "You received a 2nd free reforge!");
                     setNumReforges(item);
+                    setNumFreeReforges(item);
                 }
                 boolean reforged = DecideItemTypeToReforge(item, p);
                 if(!reforged){//cancel if not eligible
@@ -320,55 +363,42 @@ public class ReforgeManager {
 
     public ItemStack stripReforges(ItemStack item, Player p) throws SQLException {
         ItemMeta itemMeta = item.getItemMeta();
-        if(itemMeta == null || BoxPlugin.instance.getGhostTokenManager().isGhostItem(item)){
+        if (itemMeta == null || BoxPlugin.instance.getGhostTokenManager().isGhostItem(item)) {
             p.sendMessage(ChatColor.RED + "This item is not valid!");
             p.playSound(p.getLocation(), Sound.BLOCK_FIRE_EXTINGUISH, 3.0F, 1.0F);
             return item;
         }
 
-        if(hasReforges(item)){
-            int numReforges = getNumReforges(item);
+        if (hasReforges(item)) {
+            int numReforges = getNumReforges(item) - getNumFreeReforges(item); //if you had free reforges, the bonus no longer counts to your refund
             Random luck = new Random();
             int randLuck = luck.nextInt(10);
             double rubyMult = 1;
 
-            if(getNumReforges(item) == 1){
-                if(randLuck <= 5){//60% chance to lose 20% of rubies
-                    p.sendMessage(ChatColor.GOLD + "" + ChatColor.BOLD + "Xanatos:" + ChatColor.GOLD + " OOPS! I messed up a bit...");
-                    rubyMult = 0.8;
-                }
-            } else if(getNumReforges(item) == 3){
-                if(randLuck <= 4){//50% chance to lose 20% of rubies
-                    p.sendMessage(ChatColor.GOLD + "" + ChatColor.BOLD + "Xanatos:" + ChatColor.GOLD + " OOPS! I messed up a bit...");
-                    rubyMult = 0.8;
-                }
-            } else {
-                if(randLuck <= 2){//30% chance to lose 20% of rubies
-                    p.sendMessage(ChatColor.GOLD + "" + ChatColor.BOLD + "Xanatos:" + ChatColor.GOLD + " OOPS! I messed up a bit...");
-                    rubyMult = 0.8;
-                }
+            if (randLuck <= 2) {//30% chance to lose 20% of rubies
+                p.sendMessage(ChatColor.GOLD + "" + ChatColor.BOLD + "Xanatos:" + ChatColor.GOLD + " OOPS! I messed up a bit...");
+                rubyMult = 0.8;
             }
 
-            BoxPlugin.instance.getMarketManager().addRubies(p, (int) (numReforges*REFORGECOST*rubyMult));
-            p.playSound(p.getLocation(), Sound.BLOCK_NOTE_BLOCK_PLING, 0.5f, 2f);
+                BoxPlugin.instance.getMarketManager().addRubies(p, (int) (numReforges * REFORGECOST * rubyMult));
+                p.playSound(p.getLocation(), Sound.BLOCK_NOTE_BLOCK_PLING, 0.5f, 2f);
 
-            if(rubyMult == 1){
-                p.sendMessage(ChatColor.GREEN + "Stripped " + numReforges + " reforges from your item and gained all rubies back (" + (int) (numReforges*REFORGECOST*rubyMult) + " rubies)!");
+                if (rubyMult == 1) {
+                    p.sendMessage(ChatColor.GREEN + "Stripped " + numReforges + " reforges from your item and gained all rubies back (" + (int) (numReforges * REFORGECOST * rubyMult) + " rubies)!");
+                } else {
+                    p.sendMessage(ChatColor.GREEN + "Stripped " + numReforges + " reforges from your item and returned " + (rubyMult*100) + "% of rubies (" + (int) (numReforges * REFORGECOST * rubyMult) + " rubies)!");
+                }
+                itemMeta.getPersistentDataContainer().remove(reforgeStatusKey);
+                BoxPlugin.instance.getRegisteredItem().SetReforgedStatus(itemMeta, false);
+                item.setItemMeta(itemMeta);
+
+                removeReforgeList(item);
+                BoxPlugin.instance.getRegisteredItem().SetToRegisteredItem(item);//sets toe registered defualt
+                p.playSound(p.getLocation(), Sound.BLOCK_NOTE_BLOCK_PLING, 0.5f, 2f);
             } else {
-                p.sendMessage(ChatColor.GREEN + "Stripped " + numReforges + " reforges from your item and returned 80% of rubies (" + (int) (numReforges*REFORGECOST*rubyMult) + " rubies)!");
+                p.sendMessage(ChatColor.RED + "This item is not reforged!");
+                p.playSound(p.getLocation(), Sound.BLOCK_FIRE_EXTINGUISH, 3.0F, 1.0F);
             }
-            itemMeta.getPersistentDataContainer().remove(reforgeStatusKey);
-            BoxPlugin.instance.getRegisteredItem().SetReforgedStatus(itemMeta, false);
-            item.setItemMeta(itemMeta);
-
-            removeReforgeList(item);
-            BoxPlugin.instance.getRegisteredItem().SetToRegisteredItem(item);//sets toe registered defualt
-            p.playSound(p.getLocation(), Sound.BLOCK_NOTE_BLOCK_PLING, 0.5f, 2f);
-        } else {
-            p.sendMessage(ChatColor.RED + "This item is not reforged!");
-            p.playSound(p.getLocation(), Sound.BLOCK_FIRE_EXTINGUISH, 3.0F, 1.0F);
-        }
-
         return item;
     }
 
@@ -1855,7 +1885,7 @@ public class ReforgeManager {
                 item = setReforgeList(item, "+ 5% move speed");
             } else if (reforgeChoiceChance2 <= 90) {
                 p.sendMessage(ChatColor.DARK_AQUA + "Obtained tier II");
-                ModifyAtribute.ModifyPercentMoveSpeed(item, 0.8, EquipmentSlotGroup.HAND);
+                ModifyAtribute.ModifyPercentMoveSpeed(item, 0.08, EquipmentSlotGroup.HAND);
                 item = ModifyAtribute.ModifyGearScore(item, 6);
                 item = setReforgeList(item, "+ 8% move speed");
             } else if (reforgeChoiceChance1 <= 100) {

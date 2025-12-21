@@ -35,7 +35,7 @@ public class MegaPerkHeartSteal extends AbstractPerk {
                 ChatColor.DARK_GREEN + "Caps at 50 stacks, gain 1 max health",
                 ChatColor.DARK_GREEN + "per every 2 stacks. Gain stacks from",
                 ChatColor.DARK_GREEN + "either mobs with >= 100hp or players.",
-                ChatColor.DARK_GREEN + "Deal your stacks as bonus damage on proc.",
+                ChatColor.DARK_GREEN + "Deal 1.5x your stacks as bonus damage on proc.",
                 "",
                 ChatColor.DARK_GREEN + "lose 50% of stacks on death"
 
