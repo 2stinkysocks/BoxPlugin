@@ -13,8 +13,14 @@ import su.nexmedia.engine.api.config.JYML;
 import su.nightexpress.excellentcrates.key.CrateKey;
 
 import java.io.File;
+import java.util.Random;
 
 public class XPManager {
+    public int getRandNumFromLimit(int limit){
+        Random random = new Random();
+        int randNum = random.nextInt(limit) + 1;
+        return randNum;
+    }
 
     public XPManager() {
         Bukkit.getScheduler().runTaskTimer(BoxPlugin.instance, () -> {
@@ -22,7 +28,18 @@ public class XPManager {
                 int beforexp = BoxPlugin.instance.getXpManager().getXP(p);
                 BoxPlugin.instance.getXpManager().addXP(p, BoxPlugin.instance.getConfig().getInt("xp-equation-constant") * 10);
                 int afterxp = BoxPlugin.instance.getXpManager().getXP(p);
+                int randomKeyChance = getRandNumFromLimit(600);
                 CrateKey key = BoxPlugin.instance.getKeyManager().getKeyById("common");
+                if(randomKeyChance == 1){//1 out of 600
+                    key = BoxPlugin.instance.getKeyManager().getKeyById("legendary_crate");
+                    Bukkit.broadcastMessage(ChatColor.translateAlternateColorCodes('&', p.getName() + " Just got their free key upgraded to " + ChatColor.GOLD + ChatColor.BOLD + "Legendary!"));
+                } else if (randomKeyChance <= 4) {//3 out of 600
+                    key = BoxPlugin.instance.getKeyManager().getKeyById("epic");
+                    Bukkit.broadcastMessage(ChatColor.translateAlternateColorCodes('&', p.getName() + " Just got their free key upgraded to " + ChatColor.DARK_PURPLE + ChatColor.BOLD + "Epic!"));
+                } else if (randomKeyChance <= 12) {//12 out of 600
+                    key = BoxPlugin.instance.getKeyManager().getKeyById("rare");
+                    Bukkit.broadcastMessage(ChatColor.translateAlternateColorCodes('&', p.getName() + " Just got their free key upgraded to " + ChatColor.GOLD + "Rare!"));
+                }
                 if(key != null){
                     BoxPlugin.instance.getKeyManager().giveKey(p, key, 1);
                 } else {
@@ -30,7 +47,7 @@ public class XPManager {
                 }
                 Bukkit.getPluginManager().callEvent(new PlayerBoxXpUpdateEvent(p, beforexp, afterxp));
             });
-            Bukkit.broadcastMessage(ChatColor.translateAlternateColorCodes('&', "&a&lFREE REWARDS! &7You earned " + BoxPlugin.instance.getConfig().getInt("xp-equation-constant") * 10 + " xp and 1 common crate key!"));
+            Bukkit.broadcastMessage(ChatColor.translateAlternateColorCodes('&', "&a&lFREE REWARDS! &7You earned " + BoxPlugin.instance.getConfig().getInt("xp-equation-constant") * 10 + " xp and 1 common key!"));
         }, 36000, 36000);
     }
 

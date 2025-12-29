@@ -191,7 +191,9 @@ public final class TerrainRegeneratorMain implements Listener, CommandExecutor, 
                     Entity entity = Bukkit.getEntity(uuid);
                     if(entity instanceof Warden) {
                         Warden warden = (Warden) entity;
-                        if(warden.getTarget() != null && !(warden.getTarget() instanceof Player)) {
+                        if(warden.getTarget() != null && (warden.getTarget() instanceof Zombie || warden.getTarget() instanceof Armadillo ||
+                                warden.getTarget() instanceof WitherSkeleton || warden.getTarget() instanceof MagmaCube || warden.getTarget() instanceof Slime ||
+                                warden.getTarget() instanceof IronGolem || warden.getTarget() instanceof ElderGuardian || warden.getTarget() instanceof Enderman)) {
                             warden.setAnger(warden.getTarget(), 0);
                         }
                     }
@@ -285,8 +287,13 @@ public final class TerrainRegeneratorMain implements Listener, CommandExecutor, 
         for(int i = 0; i < this.config.getInt("entities." + name + ".count"); i++) {
             if(this.config.isSet("entities." + name + ".isMythic") && this.config.getBoolean("entities." + name + ".isMythic")) {
                 int xp = this.config.isSet("entities." + name + ".xp") ? this.config.getInt("entities." + name + ".xp") : 0;
-                String mythicName = this.config.getString("entities." + name + ".mythic-name", name);
+                String mythicName = config.getString("mythic-name", name);
                 UUID uuid = MythicMobsIntegration.spawnWithData(mythicName, xp, loc);
+
+                Entity mythicEntity = Bukkit.getEntity(uuid);
+                if (mythicEntity != null) {
+                    mythicEntity.getPersistentDataContainer().set(new NamespacedKey(BoxPlugin.instance, "respawningmobid"), PersistentDataType.STRING, name);
+                }
                 if(!spawnedEntities.containsKey(name) && this.config.getBoolean("entities." + name + ".kill-existing")) {
                     spawnedEntities.put(name, new ArrayList<>());
                 }
@@ -500,14 +507,18 @@ public final class TerrainRegeneratorMain implements Listener, CommandExecutor, 
 
     @EventHandler
     public void onEntityTarget(EntityTargetEvent e) {
-        if(e.getEntity() instanceof Warden && !(e.getTarget() instanceof Player)) {
+        if(e.getEntity() instanceof Warden && (e.getTarget() instanceof Zombie || e.getTarget() instanceof Armadillo || e.getTarget() instanceof WitherSkeleton
+                || e.getTarget() instanceof MagmaCube || e.getTarget() instanceof Slime || e.getTarget() instanceof IronGolem || e.getTarget() instanceof ElderGuardian
+                || e.getTarget() instanceof Enderman)) {
             net.minecraft.world.entity.monster.warden.Warden nmsWarden = ((CraftWarden) e.getEntity()).getHandle();
             nmsWarden.setAttackTarget(null);
             nmsWarden.getBrain().eraseMemory(MemoryModuleType.ANGRY_AT);
             e.setTarget(null);
             e.setCancelled(true);
         }
-        if(!(e.getEntity() instanceof Player) && e.getTarget() instanceof Warden) {
+        if((e.getTarget() instanceof Zombie || e.getTarget() instanceof Armadillo || e.getTarget() instanceof WitherSkeleton
+                || e.getTarget() instanceof MagmaCube || e.getTarget() instanceof Slime || e.getTarget() instanceof IronGolem || e.getTarget() instanceof ElderGuardian
+                || e.getTarget() instanceof Enderman) && e.getTarget() instanceof Warden) {
             net.minecraft.world.entity.monster.warden.Warden nmsWarden = ((CraftWarden) e.getTarget()).getHandle();
             nmsWarden.setAttackTarget(null);
             nmsWarden.getBrain().eraseMemory(MemoryModuleType.ATTACK_TARGET);

@@ -132,6 +132,9 @@ commands:
   setrubies:
     usage: /<command>
     description: sets player rubies
+  aetherenchant:
+    usage: /<command>
+    description: sets custom enchant to item
 permissions:
   boxplugin.manageperks:
     default: false

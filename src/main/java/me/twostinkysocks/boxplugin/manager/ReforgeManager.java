@@ -83,7 +83,7 @@ public class ReforgeManager {
     public boolean hasFreeReforges(@NotNull ItemStack item){
         ItemMeta itemMeta = item.getItemMeta();
         if(itemMeta.getPersistentDataContainer().has(freeReforgeStatusKey)){
-            if(itemMeta.getPersistentDataContainer().get(isReforgedKey, PersistentDataType.INTEGER) >= 1){
+            if(itemMeta.getPersistentDataContainer().get(freeReforgeStatusKey, PersistentDataType.INTEGER) >= 1){
                 return true;
             }
         }
@@ -102,7 +102,7 @@ public class ReforgeManager {
     }
 
 
-        public ItemStack setNumFreeReforges(@NotNull ItemStack item){
+    public ItemStack setNumFreeReforges(@NotNull ItemStack item){
         ItemMeta itemMeta = item.getItemMeta();
         int numFreeReforges = 1;
 
@@ -389,6 +389,9 @@ public class ReforgeManager {
                     p.sendMessage(ChatColor.GREEN + "Stripped " + numReforges + " reforges from your item and returned " + (rubyMult*100) + "% of rubies (" + (int) (numReforges * REFORGECOST * rubyMult) + " rubies)!");
                 }
                 itemMeta.getPersistentDataContainer().remove(reforgeStatusKey);
+                if(hasFreeReforges(item)){
+                    itemMeta.getPersistentDataContainer().remove(freeReforgeStatusKey);
+                }
                 BoxPlugin.instance.getRegisteredItem().SetReforgedStatus(itemMeta, false);
                 item.setItemMeta(itemMeta);
 

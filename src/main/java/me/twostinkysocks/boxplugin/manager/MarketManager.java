@@ -6,6 +6,7 @@ import com.github.stefvanschie.inventoryframework.pane.StaticPane;
 import io.github.rapha149.signgui.SignGUI;
 import io.github.rapha149.signgui.SignGUIAction;
 import me.twostinkysocks.boxplugin.BoxPlugin;
+import me.twostinkysocks.boxplugin.event.PlayerBoxXpUpdateEvent;
 import me.twostinkysocks.boxplugin.util.Util;
 import org.bukkit.*;
 import org.bukkit.enchantments.Enchantment;
@@ -1171,7 +1172,10 @@ public class MarketManager {
         p.getPersistentDataContainer().set(ProgressionPillarStoneKey, PersistentDataType.BOOLEAN, val);
         if(val){
             addRubies(p, 10);
-            BoxPlugin.instance.getXpManager().addXP(p, 10000);
+            int xp = 10000;
+            int existingxp = BoxPlugin.instance.getXpManager().getXP(p);
+            Bukkit.getPluginManager().callEvent(new PlayerBoxXpUpdateEvent(p, existingxp, existingxp+xp));
+            BoxPlugin.instance.getXpManager().addXP(p, xp);
             p.sendMessage(ChatColor.GREEN + "Added 10 rubies and 10000 XP to you account!");
         }
     }
@@ -1179,7 +1183,10 @@ public class MarketManager {
         p.getPersistentDataContainer().set(ProgressionPillarObsidianKey, PersistentDataType.BOOLEAN, val);
         if(val){
             addRubies(p, 15);
-            BoxPlugin.instance.getXpManager().addXP(p, 25000);
+            int xp = 25000;
+            int existingxp = BoxPlugin.instance.getXpManager().getXP(p);
+            Bukkit.getPluginManager().callEvent(new PlayerBoxXpUpdateEvent(p, existingxp, existingxp+xp));
+            BoxPlugin.instance.getXpManager().addXP(p, xp);
             p.sendMessage(ChatColor.GREEN + "Added 15 rubies and 25000 XP to you account!");
         }
     }
@@ -1187,7 +1194,10 @@ public class MarketManager {
         p.getPersistentDataContainer().set(ProgressionPillarGlassCannonKey, PersistentDataType.BOOLEAN, val);
         if(val && has3rdPerk(p)){
             addRubies(p, 20);
-            BoxPlugin.instance.getXpManager().addXP(p, 60000);
+            int xp = 60000;
+            int existingxp = BoxPlugin.instance.getXpManager().getXP(p);
+            Bukkit.getPluginManager().callEvent(new PlayerBoxXpUpdateEvent(p, existingxp, existingxp+xp));
+            BoxPlugin.instance.getXpManager().addXP(p, xp);
             p.sendMessage(ChatColor.GREEN + "Added 20 rubies and 60000 XP to you account!");
         } else {
             set3rdPerk(p, val);
@@ -1200,7 +1210,10 @@ public class MarketManager {
         p.getPersistentDataContainer().set(ProgressionPillarSpeedKey, PersistentDataType.BOOLEAN, val);
         if(val && has3rdPerk(p)){
             addRubies(p, 20);
-            BoxPlugin.instance.getXpManager().addXP(p, 60000);
+            int xp = 60000;
+            int existingxp = BoxPlugin.instance.getXpManager().getXP(p);
+            Bukkit.getPluginManager().callEvent(new PlayerBoxXpUpdateEvent(p, existingxp, existingxp+xp));
+            BoxPlugin.instance.getXpManager().addXP(p, xp);
             p.sendMessage(ChatColor.GREEN + "Added 20 rubies and 60000 XP to you account!");
         } else {
             set3rdPerk(p, val);
@@ -1213,7 +1226,10 @@ public class MarketManager {
         p.getPersistentDataContainer().set(ProgressionPillarTankKey, PersistentDataType.BOOLEAN, val);
         if(val && has3rdPerk(p)){
             addRubies(p, 20);
-            BoxPlugin.instance.getXpManager().addXP(p, 60000);
+            int xp = 60000;
+            int existingxp = BoxPlugin.instance.getXpManager().getXP(p);
+            Bukkit.getPluginManager().callEvent(new PlayerBoxXpUpdateEvent(p, existingxp, existingxp+xp));
+            BoxPlugin.instance.getXpManager().addXP(p, xp);
             p.sendMessage(ChatColor.GREEN + "Added 20 rubies and 60000 XP to you account!");
         } else {
             set3rdPerk(p, val);

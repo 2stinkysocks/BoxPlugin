@@ -6,6 +6,10 @@ import com.comphenix.protocol.ProtocolManager;
 import com.comphenix.protocol.events.PacketContainer;
 import me.twostinkysocks.boxplugin.ItemModification.RegisteredItem;
 import me.twostinkysocks.boxplugin.compressor.Compressor;
+import me.twostinkysocks.boxplugin.customEnchants.CustomEnchantsMain;
+import me.twostinkysocks.boxplugin.customEnchants.Enchants.BrambleEnchant;
+import me.twostinkysocks.boxplugin.customEnchants.Enchants.OverGrowthEnchant;
+import me.twostinkysocks.boxplugin.customEnchants.Enchants.PrickleEnchant;
 import me.twostinkysocks.boxplugin.customitems.CustomItemsMain;
 import me.twostinkysocks.boxplugin.customitems.items.impl.HealSpear;
 import me.twostinkysocks.boxplugin.event.Listeners;
@@ -84,6 +88,11 @@ public final class BoxPlugin extends JavaPlugin implements CommandExecutor, TabC
 
     private LotteryManager lotteryManager;
     private MegaPerkHeartSteal megaperkHeartSteal;
+    private CustomEnchantsMain customEnchantsMain;
+
+    private PrickleEnchant prickleEnchant;
+    private BrambleEnchant brambleEnchant;
+    private OverGrowthEnchant overGrowthEnchant;
 
     private Economy econ = null;
 
@@ -171,6 +180,10 @@ public final class BoxPlugin extends JavaPlugin implements CommandExecutor, TabC
         reforgeManager = new ReforgeManager();
         registeredItem = new RegisteredItem();
         megaperkHeartSteal = new MegaPerkHeartSteal();
+        prickleEnchant = new PrickleEnchant();
+        brambleEnchant = new BrambleEnchant();
+        overGrowthEnchant = new OverGrowthEnchant();
+        customEnchantsMain = new CustomEnchantsMain();
 
         excellentCrates = (CratesPlugin) getServer().getPluginManager().getPlugin("ExcellentCrates");
         keyManager = excellentCrates.getKeyManager();
@@ -219,6 +232,7 @@ public final class BoxPlugin extends JavaPlugin implements CommandExecutor, TabC
         getCommand("resetpillars").setExecutor(this);
         getCommand("getrubies").setExecutor(this);
         getCommand("setrubies").setExecutor(this);
+        getCommand("aetherenchant").setExecutor(this);
         getServer().getPluginManager().registerEvents(new Listeners(), this);
         load();
         if(Bukkit.getPluginManager().getPlugin("PlaceholderAPI") != null) {
@@ -246,6 +260,7 @@ public final class BoxPlugin extends JavaPlugin implements CommandExecutor, TabC
         new PacketListeners();
         new TerrainRegeneratorMain().onEnable();
         new CustomItemsMain().onEnable();
+        new CustomEnchantsMain().onEnable();
 
 
         JobKey jobKeyA = new JobKey("market", "group1");
@@ -365,8 +380,20 @@ public final class BoxPlugin extends JavaPlugin implements CommandExecutor, TabC
     public LotteryManager getLotteryManager() {
         return lotteryManager;
     }
+    public CustomEnchantsMain getCustomEnchantsMain() {
+        return customEnchantsMain;
+    }
     public MegaPerkHeartSteal getMegaPerkHeartSteal() {
         return megaperkHeartSteal;
+    }
+    public PrickleEnchant getEnchantPrickle() {
+        return prickleEnchant;
+    }
+    public BrambleEnchant getEnchantBramble() {
+        return brambleEnchant;
+    }
+    public OverGrowthEnchant getEnchantOvergrowth() {
+        return overGrowthEnchant;
     }
 //    public StateFlag getEntityInteractFlag() {
 //        return entityInteract;
@@ -924,6 +951,7 @@ public final class BoxPlugin extends JavaPlugin implements CommandExecutor, TabC
                 for(Player players : Bukkit.getOnlinePlayers()){
                     try {
                         getRegisteredItem().UpdateLegacyItems(players);
+                        getRegisteredItem().UpdateCurrentItems(players);
                     } catch (SQLException e) {
                         throw new RuntimeException(e);
                     }
@@ -1006,6 +1034,32 @@ public final class BoxPlugin extends JavaPlugin implements CommandExecutor, TabC
                 getMarketManager().setRubies(target, ammount);
 
                 sender.sendMessage(target.getName() + " now has " + getMarketManager().getRubies(target) + " rubies");
+                return true;
+
+            } else if (label.equals("aetherenchant")) {
+                if(!p.hasPermission("boxplugin.manageitems")) {
+                    p.sendMessage(ChatColor.RED + "You don't have permission!");
+                    return true;
+                }
+                if(args.length == 2){
+                    ItemStack item = p.getInventory().getItemInMainHand();
+                    if(item.getType().isAir()){
+                        p.sendMessage(ChatColor.RED + "You must hold a item for this command");
+                    }else {
+                        try{
+                            int lvl = Integer.parseInt(args[1]);
+
+                            item = getCustomEnchantsMain().setCustomEnchant(item, args[0], lvl);
+                            p.getInventory().setItemInMainHand(item);
+
+                        } catch (NumberFormatException e){
+                            p.sendMessage(ChatColor.RED + "Incorrect Usage: use /aetherenchant [enchant name] [level]");
+                        }
+                    }
+                }
+                else {
+                    p.sendMessage(ChatColor.RED + "Incorrect Usage: use /aetherenchant [enchant name] [level]");
+                }
                 return true;
 
             }
@@ -1114,6 +1168,11 @@ public final class BoxPlugin extends JavaPlugin implements CommandExecutor, TabC
         } else if(alias.equals("reskinned")) {
             if(args.length == 1) {
                 StringUtil.copyPartialMatches(args[0], List.of("true", "false"), completions);
+                return completions;
+            }
+        } else if(alias.equals("aetherenchant")) {
+            if(args.length == 1) {
+                StringUtil.copyPartialMatches(args[0], CustomEnchantsMain.Enchant.getKeys(), completions);
                 return completions;
             }
         }

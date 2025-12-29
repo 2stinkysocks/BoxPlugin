@@ -62,6 +62,8 @@ public class Listeners implements Listener {
 
     @EventHandler
     public void entityDeath(EntityDeathEvent e) {
+        entityHits.keySet().removeIf(key -> key.target.equals(e.getEntity().getUniqueId()));
+
         if(!(e.getEntity() instanceof Player) && e.getEntity().getKiller() != null) {
             if(BoxPlugin.instance.entityExperience.containsKey(e.getEntityType()) && !e.getEntity().getPersistentDataContainer().has(new NamespacedKey(BoxPlugin.instance, "xp"), PersistentDataType.INTEGER)) {
                 int before = BoxPlugin.instance.getXpManager().getXP(e.getEntity().getKiller());

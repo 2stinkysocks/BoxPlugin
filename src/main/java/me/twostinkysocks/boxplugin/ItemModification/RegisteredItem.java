@@ -8,6 +8,7 @@ import com.google.common.collect.LinkedHashMultimap;
 import com.google.common.collect.Multimap;
 import com.google.gson.Gson;
 import me.twostinkysocks.boxplugin.BoxPlugin;
+import me.twostinkysocks.boxplugin.customEnchants.CustomEnchantsMain;
 import me.twostinkysocks.boxplugin.manager.GearScoreManager;
 import me.twostinkysocks.boxplugin.manager.ItemLivesManager;
 import me.twostinkysocks.boxplugin.util.Util;
@@ -43,6 +44,8 @@ public class RegisteredItem {
     public boolean isUnbreakable = false;
     public boolean hasHiddenEnchants = false;
     public boolean hasHiddenAttributes = false;
+    public boolean hasCustomEnchants = false;
+    public ArrayList<CustomEnchantsMain.Enchant> customEnchList = new ArrayList<>();
     public Color itemColor = null;
     public ArmorTrim armorTrim = null;
     public TrimMaterial trimMaterial = null;
@@ -61,6 +64,8 @@ public class RegisteredItem {
         // attributes as JSON-string, enchants as simple map
         ArrayList<AttributeData> attributesList = new ArrayList<>();
         Map<String, Integer> serializedEnchantsMap = new HashMap<>();
+
+        Map<String, Integer> serializedCustomEnchantsMap = new HashMap<>();
         String itemName = null;
         String[] lore = null;
         String itemType = null;   // Material.name()
@@ -73,6 +78,9 @@ public class RegisteredItem {
         boolean isColrable = false;
         boolean hideEnchants = false;
         boolean hideAttributes = false;
+        boolean hasCustomEnchants = false;
+        String customEnchName = null;
+        int customEnchLvl = 0;
     }
 
     public boolean isArmor(ItemStack item){
@@ -109,7 +117,7 @@ public class RegisteredItem {
         }
     }
 
-    public void UpdateDataBase() throws SQLException {
+    public void UpdateDataBase(ItemStack item) throws SQLException {
         setConnection();
         RegisteredItemData newItem = new RegisteredItemData();
         //set all data types to prepare for json
@@ -121,6 +129,9 @@ public class RegisteredItem {
         }
         if(newItem.serializedEnchantsMap != null){
             newItem.serializedEnchantsMap.clear();
+        }
+        if(newItem.serializedCustomEnchantsMap != null){
+            newItem.serializedCustomEnchantsMap.clear();
         }
 
         newItem.itemType = itemModel.name();
@@ -166,6 +177,16 @@ public class RegisteredItem {
         if(itemColor != null){
             newItem.itemColor = itemColor.serialize();
             newItem.isColrable = true;
+        }
+        if(hasCustomEnchants){
+            for(CustomEnchantsMain.Enchant entry : customEnchList.stream().toList()){
+                int customEnchLvl = entry.instance.getLevel(item);
+
+                String customEnchName = entry.instance.getEnchantName();
+
+                newItem.serializedCustomEnchantsMap.put(customEnchName, customEnchLvl);
+            }
+            newItem.hasCustomEnchants = true;
         }
 
         newItem.hideAttributes = hasHiddenAttributes;
@@ -269,8 +290,12 @@ public class RegisteredItem {
         if(itemMeta.hasItemFlag(ItemFlag.HIDE_ATTRIBUTES)){
             hasHiddenAttributes = true;
         }
+        if(BoxPlugin.instance.getCustomEnchantsMain().hasCustomEnchants(item)){
+            hasCustomEnchants = true;
+            customEnchList = BoxPlugin.instance.getCustomEnchantsMain().getCustomEnchantsOnItem(item);
+        }
 
-        UpdateDataBase();
+        UpdateDataBase(item);
     }
 
     public boolean ExistsInDatabase(String registeredName) throws SQLException {
@@ -497,6 +522,11 @@ public class RegisteredItem {
         item.setItemMeta(itemMeta);
         item.addUnsafeEnchantments(enchantHashMap);
         item = GearScoreManager.setGearScore(item, gearScore);
+        if(registeredItem.hasCustomEnchants){
+            for(Map.Entry<String, Integer> entry : registeredItem.serializedCustomEnchantsMap.entrySet()){
+                item = BoxPlugin.instance.getCustomEnchantsMain().setCustomEnchant(item, entry.getKey(), entry.getValue());
+            }
+        }
         CloseConnection();
         return item;
     }

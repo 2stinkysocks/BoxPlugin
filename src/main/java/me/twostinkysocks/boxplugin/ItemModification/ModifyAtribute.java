@@ -4,6 +4,7 @@ import com.google.common.collect.Multimap;
 
 import me.twostinkysocks.boxplugin.BoxPlugin;
 import me.twostinkysocks.boxplugin.manager.GearScoreManager;
+import net.minecraft.world.item.TridentItem;
 import org.bukkit.NamespacedKey;
 import org.bukkit.attribute.Attribute;
 import org.bukkit.attribute.AttributeModifier;
