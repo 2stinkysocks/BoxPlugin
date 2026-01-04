@@ -137,6 +137,7 @@ public class Hyperion extends CustomItem {
                             TNTPrimed tnt = (TNTPrimed) p.getWorld().spawnEntity(p.getLocation(), EntityType.TNT);
                             tnt.getPersistentDataContainer().set(new NamespacedKey(BoxPlugin.instance, "HYPERION_BOOM_MULTIPLIER"), PersistentDataType.DOUBLE, multiplier);
                             tnt.setFuseTicks(0);
+                            tnt.setSource(p);
                             PrimedTnt nmsTNT = ((CraftTNTPrimed) tnt).getHandle();
                             nmsTNT.explosionPower = rad;
 //                            LargeFireball fireball = p.getWorld().spawn(p.getLocation(), LargeFireball.class);

@@ -271,7 +271,7 @@ public class Listeners implements Listener {
                     Util.debug(p, "Post-calculation final tnt damage: " + e.getFinalDamage());
                 }
             } else if(tnt.getPersistentDataContainer().has(new NamespacedKey(BoxPlugin.instance, "HYPERION_BOOM_MULTIPLIER"), PersistentDataType.DOUBLE)) {
-                if(e.getEntity() instanceof ArmorStand || e.getEntity() instanceof ItemFrame) {
+                if(e.getEntity() instanceof ArmorStand || e.getEntity() instanceof ItemFrame || (tnt.getSource() != null && tnt.getSource().getUniqueId().equals(e.getEntity().getUniqueId()))) {
                     e.setCancelled(true);
                     return;
                 }
