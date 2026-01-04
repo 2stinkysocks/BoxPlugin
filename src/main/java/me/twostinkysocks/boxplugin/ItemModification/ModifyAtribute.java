@@ -43,12 +43,7 @@ public class ModifyAtribute {
 
     @Contract(pure = true)
     public static @NotNull AttributeModifier getNewItemModifier(NamespacedKey itemKey, double ammount, AttributeModifier.Operation operation, EquipmentSlotGroup slot){
-        AttributeModifier newModifier = new AttributeModifier(
-                itemKey,
-                ammount,
-                operation,
-                slot
-        );
+        AttributeModifier newModifier = new AttributeModifier(itemKey, ammount, operation, slot);
         return newModifier;
     }
 

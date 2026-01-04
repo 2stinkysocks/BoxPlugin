@@ -18,7 +18,7 @@ public class PacketListeners {
                 int effectId = event.getPacket().getIntegers().read(0);
 
                 if (effectId == 1018) {
-                    if ("Xanatos_the_end".equals(worldName)) {
+                    if ("Xanatos".equals(worldName)) {
                         event.setCancelled(true);
                     }
                 }

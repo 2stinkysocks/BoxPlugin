@@ -641,19 +641,19 @@ public class ReforgeManager {
             p.sendMessage(ChatColor.DARK_PURPLE + "Epic reforge: submerged mining speed increased!");
             if(reforgeChoiceChance2 <= 60){
                 p.sendMessage(ChatColor.DARK_AQUA + "Obtained tier I");
-                ModifyAtribute.ModifyPercentWaterMineSpeed(item, 0.4, EquipmentSlotGroup.HEAD);
-                item = ModifyAtribute.ModifyGearScore(item, 2);
-                item = setReforgeList(item, "+ 40% water mining speed");
+                ModifyAtribute.ModifyPercentWaterMineSpeed(item, 0.8, EquipmentSlotGroup.HEAD);
+                item = ModifyAtribute.ModifyGearScore(item, 1);
+                item = setReforgeList(item, "+ 80% water mining speed");
             } else if (reforgeChoiceChance2 <= 90) {
                 p.sendMessage(ChatColor.DARK_AQUA + "Obtained tier II");
-                ModifyAtribute.ModifyPercentWaterMineSpeed(item, 0.8, EquipmentSlotGroup.HEAD);
-                item = ModifyAtribute.ModifyGearScore(item, 4);
-                item = setReforgeList(item, "+ 80% water mining speed");
+                ModifyAtribute.ModifyPercentWaterMineSpeed(item, 1.2, EquipmentSlotGroup.HEAD);
+                item = ModifyAtribute.ModifyGearScore(item, 2);
+                item = setReforgeList(item, "+ 120% water mining speed");
             } else if (reforgeChoiceChance1 <= 100) {
                 p.sendMessage(ChatColor.DARK_AQUA + "Obtained tier III");
-                ModifyAtribute.ModifyPercentWaterMineSpeed(item, 1.2, EquipmentSlotGroup.HEAD);
-                item = ModifyAtribute.ModifyGearScore(item, 6);
-                item = setReforgeList(item, "+ 120% water mining speed");
+                ModifyAtribute.ModifyPercentWaterMineSpeed(item, 2, EquipmentSlotGroup.HEAD);
+                item = ModifyAtribute.ModifyGearScore(item, 4);
+                item = setReforgeList(item, "+ 200% water mining speed");
             }
         }
 
@@ -662,17 +662,17 @@ public class ReforgeManager {
             if(reforgeChoiceChance2 <= 60){
                 p.sendMessage(ChatColor.DARK_AQUA + "Obtained tier I");
                 ModifyAtribute.ModifyFlatArmorToughness(item, 0.3, EquipmentSlotGroup.HEAD);
-                item = ModifyAtribute.ModifyGearScore(item, 4);
+                item = ModifyAtribute.ModifyGearScore(item, 3);
                 item = setReforgeList(item, "+ .3 armor toughness");
             } else if (reforgeChoiceChance2 <= 90) {
                 p.sendMessage(ChatColor.DARK_AQUA + "Obtained tier II");
                 ModifyAtribute.ModifyFlatArmorToughness(item, 0.6, EquipmentSlotGroup.HEAD);
-                item = ModifyAtribute.ModifyGearScore(item, 7);
+                item = ModifyAtribute.ModifyGearScore(item, 5);
                 item = setReforgeList(item, "+ .6 armor toughness");
             } else if (reforgeChoiceChance1 <= 100) {
                 p.sendMessage(ChatColor.DARK_AQUA + "Obtained tier III");
                 ModifyAtribute.ModifyFlatArmorToughness(item, 0.9, EquipmentSlotGroup.HEAD);
-                item = ModifyAtribute.ModifyGearScore(item, 10);
+                item = ModifyAtribute.ModifyGearScore(item, 7);
                 item = setReforgeList(item, "+ .9 armor toughness");
             }
         }
@@ -873,17 +873,17 @@ public class ReforgeManager {
             if(reforgeChoiceChance2 <= 60){
                 p.sendMessage(ChatColor.DARK_AQUA + "Obtained tier I");
                 ModifyAtribute.ModifyFlatArmorToughness(item, 0.5, EquipmentSlotGroup.CHEST);
-                item = ModifyAtribute.ModifyGearScore(item, 4);
+                item = ModifyAtribute.ModifyGearScore(item, 3);
                 item = setReforgeList(item, "+ .5 armor toughness");
             } else if (reforgeChoiceChance2 <= 90) {
                 p.sendMessage(ChatColor.DARK_AQUA + "Obtained tier II");
                 ModifyAtribute.ModifyFlatArmorToughness(item, 1, EquipmentSlotGroup.CHEST);
-                item = ModifyAtribute.ModifyGearScore(item, 7);
+                item = ModifyAtribute.ModifyGearScore(item, 5);
                 item = setReforgeList(item, "+ 1 armor toughness");
             } else if (reforgeChoiceChance1 <= 100) {
                 p.sendMessage(ChatColor.DARK_AQUA + "Obtained tier III");
                 ModifyAtribute.ModifyFlatArmorToughness(item, 1.5, EquipmentSlotGroup.CHEST);
-                item = ModifyAtribute.ModifyGearScore(item, 10);
+                item = ModifyAtribute.ModifyGearScore(item, 7);
                 item = setReforgeList(item, "+ 1.5 armor toughness");
             }
         }
@@ -1087,17 +1087,17 @@ public class ReforgeManager {
             if(reforgeChoiceChance2 <= 60){
                 p.sendMessage(ChatColor.DARK_AQUA + "Obtained tier I");
                 ModifyAtribute.ModifyFlatArmorToughness(item, 0.5, EquipmentSlotGroup.LEGS);
-                item = ModifyAtribute.ModifyGearScore(item, 4);
+                item = ModifyAtribute.ModifyGearScore(item, 3);
                 item = setReforgeList(item, "+ .5 armor toughness");
             } else if (reforgeChoiceChance2 <= 90) {
                 p.sendMessage(ChatColor.DARK_AQUA + "Obtained tier II");
                 ModifyAtribute.ModifyFlatArmorToughness(item, 1, EquipmentSlotGroup.LEGS);
-                item = ModifyAtribute.ModifyGearScore(item, 7);
+                item = ModifyAtribute.ModifyGearScore(item, 5);
                 item = setReforgeList(item, "+ 1 armor toughness");
             } else if (reforgeChoiceChance1 <= 100) {
                 p.sendMessage(ChatColor.DARK_AQUA + "Obtained tier III");
                 ModifyAtribute.ModifyFlatArmorToughness(item, 1.5, EquipmentSlotGroup.LEGS);
-                item = ModifyAtribute.ModifyGearScore(item, 10);
+                item = ModifyAtribute.ModifyGearScore(item, 7);
                 item = setReforgeList(item, "+ 1.5 armor toughness");
             }
         }
@@ -1378,17 +1378,17 @@ public class ReforgeManager {
             if(reforgeChoiceChance2 <= 60){
                 p.sendMessage(ChatColor.DARK_AQUA + "Obtained tier I");
                 ModifyAtribute.ModifyFlatArmorToughness(item, 0.3, EquipmentSlotGroup.FEET);
-                item = ModifyAtribute.ModifyGearScore(item, 4);
+                item = ModifyAtribute.ModifyGearScore(item, 3);
                 item = setReforgeList(item, "+ .3 armor toughness");
             } else if (reforgeChoiceChance2 <= 90) {
                 p.sendMessage(ChatColor.DARK_AQUA + "Obtained tier II");
                 ModifyAtribute.ModifyFlatArmorToughness(item, 0.6, EquipmentSlotGroup.FEET);
-                item = ModifyAtribute.ModifyGearScore(item, 7);
+                item = ModifyAtribute.ModifyGearScore(item, 5);
                 item = setReforgeList(item, "+ .6 armor toughness");
             } else if (reforgeChoiceChance1 <= 100) {
                 p.sendMessage(ChatColor.DARK_AQUA + "Obtained tier III");
                 ModifyAtribute.ModifyFlatArmorToughness(item, 0.9, EquipmentSlotGroup.FEET);
-                item = ModifyAtribute.ModifyGearScore(item, 10);
+                item = ModifyAtribute.ModifyGearScore(item, 7);
                 item = setReforgeList(item, "+ .9 armor toughness");
             }
         }
@@ -1467,17 +1467,17 @@ public class ReforgeManager {
             if(reforgeChoiceChance2 <= 60){
                 p.sendMessage(ChatColor.DARK_AQUA + "Obtained tier I");
                 ModifyAtribute.ModifyPercentAttackDmg(item, 0.07, EquipmentSlotGroup.OFFHAND);
-                item = ModifyAtribute.ModifyGearScore(item, 3);
+                item = ModifyAtribute.ModifyGearScore(item, 2);
                 item = setReforgeList(item, "+ 7% off hand attack damage");
             } else if (reforgeChoiceChance2 <= 90) {
                 p.sendMessage(ChatColor.DARK_AQUA + "Obtained tier II");
                 ModifyAtribute.ModifyPercentAttackDmg(item, 0.09, EquipmentSlotGroup.OFFHAND);
-                item = ModifyAtribute.ModifyGearScore(item, 6);
+                item = ModifyAtribute.ModifyGearScore(item, 4);
                 item = setReforgeList(item, "+ 9% off hand attack damage");
             } else if (reforgeChoiceChance1 <= 100) {
                 p.sendMessage(ChatColor.DARK_AQUA + "Obtained tier III");
                 ModifyAtribute.ModifyPercentAttackDmg(item, 0.11, EquipmentSlotGroup.OFFHAND);
-                item = ModifyAtribute.ModifyGearScore(item, 9);
+                item = ModifyAtribute.ModifyGearScore(item, 6);
                 item = setReforgeList(item, "+ 11% off hand attack damage");
             }
         }

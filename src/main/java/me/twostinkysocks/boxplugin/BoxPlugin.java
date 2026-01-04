@@ -4,12 +4,11 @@ import com.comphenix.protocol.PacketType;
 import com.comphenix.protocol.ProtocolLibrary;
 import com.comphenix.protocol.ProtocolManager;
 import com.comphenix.protocol.events.PacketContainer;
+import io.lumine.mythic.bukkit.utils.events.extra.ArmorEquipEventListener;
 import me.twostinkysocks.boxplugin.ItemModification.RegisteredItem;
 import me.twostinkysocks.boxplugin.compressor.Compressor;
 import me.twostinkysocks.boxplugin.customEnchants.CustomEnchantsMain;
-import me.twostinkysocks.boxplugin.customEnchants.Enchants.BrambleEnchant;
-import me.twostinkysocks.boxplugin.customEnchants.Enchants.OverGrowthEnchant;
-import me.twostinkysocks.boxplugin.customEnchants.Enchants.PrickleEnchant;
+import me.twostinkysocks.boxplugin.customEnchants.Enchants.*;
 import me.twostinkysocks.boxplugin.customitems.CustomItemsMain;
 import me.twostinkysocks.boxplugin.customitems.items.impl.HealSpear;
 import me.twostinkysocks.boxplugin.event.Listeners;
@@ -23,6 +22,7 @@ import me.twostinkysocks.boxplugin.util.PlaceholderAPIExpansion;
 import me.twostinkysocks.boxplugin.util.Util;
 import net.luckperms.api.LuckPerms;
 import net.luckperms.api.LuckPermsProvider;
+import net.luckperms.api.node.types.InheritanceNode;
 import net.milkbowl.vault.economy.Economy;
 import org.bukkit.*;
 import org.bukkit.command.Command;
@@ -93,6 +93,16 @@ public final class BoxPlugin extends JavaPlugin implements CommandExecutor, TabC
     private PrickleEnchant prickleEnchant;
     private BrambleEnchant brambleEnchant;
     private OverGrowthEnchant overGrowthEnchant;
+    private MagmaEnchant magmaEnchant;
+    private FireBornEnchant fireBornEnchant;
+    private IceAspectEnchant iceAspectEnchant;
+    private IceBornEnchant iceBornEnchant;
+    private AsphyxiateEnchant asphyxiateEnchant;
+    private WaterBornEnchant waterBornEnchant;
+    private ZeusEnchant zeusEnchant;
+    private GodBornEnchant godBornEnchant;
+    private VoidAspectEnchant voidAspectEnchant;
+    private VoidBornEnchant voidBornEnchant;
 
     private Economy econ = null;
 
@@ -183,6 +193,16 @@ public final class BoxPlugin extends JavaPlugin implements CommandExecutor, TabC
         prickleEnchant = new PrickleEnchant();
         brambleEnchant = new BrambleEnchant();
         overGrowthEnchant = new OverGrowthEnchant();
+        magmaEnchant = new MagmaEnchant();
+        fireBornEnchant = new FireBornEnchant();
+        iceAspectEnchant = new IceAspectEnchant();
+        iceBornEnchant = new IceBornEnchant();
+        asphyxiateEnchant = new AsphyxiateEnchant();
+        waterBornEnchant = new WaterBornEnchant();
+        zeusEnchant = new ZeusEnchant();
+        godBornEnchant = new GodBornEnchant();
+        voidAspectEnchant = new VoidAspectEnchant();
+        voidBornEnchant = new VoidBornEnchant();
         customEnchantsMain = new CustomEnchantsMain();
 
         excellentCrates = (CratesPlugin) getServer().getPluginManager().getPlugin("ExcellentCrates");
@@ -234,6 +254,7 @@ public final class BoxPlugin extends JavaPlugin implements CommandExecutor, TabC
         getCommand("setrubies").setExecutor(this);
         getCommand("aetherenchant").setExecutor(this);
         getServer().getPluginManager().registerEvents(new Listeners(), this);
+        getServer().getPluginManager().registerEvents(new ArmorEquipEventListener(), this);
         load();
         if(Bukkit.getPluginManager().getPlugin("PlaceholderAPI") != null) {
             new PlaceholderAPIExpansion().register();
@@ -392,6 +413,39 @@ public final class BoxPlugin extends JavaPlugin implements CommandExecutor, TabC
     public BrambleEnchant getEnchantBramble() {
         return brambleEnchant;
     }
+    public MagmaEnchant getMagmaEnchant() {
+        return magmaEnchant;
+    }
+    public FireBornEnchant getFireBornEnchant() {
+        return fireBornEnchant;
+    }
+    public IceAspectEnchant getIceAspectEnchant() {
+        return iceAspectEnchant;
+    }
+    public IceBornEnchant getIceBornEnchant() {
+        return iceBornEnchant;
+    }
+    public AsphyxiateEnchant getAsphyxiateEnchant() {
+        return asphyxiateEnchant;
+    }
+    public WaterBornEnchant getWaterBornEnchant() {
+        return waterBornEnchant;
+    }
+    public ZeusEnchant getZeusEnchant() {
+        return zeusEnchant;
+    }
+    public GodBornEnchant getGodBornEnchant() {
+        return godBornEnchant;
+    }
+
+    public VoidAspectEnchant getVoidAspectEnchant() {
+        return voidAspectEnchant;
+    }
+
+    public VoidBornEnchant getVoidBornEnchant() {
+        return voidBornEnchant;
+    }
+
     public OverGrowthEnchant getEnchantOvergrowth() {
         return overGrowthEnchant;
     }
@@ -1048,8 +1102,9 @@ public final class BoxPlugin extends JavaPlugin implements CommandExecutor, TabC
                     }else {
                         try{
                             int lvl = Integer.parseInt(args[1]);
+                            String enchName = args[0].replace("_", " ");
 
-                            item = getCustomEnchantsMain().setCustomEnchant(item, args[0], lvl);
+                            item = getCustomEnchantsMain().setCustomEnchant(item, enchName, lvl);
                             p.getInventory().setItemInMainHand(item);
 
                         } catch (NumberFormatException e){
@@ -1173,6 +1228,7 @@ public final class BoxPlugin extends JavaPlugin implements CommandExecutor, TabC
         } else if(alias.equals("aetherenchant")) {
             if(args.length == 1) {
                 StringUtil.copyPartialMatches(args[0], CustomEnchantsMain.Enchant.getKeys(), completions);
+                completions.replaceAll(s -> s.replace(" ", "_"));
                 return completions;
             }
         }

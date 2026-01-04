@@ -1,25 +1,24 @@
 package me.twostinkysocks.boxplugin.customEnchants.Enchants;
 
-import com.github.sirblobman.api.shaded.adventure.text.Component;
-import com.github.sirblobman.api.shaded.adventure.text.minimessage.MiniMessage;
 import me.twostinkysocks.boxplugin.BoxPlugin;
 import org.bukkit.NamespacedKey;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.persistence.PersistentDataType;
 
-public class PrickleEnchant extends AbstractEnchant{
+public class IceBornEnchant extends AbstractEnchant{
     private String enchantName;
     private NamespacedKey enchantKey;
-    private final int DAMAGE_PER_LEVEL = 2;
-    public PrickleEnchant() {
-        setEnchantName("Prickle");
-        setEnchantKey(new NamespacedKey(BoxPlugin.instance, "Prickle_Enchant"));
+    private final double DAMAGE_AMP_PERLVL = 0.05;
+    private final double STACKING_SPEED_PER_LVL = 0.06;
+    public IceBornEnchant() {
+        setEnchantName("Ice Born");
+        setEnchantKey(new NamespacedKey(BoxPlugin.instance, "IceBorn_Enchant"));
     }
 
     @Override
     public String getEnchantRGB(int lvl){
-        return "§x§2§1§9§8§1§A" + getEnchantName() + " " + getlvlToRoman(lvl);
+        return "§x§3§0§D§7§B§5" + getEnchantName() + " " + getlvlToRoman(lvl);
     }
     @Override
     public NamespacedKey getEnchantKey() {
@@ -101,8 +100,10 @@ public class PrickleEnchant extends AbstractEnchant{
         return numeral;
     }
 
-    public int getDamageFromTotalLevel(int totalLvl){
-        return (totalLvl * DAMAGE_PER_LEVEL);
+    public double getDamageAmpFromTotalLevel(int totalLvl){
+        return ((totalLvl * DAMAGE_AMP_PERLVL) + 1);
     }
-
+    public double getStackingSpeedFromTotalLevel(int totalLvl){
+        return ((totalLvl * STACKING_SPEED_PER_LVL) + 1);
+    }
 }

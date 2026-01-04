@@ -3,10 +3,7 @@ package me.twostinkysocks.boxplugin.customEnchants;
 import com.github.sirblobman.api.shaded.adventure.text.serializer.legacy.LegacyComponentSerializer;
 import com.google.common.collect.Maps;
 import me.twostinkysocks.boxplugin.BoxPlugin;
-import me.twostinkysocks.boxplugin.customEnchants.Enchants.AbstractEnchant;
-import me.twostinkysocks.boxplugin.customEnchants.Enchants.BrambleEnchant;
-import me.twostinkysocks.boxplugin.customEnchants.Enchants.OverGrowthEnchant;
-import me.twostinkysocks.boxplugin.customEnchants.Enchants.PrickleEnchant;
+import me.twostinkysocks.boxplugin.customEnchants.Enchants.*;
 import org.bukkit.NamespacedKey;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Listener;
@@ -27,7 +24,18 @@ public class CustomEnchantsMain {
     public enum Enchant {
         Bramble(new BrambleEnchant()),
         Overgrowth(new OverGrowthEnchant()),
-        Prickle(new PrickleEnchant());
+        Prickle(new PrickleEnchant()),
+        Magma(new MagmaEnchant()),
+        FireBorn(new FireBornEnchant()),
+        IceAspect(new IceAspectEnchant()),
+        IceBorn(new IceBornEnchant()),
+        Asphyxiate(new AsphyxiateEnchant()),
+        WaterBorn(new WaterBornEnchant()),
+        Zeus(new ZeusEnchant()),
+        GodBorn(new GodBornEnchant()),
+        VoidAspect(new VoidAspectEnchant()),
+        VoidBorn(new VoidBornEnchant());
+
 
         private static final Map<String, CustomEnchantsMain.Enchant> BY_NAME = Maps.newHashMap();
         public final AbstractEnchant instance;
@@ -206,6 +214,42 @@ public class CustomEnchantsMain {
         if(numGearItemsWithEnchant == 4){
             return true;
         } else return false;
+    }
+
+    public int getNumElement(Enchant enchant, Player target){
+        int numElements = 0;
+        ItemStack item = target.getInventory().getHelmet();//next for are amor slots
+        if(item != null && item.hasItemMeta()){
+
+            if (enchant.instance.hasEnchant(item)){
+                numElements++;
+            }
+        }
+
+        item = target.getInventory().getChestplate();
+        if(item != null && item.hasItemMeta()){
+
+            if (enchant.instance.hasEnchant(item)){
+                numElements++;
+            }
+        }
+
+        item = target.getInventory().getLeggings();
+        if(item != null && item.hasItemMeta()){
+
+            if (enchant.instance.hasEnchant(item)){
+                numElements++;
+            }
+        }
+
+        item = target.getInventory().getBoots();
+        if(item != null && item.hasItemMeta()){
+
+            if (enchant.instance.hasEnchant(item)){
+                numElements++;
+            }
+        }
+        return numElements;
     }
 
 }
