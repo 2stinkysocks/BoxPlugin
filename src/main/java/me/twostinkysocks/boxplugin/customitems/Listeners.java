@@ -270,15 +270,8 @@ public class Listeners implements Listener {
                     Util.debug(p, "Post-calculation raw tnt damage: " + e.getDamage());
                     Util.debug(p, "Post-calculation final tnt damage: " + e.getFinalDamage());
                 }
-            }
-        } else if(e.getDamager() instanceof Fireball) {
-            Fireball tnt = (Fireball) e.getDamager();
-            if(e.getEntity() instanceof ArmorStand || e.getEntity() instanceof ItemFrame) {
-                e.setCancelled(true);
-                return;
-            }
-            if(tnt.getPersistentDataContainer().has(new NamespacedKey(BoxPlugin.instance, "HYPERION_BOOM_MULTIPLIER"), PersistentDataType.DOUBLE)) {
-                if(tnt.getShooter() instanceof Player && ((Player)tnt.getShooter()).getUniqueId().equals(e.getEntity().getUniqueId())) {
+            } else if(tnt.getPersistentDataContainer().has(new NamespacedKey(BoxPlugin.instance, "HYPERION_BOOM_MULTIPLIER"), PersistentDataType.DOUBLE)) {
+                if(e.getEntity() instanceof ArmorStand || e.getEntity() instanceof ItemFrame) {
                     e.setCancelled(true);
                     return;
                 }
