@@ -225,12 +225,12 @@ public class Listeners implements Listener {
                 double freezeDmg = BoxPlugin.instance.getIceAspectEnchant().getDamageFromTotalLevel(iceLvl);
                 if(totalIceBornLvl > 0){//defualt max ice is 140
                     int currFreezeTicks = target.getFreezeTicks();
-                    int freezeTicks = (int) (15 * BoxPlugin.instance.getIceBornEnchant().getStackingSpeedFromTotalLevel(totalIceBornLvl));
+                    int freezeTicks = (int) (25 * BoxPlugin.instance.getIceBornEnchant().getStackingSpeedFromTotalLevel(totalIceBornLvl));
                     target.setFreezeTicks(currFreezeTicks + freezeTicks);
                     freezeDmg *= BoxPlugin.instance.getIceBornEnchant().getDamageAmpFromTotalLevel(totalIceBornLvl);
                 } else {
                     int currFreezeTicks = target.getFreezeTicks();
-                    target.setFreezeTicks(currFreezeTicks + 15);
+                    target.setFreezeTicks(currFreezeTicks + 25);
                 }
                 if(target.getFreezeTicks() >= 140){
                     freezeDmg *= 1.3;
