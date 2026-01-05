@@ -43,6 +43,7 @@ public class Listeners implements Listener {
 
     public void calcDamage(Player target, DamageType damageType, double ammount, Player attacker){
         int elementMult = 0;
+        int resistMult = 0;
         double finalDamage;
         if(damageType == DamageType.CACTUS){//calculate weaknesses to damage type
             elementMult += BoxPlugin.instance.getCustomEnchantsMain().getNumElement(CustomEnchantsMain.Enchant.WaterBorn, target);
@@ -50,6 +51,7 @@ public class Listeners implements Listener {
         if (damageType == DamageType.LAVA) {
             elementMult += BoxPlugin.instance.getCustomEnchantsMain().getNumElement(CustomEnchantsMain.Enchant.IceBorn, target);
             elementMult += BoxPlugin.instance.getCustomEnchantsMain().getNumElement(CustomEnchantsMain.Enchant.Overgrowth, target);
+            resistMult += BoxPlugin.instance.getCustomEnchantsMain().getNumElement(CustomEnchantsMain.Enchant.WaterBorn, target);
         }
         if (damageType == DamageType.FREEZE) {
             elementMult += BoxPlugin.instance.getCustomEnchantsMain().getNumElement(CustomEnchantsMain.Enchant.WaterBorn, target);
@@ -63,13 +65,17 @@ public class Listeners implements Listener {
         }
         if (damageType == DamageType.OUT_OF_WORLD) {
             elementMult += BoxPlugin.instance.getCustomEnchantsMain().getNumElement(CustomEnchantsMain.Enchant.GodBorn, target);
+            resistMult += BoxPlugin.instance.getCustomEnchantsMain().getNumElement(CustomEnchantsMain.Enchant.WaterBorn, target);
         }
         if(elementMult >= 2){
-            finalDamage = (ammount * elementMult/2.0) * 1.2;
+            finalDamage = (ammount * elementMult/2.0) * 1.1;
         } else if (elementMult > 4) {
-            finalDamage = (ammount * Math.min(3.5, elementMult/2.0));
+            finalDamage = (ammount * Math.min(3.2, elementMult/2.0)); //max damage is 3.2 x base
         } else {
             finalDamage = ammount;
+        }
+        if(resistMult > 0){
+            finalDamage = finalDamage * Math.max(0.4, (1.0) - 0.1 * elementMult);//max 60% damage reduction
         }
         if(target.isBlocking()){
             return;
@@ -225,17 +231,17 @@ public class Listeners implements Listener {
                 double freezeDmg = BoxPlugin.instance.getIceAspectEnchant().getDamageFromTotalLevel(iceLvl);
                 if(totalIceBornLvl > 0){//defualt max ice is 140
                     int currFreezeTicks = target.getFreezeTicks();
-                    int freezeTicks = (int) (25 * BoxPlugin.instance.getIceBornEnchant().getStackingSpeedFromTotalLevel(totalIceBornLvl));
+                    int freezeTicks = (int) (30 * BoxPlugin.instance.getIceBornEnchant().getStackingSpeedFromTotalLevel(totalIceBornLvl));
                     target.setFreezeTicks(currFreezeTicks + freezeTicks);
                     freezeDmg *= BoxPlugin.instance.getIceBornEnchant().getDamageAmpFromTotalLevel(totalIceBornLvl);
                 } else {
                     int currFreezeTicks = target.getFreezeTicks();
-                    target.setFreezeTicks(currFreezeTicks + 25);
+                    target.setFreezeTicks(currFreezeTicks + 30);
                 }
                 if(target.getFreezeTicks() >= 140){
                     freezeDmg *= 1.3;
                 }
-                if(target.getFreezeTicks() >= 280){
+                if(target.getFreezeTicks() >= 480){
                     freezeDmg *= 1.6;
                 }
                 if(target instanceof Player pTarget){

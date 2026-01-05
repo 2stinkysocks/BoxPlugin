@@ -9,8 +9,8 @@ import org.bukkit.persistence.PersistentDataType;
 public class IceBornEnchant extends AbstractEnchant{
     private String enchantName;
     private NamespacedKey enchantKey;
-    private final double DAMAGE_AMP_PERLVL = 0.05;
-    private final double STACKING_SPEED_PER_LVL = 0.06;
+    private final double DAMAGE_AMP_PERLVL = 0.06;
+    private final double STACKING_SPEED_PER_LVL = 0.09;
     public IceBornEnchant() {
         setEnchantName("Ice Born");
         setEnchantKey(new NamespacedKey(BoxPlugin.instance, "IceBorn_Enchant"));

@@ -683,11 +683,11 @@ public class Listeners implements Listener {
         kills = BoxPlugin.instance.getKillsInHour().get(cause.getUniqueId());
         BoxPlugin.instance.getKillsInHour().put(cause.getUniqueId(), kills);
 
-        if(BoxPlugin.instance.getKillsInHour().get(cause.getUniqueId()).get(target.getUniqueId()) > 10) {
+        if(BoxPlugin.instance.getKillsInHour().get(cause.getUniqueId()).get(target.getUniqueId()) > 5) {
             e.setKeepInventory(true);
             e.getDrops().clear();
-            cause.sendMessage(ChatColor.RED + "You cannot kill the same player more than 10 times per 2 hours!");
-            target.sendMessage(ChatColor.RED + "You were killed by the same player more than 10 times in 2 hours, so you lost no items.");
+            cause.sendMessage(ChatColor.RED + "You cannot kill the same player more than 5 times per 2 hours!");
+            target.sendMessage(ChatColor.RED + "You were killed by the same player more than 5 times in 2 hours, so you lost no items.");
             return;
         }
 
@@ -717,13 +717,16 @@ public class Listeners implements Listener {
         Util.dropPercent(e, percentChance);
         target.sendMessage(ChatColor.RED + "You lost " + (int)(100*percentChance) + "% of your items due to the level and gear score difference between you and the other player!");
         // skulls
-        if(xpdiff <= 2) {
+        if(gearScoreDiff <= 2) {
             e.getDrops().add(new ItemStack(Material.SKELETON_SKULL, BoxPlugin.instance.getPvpManager().getBounty(target)));
             cause.sendMessage(ChatColor.translateAlternateColorCodes('&', "&6&lSkulls Claimed! &7You claimed " + BoxPlugin.instance.getPvpManager().getBounty(target) + " skulls from " + target.getName()));
         } else {
-            cause.sendMessage(ChatColor.RED + "You earned no skulls due to having more than double your opponent's xp.");
+            cause.sendMessage(ChatColor.RED + "You earned no skulls due to having more than double your opponent's gearscore.");
         }
-        int xptoadd = Math.min((int)Math.min(50000,causexp*0.1), Math.max(0, BoxPlugin.instance.getXpManager().getLevel(target) * 100));
+        int xptoadd = Math.min((int)Math.min(30000,causexp*0.05), Math.max(0, BoxPlugin.instance.getXpManager().getLevel(target) * 50));
+        if(BoxPlugin.instance.getKillsInHour().get(cause.getUniqueId()).get(target.getUniqueId()) > 2) {
+            xptoadd *= 0.5; //half if they are getting farmed
+        }
         BoxPlugin.instance.getXpManager().addXP(cause, xptoadd);
         Bukkit.getPluginManager().callEvent(new PlayerBoxXpUpdateEvent(cause, causexp, causexp + xptoadd));
 

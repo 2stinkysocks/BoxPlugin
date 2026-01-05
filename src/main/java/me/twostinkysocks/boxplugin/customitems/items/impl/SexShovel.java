@@ -39,7 +39,7 @@ public class SexShovel extends CustomItem {
             if(a == Action.RIGHT_CLICK_AIR || a == Action.RIGHT_CLICK_BLOCK) {
                 if(p.hasPermission("customitems.cooldownbypass") || !cooldown.containsKey(p.getUniqueId()) || cooldown.get(p.getUniqueId()) < System.currentTimeMillis()) {
                     cooldown.put(p.getUniqueId(), System.currentTimeMillis() + (long)(10000 * (BoxPlugin.instance.getPerksManager().getSelectedMegaPerks(p).contains(PerksManager.MegaPerk.MEGA_COOLDOWN_REDUCTION) ? 0.5 : 1))); // 10 seconds
-                    List<Block> lineOfSight = new ArrayList<>(p.getLineOfSight(Set.of(Material.AIR, Material.CAVE_AIR, Material.WATER, Material.LAVA), 10));
+                    List<Block> lineOfSight = new ArrayList<>(p.getLineOfSight(Set.of(Material.AIR, Material.CAVE_AIR, Material.WATER, Material.LAVA, Material.LIGHT), 10));
                     Location tpLocation = null;
                     boolean valid = false;
                     while(!valid && lineOfSight.size() > 0) {
@@ -50,11 +50,14 @@ public class SexShovel extends CustomItem {
                             lineOfSight.remove(lineOfSight.size()-1);
                             continue;
                         }
-                        if(oneAbove.getType() == Material.AIR && twoAbove.getType() == Material.AIR) {
-                            valid = true;
-                            tpLocation = finalBlock.getLocation().add(0, 1, 0).add(0.5, 0.0, 0.5);
-                        } else {
-                            lineOfSight.remove(lineOfSight.size()-1);
+                        for(Block block : lineOfSight){
+                            Material mat = block.getType();
+                            if((oneAbove.getType() == mat || oneAbove.getType() == Material.AIR) && (twoAbove.getType() == mat || twoAbove.getType() == Material.AIR)) {
+                                valid = true;
+                                tpLocation = finalBlock.getLocation().add(0, 1, 0).add(0.5, 0.0, 0.5);
+                            } else {
+                                lineOfSight.remove(lineOfSight.size()-1);
+                            }
                         }
                     }
                     // no valid location

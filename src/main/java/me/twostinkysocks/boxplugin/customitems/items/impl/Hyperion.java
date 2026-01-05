@@ -161,7 +161,7 @@ public class Hyperion extends CustomItem {
     }
 
     private void tp(Player p) {
-        List<Block> lineOfSight = new ArrayList<>(p.getLineOfSight(Set.of(Material.AIR, Material.CAVE_AIR, Material.WATER, Material.LAVA), 25));
+        List<Block> lineOfSight = new ArrayList<>(p.getLineOfSight(Set.of(Material.AIR, Material.CAVE_AIR, Material.WATER, Material.LAVA, Material.LIGHT), 25));
         Location tpLocation = null;
         boolean valid = false;
         while(!valid && lineOfSight.size() > 0) {
@@ -172,11 +172,14 @@ public class Hyperion extends CustomItem {
                 lineOfSight.remove(lineOfSight.size()-1);
                 continue;
             }
-            if(oneAbove.getType() == Material.AIR && twoAbove.getType() == Material.AIR) {
-                valid = true;
-                tpLocation = finalBlock.getLocation().add(0, 1, 0).add(0.5, 0.0, 0.5);
-            } else {
-                lineOfSight.remove(lineOfSight.size()-1);
+            for(Block block : lineOfSight){
+                Material mat = block.getType();
+                if((oneAbove.getType() == mat || oneAbove.getType() == Material.AIR) && (twoAbove.getType() == mat || twoAbove.getType() == Material.AIR)) {
+                    valid = true;
+                    tpLocation = finalBlock.getLocation().add(0, 1, 0).add(0.5, 0.0, 0.5);
+                } else {
+                    lineOfSight.remove(lineOfSight.size()-1);
+                }
             }
         }
         // no valid location
