@@ -14,7 +14,7 @@ public class MegaPerkLifeSteal extends AbstractPerk {
         meta.setDisplayName(ChatColor.RED + "Lifesteal");
         meta.setLore(List.of(
                 "",
-                ChatColor.GRAY + "Heal for 15% of the final melee damage you deal to enemies"
+                ChatColor.GRAY + "Heal for 15% of the damage enemies take from your melee hits"
         ));
         guiItem.setItemMeta(meta);
 
