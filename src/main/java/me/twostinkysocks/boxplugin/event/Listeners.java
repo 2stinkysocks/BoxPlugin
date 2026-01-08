@@ -695,21 +695,23 @@ public class Listeners implements Listener {
         int causexp = BoxPlugin.instance.getXpManager().getXP(cause);
         //int targetlevel = BoxPlugin.instance.getXpManager().getLevel(target);
 
-        double dropChanceConst1 = 0.8; //raise
+        double dropChanceConst1 = 0.9; //raise to favor gearscore, 0.9 = 90% gearscore
         double dropChanceConst2 = 1.6;
 
         double xpdiff = ((double) causexp) / BoxPlugin.instance.getXpManager().getXP(target);
         double gearScoreDiff = ((double) GearScoreManager.GetPlayerGearscore(cause) / GearScoreManager.GetPlayerGearscore(target));
 
-        double dropChanceFromXp = 175.0 - (100.0*xpdiff);
-        double dropChanceFromGearScore = 175.0 - (100.0*gearScoreDiff);
+        double dropChanceFromXp = 205.0 - (100.0*xpdiff);
+        double dropChanceFromGearScore = 185.0 - (100.0*gearScoreDiff);
+        double dropChance = 0;
 
-        if(dropChanceFromGearScore < 0){
-            dropChanceFromGearScore = 0;
+        if(gearScoreDiff > 2){//if diff is over 2 make the first part negative because its quadratic
+            dropChance = -(dropChanceConst1)*(Math.pow((dropChanceFromGearScore/100), dropChanceConst2)) + ((1 - dropChanceConst1)*(dropChanceFromXp/100)); //big fucky formula that works in favoring gearscore
+        } else {//defualt formula
+            dropChance = (dropChanceConst1)*(Math.pow((dropChanceFromGearScore/100), dropChanceConst2)) + ((1 - dropChanceConst1)*(dropChanceFromXp/100)); //big fucky formula that works in favoring gearscore
         }
 
-        double dropChance = (dropChanceConst1)*(Math.pow(dropChanceFromGearScore, dropChanceConst2)) + ((1 - dropChanceConst1)*(dropChanceFromXp)); //big fucky formula that works in favoring gearscore
-        double percentChance = Math.max(Math.min(0.8, dropChance / 100.0), 0.05);
+        double percentChance = Math.max(Math.min(0.8, dropChance), 0.05);
         if(target.getUniqueId() == cause.getUniqueId()){
             percentChance = 0.1;
         }
@@ -726,6 +728,9 @@ public class Listeners implements Listener {
         int xptoadd = Math.min((int)Math.min(30000,causexp*0.05), Math.max(0, BoxPlugin.instance.getXpManager().getLevel(target) * 50));
         if(BoxPlugin.instance.getKillsInHour().get(cause.getUniqueId()).get(target.getUniqueId()) > 2) {
             xptoadd *= 0.5; //half if they are getting farmed
+        }
+        if(target.getUniqueId() == cause.getUniqueId()){
+            xptoadd = 0;
         }
         BoxPlugin.instance.getXpManager().addXP(cause, xptoadd);
         Bukkit.getPluginManager().callEvent(new PlayerBoxXpUpdateEvent(cause, causexp, causexp + xptoadd));

@@ -358,7 +358,7 @@ public class GhostTokenManager {
         if((BoxPlugin.instance.getConfig().contains("check-ip") && BoxPlugin.instance.getConfig().getBoolean("check-ip")) && (p.getKiller() != null && p.getKiller().getAddress().equals(p.getAddress()))) return;
         List<ItemStack> reclaimables = new ArrayList<>();
         for(ItemStack item : drops) {
-            if(item != null && !isGhostItem(item) && item.hasItemMeta() && item.getItemMeta().hasDisplayName() && Reclaimable.getByName(item.getItemMeta().getDisplayName()) != null) {
+            if(item != null && !isGhostItem(item) && item.hasItemMeta() && item.getItemMeta().hasDisplayName() && Reclaimable.getByName(item.getItemMeta().getDisplayName()) != null && !item.getType().name().endsWith("_BOX")) {
                 reclaimables.add(item.clone()); // not sure if this needs deep copy but I'll be safe
             }
         }

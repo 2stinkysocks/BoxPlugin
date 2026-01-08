@@ -9,7 +9,7 @@ import org.bukkit.persistence.PersistentDataType;
 public class VoidAspectEnchant extends AbstractEnchant{
     private String enchantName;
     private NamespacedKey enchantKey;
-    private final int DAMAGE_PER_LEVEL = 2;
+    private final int DAMAGE_PER_LEVEL = 1;
 
     public VoidAspectEnchant() {
         setEnchantName("Void Aspect");

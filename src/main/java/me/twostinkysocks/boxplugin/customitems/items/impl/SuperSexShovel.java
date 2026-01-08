@@ -50,14 +50,12 @@ public class SuperSexShovel extends CustomItem {
                             lineOfSight.remove(lineOfSight.size()-1);
                             continue;
                         }
-                        for(Block block : lineOfSight){
-                            Material mat = block.getType();
-                            if((oneAbove.getType() == mat || oneAbove.getType() == Material.AIR) && (twoAbove.getType() == mat || twoAbove.getType() == Material.AIR)) {
-                                valid = true;
-                                tpLocation = finalBlock.getLocation().add(0, 1, 0).add(0.5, 0.0, 0.5);
-                            } else {
-                                lineOfSight.remove(lineOfSight.size()-1);
-                            }
+                        Set<Material> validBlocks = Set.of(Material.AIR, Material.CAVE_AIR, Material.WATER, Material.LAVA, Material.LIGHT);
+                        if(validBlocks.contains(oneAbove.getType()) && validBlocks.contains(oneAbove.getType())) {
+                            valid = true;
+                            tpLocation = finalBlock.getLocation().add(0, 1, 0).add(0.5, 0.0, 0.5);
+                        } else {
+                            lineOfSight.remove(lineOfSight.size()-1);
                         }
                     }
                     // no valid location
