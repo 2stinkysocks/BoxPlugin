@@ -71,7 +71,7 @@ public class GhostTokenManager {
         RIPTIDE(3400),
         PLUTONIUM(110000),
         EXOTIC_PICKAXE(17000),
-        EXOTIC_BOW(870000);
+        EXOTIC_BOW(1050000);
 
         public final int cost;
         public final String altKey;
@@ -422,13 +422,10 @@ public class GhostTokenManager {
         ItemMeta meta = item.getItemMeta();
         if(meta != null && meta.getPersistentDataContainer().has(new NamespacedKey(BoxPlugin.instance, "ghost"), PersistentDataType.INTEGER)) {
             List<String> lore = meta.getLore();
-            if(lore != null) {
-                // 5 times because 3 lines for ghost lore, 2 for cost
-                lore.remove(lore.size()-1);
-                lore.remove(lore.size()-1);
-                lore.remove(lore.size()-1);
-                lore.remove(lore.size()-1);
-                lore.remove(lore.size()-1);
+            if (lore != null && lore.size() >= 5) {
+                for (int i = 0; i < 5; i++) {
+                    lore.remove(lore.size() - 1);
+                }
             }
             meta.setLore(lore);
             meta.getPersistentDataContainer().remove(new NamespacedKey(BoxPlugin.instance, "ghost"));

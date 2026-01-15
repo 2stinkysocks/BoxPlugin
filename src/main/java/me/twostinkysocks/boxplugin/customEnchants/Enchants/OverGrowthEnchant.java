@@ -11,7 +11,7 @@ import org.bukkit.persistence.PersistentDataType;
 public class OverGrowthEnchant extends AbstractEnchant {
     private String enchantName;
     private NamespacedKey enchantKey;
-    private final double PERCENT_HEAL_PER_LEVEL = 0.05;
+    private final double PERCENT_HEAL_PER_LEVEL = 0.035;
     private final int CHANCE_PER_LVL = 4;
     public OverGrowthEnchant() {
         setEnchantName("Overgrowth");

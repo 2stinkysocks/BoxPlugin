@@ -11,7 +11,7 @@ import org.bukkit.persistence.PersistentDataType;
 public class PrickleEnchant extends AbstractEnchant{
     private String enchantName;
     private NamespacedKey enchantKey;
-    private final int DAMAGE_PER_LEVEL = 2;
+    private final int DAMAGE_PER_LEVEL = 1;
     public PrickleEnchant() {
         setEnchantName("Prickle");
         setEnchantKey(new NamespacedKey(BoxPlugin.instance, "Prickle_Enchant"));

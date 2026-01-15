@@ -2,12 +2,13 @@ package me.twostinkysocks.boxplugin.customEnchants;
 
 import io.lumine.mythic.bukkit.utils.events.extra.ArmorEquipEvent;
 import me.twostinkysocks.boxplugin.BoxPlugin;
+import me.twostinkysocks.boxplugin.util.RenderUtil;
 import me.twostinkysocks.boxplugin.util.Util;
-import org.bukkit.Bukkit;
-import org.bukkit.NamespacedKey;
+import org.bukkit.*;
 import org.bukkit.attribute.Attribute;
 import org.bukkit.attribute.AttributeInstance;
 import org.bukkit.attribute.AttributeModifier;
+import org.bukkit.block.data.BlockData;
 import org.bukkit.craftbukkit.v1_21_R3.attribute.CraftAttributeInstance;
 import org.bukkit.damage.DamageSource;
 import org.bukkit.damage.DamageType;
@@ -67,15 +68,13 @@ public class Listeners implements Listener {
             elementMult += BoxPlugin.instance.getCustomEnchantsMain().getNumElement(CustomEnchantsMain.Enchant.GodBorn, target);
             resistMult += BoxPlugin.instance.getCustomEnchantsMain().getNumElement(CustomEnchantsMain.Enchant.WaterBorn, target);
         }
-        if(elementMult >= 2){
-            finalDamage = (ammount * elementMult/2.0) * 1.1;
-        } else if (elementMult > 4) {
-            finalDamage = (ammount * Math.min(3.2, elementMult/2.0)); //max damage is 3.2 x base
+        if(elementMult > 0){
+            finalDamage = (ammount * ((double) elementMult /6) + 1);
         } else {
             finalDamage = ammount;
         }
         if(resistMult > 0){
-            finalDamage = finalDamage * Math.max(0.4, (1.0) - 0.1 * elementMult);//max 60% damage reduction
+            finalDamage = finalDamage * Math.max(0.4, (1.0) - 0.1 * (double) resistMult);//max 60% damage reduction
         }
         if(target.isBlocking()){
             return;
@@ -238,11 +237,22 @@ public class Listeners implements Listener {
                     int currFreezeTicks = target.getFreezeTicks();
                     target.setFreezeTicks(currFreezeTicks + 30);
                 }
-                if(target.getFreezeTicks() >= 140){
+                if(target.getFreezeTicks() >= 140 && target.getFreezeTicks() < 480){
                     freezeDmg *= 1.3;
                 }
                 if(target.getFreezeTicks() >= 480){
                     freezeDmg *= 1.6;
+                    Location origin = target.getLocation().clone();
+                    origin.add(0, (target.getHeight() - 1), 0);//at chest
+                    BlockData iceData = Material.PACKED_ICE.createBlockData();
+
+                    target.getWorld().spawnParticle(
+                            Particle.BLOCK,
+                            origin,
+                            15,        // count
+                            0.3, 0.3, 0.3, // offset (spread)
+                            0.01,      // speed
+                            iceData); //block type
                 }
                 if(target instanceof Player pTarget){
                     calcDamage(pTarget, DamageType.FREEZE, freezeDmg, p);
@@ -278,11 +288,18 @@ public class Listeners implements Listener {
                     int currDrownTicks = target.getRemainingAir();
                     target.setRemainingAir(currDrownTicks - 80);
                 }
-                if(target.getRemainingAir() <= 0){
+                if(target.getRemainingAir() <= 0 && target.getRemainingAir() > -600){
                     target.addPotionEffect(new PotionEffect(PotionEffectType.WEAKNESS, 100, 1, true, false));
                     drownDmg *= 1.5;
+                    Location origin = target.getLocation().clone();
+                    origin.add(0, (target.getHeight()), 0);//at head
+                    RenderUtil.renderParticleOrb(origin, 4, 0.06, Particle.BUBBLE, 0.01);
                 }
                 if(target.getRemainingAir() <= -600){
+                    if(!target.hasPotionEffect(PotionEffectType.WEAKNESS)){
+                        target.sendMessage(ChatColor.DARK_BLUE + "You have been strucken deep!" + ChatColor.RED + " -16 attack damage!");
+                        p.playSound(p.getLocation(), Sound.BLOCK_BUBBLE_COLUMN_WHIRLPOOL_INSIDE, 1f, 0.65f);
+                    }
                     target.addPotionEffect(new PotionEffect(PotionEffectType.WEAKNESS, 100, 3, true, false));
                     drownDmg *= 1.7;
                 }
@@ -309,19 +326,19 @@ public class Listeners implements Listener {
                 double drownDmg = BoxPlugin.instance.getAsphyxiateEnchant().getDamageFromTotalLevel(drownLvl);
                 if(totalWaterBornLvl > 0){
                     int currDrownTicks = target.getRemainingAir();
-                    int drownTicks = (int) (30 * BoxPlugin.instance.getWaterBornEnchant().getStackingSpeedFromTotalLevel(totalWaterBornLvl));
+                    int drownTicks = (int) (80 * BoxPlugin.instance.getWaterBornEnchant().getStackingSpeedFromTotalLevel(totalWaterBornLvl));
                     target.setRemainingAir(currDrownTicks - drownTicks);
                 } else {
                     int currDrownTicks = target.getRemainingAir();
-                    target.setRemainingAir(currDrownTicks - 30);
+                    target.setRemainingAir(currDrownTicks - 80);
                 }
-                if(target.getRemainingAir() <= 0){
+                if(target.getRemainingAir() <= 0){//more drown damage for hitting skill shots
                     target.addPotionEffect(new PotionEffect(PotionEffectType.WEAKNESS, 100, 1, true, false));
-                    drownDmg *= 1.5;
+                    drownDmg *= 1.7;
                 }
                 if(target.getRemainingAir() <= -600){
                     target.addPotionEffect(new PotionEffect(PotionEffectType.WEAKNESS, 100, 3, true, false));
-                    drownDmg *= 1.7;
+                    drownDmg *= 2;
                 }
                 if(target instanceof Player pTarget){
                     calcDamage(pTarget, DamageType.DROWN, drownDmg, p);

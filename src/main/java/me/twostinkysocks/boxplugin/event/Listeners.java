@@ -4,6 +4,7 @@ import com.comphenix.protocol.events.PacketEvent;
 import com.comphenix.protocol.wrappers.EnumWrappers;
 import com.github.sirblobman.combatlogx.api.ICombatLogX;
 import com.github.sirblobman.combatlogx.api.event.PlayerTagEvent;
+import com.github.sirblobman.combatlogx.api.event.PlayerUntagEvent;
 import com.github.sirblobman.combatlogx.api.listener.CombatListener;
 import com.github.sirblobman.combatlogx.api.manager.ICombatManager;
 import me.twostinkysocks.boxplugin.BoxPlugin;
@@ -54,6 +55,10 @@ public class Listeners implements Listener {
     record Pair(UUID player, UUID target) {}
     private Map<Pair, Integer> entityHits = new HashMap<>();
     private Map<Pair, Boolean> completedStacks = new HashMap<>();
+
+    record pvpPair(UUID attacker, UUID target) {}
+    private Map<pvpPair, Integer> playerHits = new HashMap<>();//map of player pairs to check how much each person is hit by another person
+    private Map<UUID, Set<UUID>> Attackers = new HashMap<>();//map of attackers who hit a player while they are in combat
 
     public RegisteredItem getRegisteredItem(){
         RegisteredItem RegisteredItem = new RegisteredItem();
@@ -177,6 +182,9 @@ public class Listeners implements Listener {
             Location toSpawn = e.getClickedBlock().getLocation().add(0,1,0);
             String command = e.getItem().getItemMeta().getPersistentDataContainer().get(new NamespacedKey(BoxPlugin.instance, "eggcommand"), PersistentDataType.STRING);
             command = command.replaceAll("%x%", String.valueOf(toSpawn.getBlockX())).replaceAll("%y%", String.valueOf(toSpawn.getBlockY())).replaceAll("%z%", String.valueOf(toSpawn.getBlockZ())).replaceAll("%world%", toSpawn.getWorld().getName());
+            if(command.contains("Jayngar") && (p.getWorld().getEnvironment() != World.Environment.THE_END)){//only spawn jayngar in end
+                return;
+            }
             Bukkit.getServer().dispatchCommand(Bukkit.getConsoleSender(), command);
             e.setCancelled(true);
             ItemStack toRemove = e.getItem().clone();
@@ -695,11 +703,48 @@ public class Listeners implements Listener {
         int causexp = BoxPlugin.instance.getXpManager().getXP(cause);
         //int targetlevel = BoxPlugin.instance.getXpManager().getLevel(target);
 
+        double causeGearscore = GearScoreManager.GetPlayerGearscore(cause);
+        double targetGearscore = GearScoreManager.GetPlayerGearscore(target);
+
+        if(Attackers.containsKey(target.getUniqueId()) && Attackers.get(target.getUniqueId()).size() > 1){//if you have multiple attackers
+
+            Set<Player> validAttackers = new HashSet<>();
+            for(UUID attackerID : Attackers.get(target.getUniqueId())){
+                int hitsOnTarget = 0;
+                int hitsOnOthers = 0;
+                double avgHitsOnOthers = 0;
+                pvpPair playerKey = new pvpPair(attackerID, target.getUniqueId());
+                if(playerHits.containsKey(playerKey) && playerHits.get(playerKey) >= 5){//hit someone atleast 5 times to count
+                    hitsOnTarget += playerHits.get(playerKey);
+                    List<UUID> otherTargets = playerHits.keySet().stream().filter(p -> p.attacker().equals(attackerID)).map(pvpPair::target)
+                            .filter(id -> !id.equals(target.getUniqueId())).collect(Collectors.toList());//list of other players the killer hit
+                    for(UUID otherPlayerID : otherTargets){
+                        pvpPair otherPlayerKey = new pvpPair(attackerID, otherPlayerID);
+                        hitsOnOthers += playerHits.get(otherPlayerKey);
+                    }
+                    if(!otherTargets.isEmpty()){
+                        avgHitsOnOthers = (double) hitsOnOthers / otherTargets.size();
+                    }
+                    if(hitsOnTarget >= avgHitsOnOthers * 3){
+                        validAttackers.add(Bukkit.getPlayer(attackerID));
+                    }
+                }
+            }
+            if(!validAttackers.isEmpty()){
+                for(Player p : validAttackers){
+                    causeGearscore += (GearScoreManager.GetPlayerGearscore(p) * 0.6);//add 60% of others gear score to killers for drop calculation
+                }
+                Util.debug(target, "Unfair numbers advantage detected, you opponents gear score was adjusted to " + causeGearscore);
+            }
+            playerHits.keySet().removeIf(key -> key.target().equals(target.getUniqueId()));//remove dead target from all player hits
+            Attackers.remove(target.getUniqueId());
+        }
+
         double dropChanceConst1 = 0.9; //raise to favor gearscore, 0.9 = 90% gearscore
         double dropChanceConst2 = 1.6;
 
         double xpdiff = ((double) causexp) / BoxPlugin.instance.getXpManager().getXP(target);
-        double gearScoreDiff = ((double) GearScoreManager.GetPlayerGearscore(cause) / GearScoreManager.GetPlayerGearscore(target));
+        double gearScoreDiff = (causeGearscore / targetGearscore);
 
         double dropChanceFromXp = 205.0 - (100.0*xpdiff);
         double dropChanceFromGearScore = 185.0 - (100.0*gearScoreDiff);
@@ -718,6 +763,7 @@ public class Listeners implements Listener {
 
         Util.dropPercent(e, percentChance);
         target.sendMessage(ChatColor.RED + "You lost " + (int)(100*percentChance) + "% of your items due to the level and gear score difference between you and the other player!");
+        System.out.println(target.getName() + " Died to " + cause.getName() + " and lost " + (int)(100*percentChance) + "% of their items");
         // skulls
         if(gearScoreDiff <= 2) {
             e.getDrops().add(new ItemStack(Material.SKELETON_SKULL, BoxPlugin.instance.getPvpManager().getBounty(target)));
@@ -838,7 +884,7 @@ public class Listeners implements Listener {
     }
 
     @EventHandler
-    public void onCombatStart(PlayerTagEvent e) {
+    public void megaStrengthCombat(PlayerTagEvent e) {
         Player p = e.getPlayer();
         if(!BoxPlugin.instance.getPerksManager().getSelectedMegaPerks(p).contains(PerksManager.MegaPerk.MEGA_STRENGTH)){
             return;
@@ -899,10 +945,56 @@ public class Listeners implements Listener {
             }
             if (elapsedTime == 180) {
                 p.sendMessage(ChatColor.GOLD + "" + ChatColor.BOLD + "Your strength has reached max power!" + ChatColor.RED + " +30 attack damage!");
+                p.playSound(p.getLocation(), Sound.ENTITY_WITHER_DEATH, 0.5f, 2f);
                 p.addPotionEffect(new PotionEffect(PotionEffectType.STRENGTH, Integer.MAX_VALUE, 9, true, false));
             }
         }, 20L, 20L);
 
+    }
+
+    @EventHandler
+    public void gankCheck(PlayerTagEvent e) {
+        Player attacker = e.getPlayer();
+        Player target;
+        if(e.getEnemy() instanceof Player){
+            target = (Player) e.getEnemy();
+        } else {
+            return;
+        }
+
+        pvpPair playerKey = new pvpPair(attacker.getUniqueId(), target.getUniqueId());
+        if(playerHits.containsKey(playerKey)){
+            int oldHits = playerHits.get(playerKey);
+            playerHits.put(playerKey, oldHits + 1);
+        } else {
+            playerHits.put(playerKey, 1);
+        }
+
+        Set<UUID> players;
+        if(Attackers.containsKey(target.getUniqueId())){
+            players = Attackers.get(target.getUniqueId());
+            if(!players.contains(attacker.getUniqueId())){
+                players.add(attacker.getUniqueId());
+                Attackers.put(target.getUniqueId(), players);
+            }
+        } else {
+            players = new HashSet<>();
+            players.add(attacker.getUniqueId());
+            Attackers.put(target.getUniqueId(), players);
+        }
+
+    }
+
+    @EventHandler
+    public void gankClear(PlayerUntagEvent e){//remove list of attacks who hit you on untag
+        Player player = e.getPlayer();
+        if(Attackers.containsKey(player.getUniqueId())){
+            Set<UUID> attackerList = Attackers.get(player.getUniqueId());
+            for(UUID id : attackerList){
+                playerHits.keySet().removeIf(key -> key.attacker().equals(id) && key.target().equals(player.getUniqueId()));
+            }
+            Attackers.remove(player.getUniqueId());
+        }
     }
 
 

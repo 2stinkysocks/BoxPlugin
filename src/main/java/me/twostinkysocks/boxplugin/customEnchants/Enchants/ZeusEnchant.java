@@ -9,7 +9,7 @@ import org.bukkit.persistence.PersistentDataType;
 public class ZeusEnchant extends AbstractEnchant{
     private String enchantName;
     private NamespacedKey enchantKey;
-    private final double MAXHP_DMG_PERLVL = 0.2;
+    private final double MAXHP_DMG_PERLVL = 0.25;
     private final double CHANCE_PER_LVL = 0.04;
 
     public ZeusEnchant() {

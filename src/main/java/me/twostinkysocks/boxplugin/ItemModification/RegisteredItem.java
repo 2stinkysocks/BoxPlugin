@@ -410,6 +410,9 @@ public class RegisteredItem {
         if(itemData.getOrDefault(keyReforge, PersistentDataType.BOOLEAN, false)){//if reforged then ignore
             return item;
         }
+        if(item != null && item.hasItemMeta() && item.getItemMeta().getPersistentDataContainer().has(new NamespacedKey(BoxPlugin.instance, "ghost"), PersistentDataType.INTEGER)) {
+            return item;//dont update ghost items
+        }
         NamespacedKey key = new NamespacedKey(BoxPlugin.instance, "belongsToParentItem");
         String registeredType = itemData.get(key, PersistentDataType.STRING);
         setConnection();
