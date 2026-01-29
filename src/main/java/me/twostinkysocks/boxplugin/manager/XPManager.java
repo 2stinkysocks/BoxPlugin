@@ -23,6 +23,9 @@ public class XPManager {
     }
 
     public XPManager() {
+        CrateKey legendaryKey = BoxPlugin.instance.getKeyManager().getKeyById("legendary_crate");
+        CrateKey epicKey = BoxPlugin.instance.getKeyManager().getKeyById("epic");
+        CrateKey rareKey = BoxPlugin.instance.getKeyManager().getKeyById("rare");
         Bukkit.getScheduler().runTaskTimer(BoxPlugin.instance, () -> {
             Bukkit.getOnlinePlayers().forEach(p -> {
                 int beforexp = BoxPlugin.instance.getXpManager().getXP(p);
@@ -31,13 +34,13 @@ public class XPManager {
                 int randomKeyChance = getRandNumFromLimit(600);
                 CrateKey key = BoxPlugin.instance.getKeyManager().getKeyById("common");
                 if(randomKeyChance == 1){//1 out of 600
-                    key = BoxPlugin.instance.getKeyManager().getKeyById("legendary_crate");
+                    key = legendaryKey;
                     Bukkit.broadcastMessage(ChatColor.translateAlternateColorCodes('&', p.getName() + " &dJust got their free key upgraded to " + ChatColor.GOLD + ChatColor.BOLD + "Legendary!"));
                 } else if (randomKeyChance <= 4) {//3 out of 600
-                    key = BoxPlugin.instance.getKeyManager().getKeyById("epic");
+                    key = epicKey;
                     Bukkit.broadcastMessage(ChatColor.translateAlternateColorCodes('&', p.getName() + " &dJust got their free key upgraded to " + ChatColor.DARK_PURPLE + ChatColor.BOLD + "Epic!"));
                 } else if (randomKeyChance <= 12) {//12 out of 600
-                    key = BoxPlugin.instance.getKeyManager().getKeyById("rare");
+                    key = rareKey;
                     Bukkit.broadcastMessage(ChatColor.translateAlternateColorCodes('&', p.getName() + " &dJust got their free key upgraded to " + ChatColor.GOLD + "Rare!"));
                 }
                 if(key != null){
