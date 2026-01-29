@@ -865,6 +865,7 @@ public class Listeners implements Listener {
             p.getPersistentDataContainer().set(new NamespacedKey(BoxPlugin.instance, "xp"), PersistentDataType.INTEGER, Math.abs(e.getAfterXP()));
         }
         BoxPlugin.instance.getScoreboardManager().queueUpdate(p);
+        BoxPlugin.instance.getXpManager().updateXPBar(p);
     }
 
     @EventHandler
