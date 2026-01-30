@@ -109,8 +109,8 @@ public class ZeusEnchant extends AbstractEnchant{
         }
         return numeral;
     }
-
-    public double getMXPHDamageFromTotalLevel(int totalLvl) {
+    @Override
+    public double getDamageFromTotalLevel(int totalLvl) {
         return (totalLvl * MAXHP_DMG_PERLVL);
     }
     public double getChanceFromTotalLevel(int totalLvl) {

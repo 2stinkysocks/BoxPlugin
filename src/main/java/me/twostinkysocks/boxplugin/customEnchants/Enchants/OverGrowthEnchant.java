@@ -101,12 +101,12 @@ public class OverGrowthEnchant extends AbstractEnchant {
         }
         return numeral;
     }
-
+    @Override
     public double getHealFromTotalLevel(int totalLvl){
         return (totalLvl * PERCENT_HEAL_PER_LEVEL);
     }
-
-    public int getChanceFromTotalLevel(int totalLvl){
+    @Override
+    public double getChanceFromTotalLevel(int totalLvl){
         return (totalLvl * CHANCE_PER_LVL);
     }
 }

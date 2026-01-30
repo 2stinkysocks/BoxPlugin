@@ -111,26 +111,26 @@ public class Hyperion extends CustomItem {
                             double multiplier = 1.0;
                             if (ticks < 5) return;
                             else if (ticks <= 7) {
-                                rad = 4;
+                                rad = 3;
                                 multiplier = 0.5;
                             } else if (ticks <= 10) {
-                                rad = 5;
-                                multiplier = 1;
+                                rad = 4;
+                                multiplier = 0.9;
                             }
                             else if (ticks <= 14) {
-                                rad = 6;
-                                multiplier = 1.5;
+                                rad = 5;
+                                multiplier = 1.3;
                             }
                             else if (ticks <= 18) {
-                                rad = 7;
-                                multiplier = 2;
+                                rad = 6;
+                                multiplier = 1.8;
                             }
                             else if (ticks <= 22) {
-                                rad = 8;
-                                multiplier = 2.5;
+                                rad = 7;
+                                multiplier = 2.2;
                             } else {
-                                rad = 9;
-                                multiplier = 3;
+                                rad = 8;
+                                multiplier = 2.6;
                             }
                             Util.debug(p, "Explosion level: " + multiplier);
                             Util.debug(p, "Explosion yield: " + rad);
@@ -146,7 +146,7 @@ public class Hyperion extends CustomItem {
 //                            fireball.setVelocity(new Vector(0, -1, 0));
 //                            tnt.setFuseTicks(0);
 //                            fireball.getPersistentDataContainer().set(new NamespacedKey(BoxPlugin.instance, "HYPERION_BOOM_MULTIPLIER"), PersistentDataType.DOUBLE, multiplier);
-                            slamcooldown.put(p.getUniqueId(), System.currentTimeMillis() + (long) (25000 * (BoxPlugin.instance.getPerksManager().getSelectedMegaPerks(p).contains(PerksManager.MegaPerk.MEGA_COOLDOWN_REDUCTION) ? 0.5 : 1)));
+                            slamcooldown.put(p.getUniqueId(), System.currentTimeMillis() + (long) (45000 * (BoxPlugin.instance.getPerksManager().getSelectedMegaPerks(p).contains(PerksManager.MegaPerk.MEGA_COOLDOWN_REDUCTION) ? 0.5 : 1)));
                         } else {
                             inAirTime.put(p.getUniqueId(), 0);
                         }

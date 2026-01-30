@@ -5,6 +5,7 @@ import com.comphenix.protocol.ProtocolLibrary;
 import com.comphenix.protocol.ProtocolManager;
 import com.comphenix.protocol.events.PacketContainer;
 import io.lumine.mythic.bukkit.utils.events.extra.ArmorEquipEventListener;
+import me.twostinkysocks.boxplugin.ItemModification.ItemPopper;
 import me.twostinkysocks.boxplugin.ItemModification.RegisteredItem;
 import me.twostinkysocks.boxplugin.compressor.Compressor;
 import me.twostinkysocks.boxplugin.customEnchants.CustomEnchantsMain;
@@ -103,6 +104,7 @@ public final class BoxPlugin extends JavaPlugin implements CommandExecutor, TabC
     private GodBornEnchant godBornEnchant;
     private VoidAspectEnchant voidAspectEnchant;
     private VoidBornEnchant voidBornEnchant;
+    private ItemPopper itemPopperManager;
 
     private Economy econ = null;
 
@@ -178,7 +180,6 @@ public final class BoxPlugin extends JavaPlugin implements CommandExecutor, TabC
         placedBlocks = new ArrayList<Location>();
         scoreboardManager = new ScoreboardManager();
         pvpManager = new PVPManager();
-        xpManager = new XPManager();
         perksManager = new PerksManager();
         compressor = new Compressor();
         marketManager = new MarketManager();
@@ -204,9 +205,12 @@ public final class BoxPlugin extends JavaPlugin implements CommandExecutor, TabC
         voidAspectEnchant = new VoidAspectEnchant();
         voidBornEnchant = new VoidBornEnchant();
         customEnchantsMain = new CustomEnchantsMain();
+        itemPopperManager = new ItemPopper();
 
         excellentCrates = (CratesPlugin) getServer().getPluginManager().getPlugin("ExcellentCrates");
         keyManager = excellentCrates.getKeyManager();
+
+        xpManager = new XPManager();//needs to come after key
 
         getMarketManager().initializeMarketMultiplier();
 
@@ -253,6 +257,9 @@ public final class BoxPlugin extends JavaPlugin implements CommandExecutor, TabC
         getCommand("getrubies").setExecutor(this);
         getCommand("setrubies").setExecutor(this);
         getCommand("aetherenchant").setExecutor(this);
+        getCommand("popperpointerset").setExecutor(this);
+        getCommand("popitemtest").setExecutor(this);
+        getCommand("removepopfromdatabase").setExecutor(this);
         getServer().getPluginManager().registerEvents(new Listeners(), this);
         getServer().getPluginManager().registerEvents(new ArmorEquipEventListener(), this);
         load();
@@ -343,6 +350,9 @@ public final class BoxPlugin extends JavaPlugin implements CommandExecutor, TabC
     }
     public RegisteredItem getRegisteredItem(){
         return registeredItem;
+    }
+    public ItemPopper getItemPopperManager(){
+        return itemPopperManager;
     }
 
     public GearScoreManager getGearScoreManager() {
@@ -855,7 +865,7 @@ public final class BoxPlugin extends JavaPlugin implements CommandExecutor, TabC
                         try {
                             getRegisteredItem().RegisterItem(item, args[0]);
                             p.sendMessage(ChatColor.GREEN + "Successfully stored item " + args[0] + " into the data base");
-                        } catch (SQLException e) {
+                        } catch (SQLException | IOException e) {
                             throw new RuntimeException(e);
                         }
                     }
@@ -1117,6 +1127,65 @@ public final class BoxPlugin extends JavaPlugin implements CommandExecutor, TabC
                 }
                 return true;
 
+            } else if (label.equals("popperpointerset")) {
+                if(!p.hasPermission("boxplugin.manageitems")) {
+                    p.sendMessage(ChatColor.RED + "You don't have permission!");
+                    return true;
+                }
+                if(args.length == 2){
+                    getItemPopperManager().openPopperGUI(p, args[0], args[1]);
+                }
+                else {
+                    p.sendMessage(ChatColor.RED + "Incorrect Usage: use /popperpointerset [successor item name] [predecessor item name]");
+                }
+                return true;
+
+            } else if (label.equals("popitemtest")) {
+                if(!p.hasPermission("boxplugin.manageitems")) {
+                    p.sendMessage(ChatColor.RED + "You don't have permission!");
+                    return true;
+                }
+                ItemStack item = p.getInventory().getItemInMainHand();
+                try {
+                    if(item.getType().isAir() || !BoxPlugin.instance.getItemPopperManager().isPopable(item)){
+                        p.sendMessage(ChatColor.RED + "You must hold a poppable for this command");
+                    }else {
+                        try {
+                            List<ItemStack> itemsToDrop = getItemPopperManager().getItemsToDrop(item);
+                            for(ItemStack stack : itemsToDrop) {
+                                Item itemEntity = (Item) p.getWorld().spawnEntity(p.getLocation(), EntityType.ITEM);
+                                itemEntity.setItemStack(stack);
+                            }
+                        } catch (SQLException | ClassNotFoundException | IOException e) {
+                            throw new RuntimeException(e);
+                        }
+
+                        try {
+                            item = getItemPopperManager().getDowngradedItem(item);
+                        } catch (SQLException | IOException | ClassNotFoundException e) {
+                            throw new RuntimeException(e);
+                        }
+                        p.getInventory().setItemInMainHand(item);
+                    }
+                } catch (SQLException e) {
+                    throw new RuntimeException(e);
+                }
+                return true;
+
+            } else if (label.equals("removepopfromdatabase")) {
+                if(args.length == 2){
+                    try {
+                        getItemPopperManager().RemoveFromDatabase(args[0], args[1]);
+                        p.sendMessage(ChatColor.GREEN + "Successfully removed item " + args[0] + " from the data base");
+                    } catch (SQLException e) {
+                        throw new RuntimeException(e);
+                    }
+                }
+                else {
+                    p.sendMessage(ChatColor.RED + "Incorrect Usage: use /removefromdatabase [successor name] [predecessor name]");
+                }
+                return true;
+
             }
         }
 
@@ -1218,6 +1287,25 @@ public final class BoxPlugin extends JavaPlugin implements CommandExecutor, TabC
                 }
 
                 StringUtil.copyPartialMatches(args[0], registeredNames, completions);
+                return completions;
+            }
+        } else if (alias.equals("popperpointerset") || alias.equals("removepopfromdatabase")) {
+            if(args.length >= 1) {
+                ArrayList<String> registeredNames;
+                try {
+                    registeredNames = getRegisteredItem().GetAllRegisteredNames();
+                } catch (SQLException e) {
+                    throw new RuntimeException(e);
+                }
+                if (args.length == 1) {
+                    StringUtil.copyPartialMatches(args[0], registeredNames, completions);
+                    return completions;
+                }
+
+                if (args.length == 2) {
+                    StringUtil.copyPartialMatches(args[1], registeredNames, completions);
+                    return completions;
+                }
                 return completions;
             }
         } else if(alias.equals("reskinned")) {

@@ -183,6 +183,7 @@ public class Listeners implements Listener {
             String command = e.getItem().getItemMeta().getPersistentDataContainer().get(new NamespacedKey(BoxPlugin.instance, "eggcommand"), PersistentDataType.STRING);
             command = command.replaceAll("%x%", String.valueOf(toSpawn.getBlockX())).replaceAll("%y%", String.valueOf(toSpawn.getBlockY())).replaceAll("%z%", String.valueOf(toSpawn.getBlockZ())).replaceAll("%world%", toSpawn.getWorld().getName());
             if(command.contains("Jayngar") && (p.getWorld().getEnvironment() != World.Environment.THE_END)){//only spawn jayngar in end
+                e.setCancelled(true);
                 return;
             }
             Bukkit.getServer().dispatchCommand(Bukkit.getConsoleSender(), command);
@@ -211,7 +212,13 @@ public class Listeners implements Listener {
                     return;
                 }
                 LivingEntity target = (LivingEntity) e.getEntity();
-                if(target instanceof Player || target.getMaxHealth() >= 100){
+                if((target instanceof Player && (p.getUniqueId() != target.getUniqueId())) || target.getMaxHealth() >= 100){
+                    if(target instanceof Player && (p.getUniqueId() == target.getUniqueId())){
+                        return;
+                    }
+                    if (target.hasMetadata("NPC")) {
+                        return; // NPC (Citizens and most NPC plugins)
+                    }
                     Pair key = new Pair(p.getUniqueId(), target.getUniqueId());
                     if(entityHits.containsKey(key)){
                         int oldHits = entityHits.get(key);
@@ -633,7 +640,7 @@ public class Listeners implements Listener {
     }
 
     @EventHandler(priority = EventPriority.HIGHEST)
-    public void onPlayerDeath(PlayerDeathEvent e) {
+    public void onPlayerDeath(PlayerDeathEvent e) throws SQLException {
         // more than 10 below - 0xp
         // up to 10 below - 10xp
         // your level or higher - 100xp
@@ -910,8 +917,10 @@ public class Listeners implements Listener {
             long elapsedTime = (System.currentTimeMillis() - start) / 1000;
             long outOfCombatTime = (System.currentTimeMillis() - lastInCombat[0]) / 1000;
 
-            if(outOfCombatTime == 0){
-                p.sendMessage(ChatColor.RED + "Your strength will fade within 30 seconds of no combat!");
+            if(outOfCombatTime == 2){
+                if(!combatManager.isInCombat(p)){
+                    p.sendMessage(ChatColor.RED + "Your strength will fade within 30 seconds of no combat!");
+                }
             }
 
             if(outOfCombatTime >= 30){

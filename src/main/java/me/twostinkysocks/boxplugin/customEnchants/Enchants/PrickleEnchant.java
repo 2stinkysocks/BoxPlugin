@@ -100,8 +100,8 @@ public class PrickleEnchant extends AbstractEnchant{
         }
         return numeral;
     }
-
-    public int getDamageFromTotalLevel(int totalLvl){
+    @Override
+    public double getDamageFromTotalLevel(int totalLvl){
         return (totalLvl * DAMAGE_PER_LEVEL);
     }
 

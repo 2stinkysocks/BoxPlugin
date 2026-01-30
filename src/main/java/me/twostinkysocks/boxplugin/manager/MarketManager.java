@@ -873,7 +873,7 @@ public class MarketManager {
             }
             if(!hasPillar){
                 p.playSound(p.getLocation(), Sound.BLOCK_FIRE_EXTINGUISH, 3.0F, 1.0F);
-                p.sendMessage(ChatColor.RED + "You don't this pillar");
+                p.sendMessage(ChatColor.RED + "You don't this have pillar");
             }
             BoxPlugin.instance.getScoreboardManager().queueUpdate(p);
         });
@@ -901,7 +901,7 @@ public class MarketManager {
             }
             if(!hasPillar){
                 p.playSound(p.getLocation(), Sound.BLOCK_FIRE_EXTINGUISH, 3.0F, 1.0F);
-                p.sendMessage(ChatColor.RED + "You don't this pillar");
+                p.sendMessage(ChatColor.RED + "You don't this have pillar");
             }
             BoxPlugin.instance.getScoreboardManager().queueUpdate(p);
         });
@@ -929,7 +929,7 @@ public class MarketManager {
             }
             if(!hasPillar){
                 p.playSound(p.getLocation(), Sound.BLOCK_FIRE_EXTINGUISH, 3.0F, 1.0F);
-                p.sendMessage(ChatColor.RED + "You don't this pillar");
+                p.sendMessage(ChatColor.RED + "You don't this have pillar");
             }
             BoxPlugin.instance.getScoreboardManager().queueUpdate(p);
         });
@@ -957,7 +957,7 @@ public class MarketManager {
             }
             if(!hasPillar){
                 p.playSound(p.getLocation(), Sound.BLOCK_FIRE_EXTINGUISH, 3.0F, 1.0F);
-                p.sendMessage(ChatColor.RED + "You don't this pillar");
+                p.sendMessage(ChatColor.RED + "You don't this have pillar");
             }
             BoxPlugin.instance.getScoreboardManager().queueUpdate(p);
         });
@@ -985,7 +985,7 @@ public class MarketManager {
             }
             if(!hasPillar){
                 p.playSound(p.getLocation(), Sound.BLOCK_FIRE_EXTINGUISH, 3.0F, 1.0F);
-                p.sendMessage(ChatColor.RED + "You don't this pillar");
+                p.sendMessage(ChatColor.RED + "You don't this have pillar");
             }
             BoxPlugin.instance.getScoreboardManager().queueUpdate(p);
         });

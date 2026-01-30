@@ -18,6 +18,7 @@ import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.persistence.PersistentDataType;
 
 import javax.annotation.Nullable;
+import java.sql.SQLException;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -37,13 +38,13 @@ public class GhostTokenManager {
         AXOLOTL(2200, "TASTY_SNACK", "AXOLOTL_BOX"),
         AXOLOTL_SAMURAI(2750, "PUFFERMACE", "AXOLOTL_SAMURAI_BOX"),
         MODERN(3450, "FUTURISTIC_DEVICE", "MODERN_BOX"),
-        SPEED(3950, null, "MODERN_SPEED_BOX"),
+        SPEED(3950, null, "SPEEDY"),//watch out for this could be dupe if the other anti shulker ghost item thing dont work
         GLASS_CANNON(4250, null, "MODERN_GLASS_CANNON_BOX"),
         TANK(4250, null, "MODERN_TANK_BOX"),
         SHINY_DIAMOND(10000, null, "SHINY_DIAMOND_BOX"),
         CHEF(13800, "LET_ME_COOK"),
         GUARDIAN(18600, "OCEAN_GLASS"),
-        EMERALD(26000),
+        CUT_EMERALD(26000, "SHARPENED_EMERALD"),
         ANUBIS(40000),
         ZEUS(55000, null, "GODLY_ZEUS"),
         DRAGON_SCALE(125000, "FIREBALL"),
@@ -354,12 +355,14 @@ public class GhostTokenManager {
         }
     }
 
-    public void onPostDeath(List<ItemStack> drops, Player p) {
+    public void onPostDeath(List<ItemStack> drops, Player p) throws SQLException {
         if((BoxPlugin.instance.getConfig().contains("check-ip") && BoxPlugin.instance.getConfig().getBoolean("check-ip")) && (p.getKiller() != null && p.getKiller().getAddress().equals(p.getAddress()))) return;
         List<ItemStack> reclaimables = new ArrayList<>();
         for(ItemStack item : drops) {
             if(item != null && !isGhostItem(item) && item.hasItemMeta() && item.getItemMeta().hasDisplayName() && Reclaimable.getByName(item.getItemMeta().getDisplayName()) != null && !item.getType().name().endsWith("_BOX")) {
-                reclaimables.add(item.clone()); // not sure if this needs deep copy but I'll be safe
+                if(!BoxPlugin.instance.getItemPopperManager().isPopable(item) || p.getKiller() == null){//only if its not poppable make a ghost and dying to a player
+                    reclaimables.add(item.clone()); // not sure if this needs deep copy but I'll be safe
+                }
             }
         }
         storeReclaimablesInPDC(p, reclaimables);

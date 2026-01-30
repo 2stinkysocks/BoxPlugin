@@ -108,7 +108,7 @@ public class IceAspectEnchant extends AbstractEnchant {
         }
         return numeral;
     }
-
+    @Override
     public double getDamageFromTotalLevel(int totalLvl) {
         return (totalLvl * DAMAGE_PER_LEVEL);
     }

@@ -98,7 +98,7 @@ public class VoidBornEnchant extends AbstractEnchant{
         }
         return numeral;
     }
-
+    @Override
     public double getDamageAmpFromTotalLevel(int totalLvl){
         return ((totalLvl * DAMAGE_AMP_PERLVL) + 1);
     }

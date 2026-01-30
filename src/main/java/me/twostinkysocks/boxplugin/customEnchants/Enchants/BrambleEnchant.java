@@ -101,12 +101,12 @@ public class BrambleEnchant extends AbstractEnchant {
         }
         return numeral;
     }
-
-    public int getDamageFromTotalLevel(int totalLvl){
+    @Override
+    public double getDamageFromTotalLevel(int totalLvl){
         return (totalLvl * DAMAGE_PER_LEVEL);
     }
-
-    public int getChanceFromTotalLevel(int totalLvl){
+    @Override
+    public double getChanceFromTotalLevel(int totalLvl){
         return (totalLvl * CHANCE_PER_LVL);
     }
 }

@@ -135,6 +135,15 @@ commands:
   aetherenchant:
     usage: /<command>
     description: sets custom enchant to item
+  popperpointerset:
+    usage: /<command>
+    description: set a list of items to drop on loss of a parent item
+  popitemtest:
+    usage: /<command>
+    description: pretend you died with a item
+  removepopfromdatabase:
+    usage: /<command>
+    description: removes pointer and items from parent item in database
 permissions:
   boxplugin.manageperks:
     default: false

@@ -114,7 +114,7 @@ public class Listeners implements Listener {
                 }
                 prickleProcessing.add(target.getUniqueId());
                 int cacterLvl = CustomEnchantsMain.Enchant.Prickle.instance.getLevel(mainHandItem);
-                int cacterDmg = BoxPlugin.instance.getEnchantPrickle().getDamageFromTotalLevel(cacterLvl);
+                double cacterDmg = BoxPlugin.instance.getEnchantPrickle().getDamageFromTotalLevel(cacterLvl);
                 if(target instanceof Player pTarget){
                     calcDamage(pTarget, DamageType.CACTUS, cacterDmg, p);
                 } else {
@@ -133,7 +133,7 @@ public class Listeners implements Listener {
 
             if(totalOvergrowthLvl > 0){//overgrowth logic
                 int overGrowChanceRolled = random.nextInt(100) + 1;
-                int overGrowChance = BoxPlugin.instance.getEnchantOvergrowth().getChanceFromTotalLevel(totalOvergrowthLvl);
+                double overGrowChance = BoxPlugin.instance.getEnchantOvergrowth().getChanceFromTotalLevel(totalOvergrowthLvl);
                 double hpDiff = (e.getFinalDamage());
                 if(hpDiff >= p.getHealth()){//cancel if this hit kills you
                     return;
@@ -162,7 +162,7 @@ public class Listeners implements Listener {
             if(totalBrambleLvl > 0){//bramble logic
 
                 int brambleChanceRolled = random.nextInt(100) + 1;
-                int brambleChance = BoxPlugin.instance.getEnchantBramble().getChanceFromTotalLevel(totalBrambleLvl);
+                double brambleChance = BoxPlugin.instance.getEnchantBramble().getChanceFromTotalLevel(totalBrambleLvl);
                 if(brambleChanceRolled <= brambleChance){
                     LivingEntity attacker = (LivingEntity) e.getDamager();
                     if(brambleProcessing.contains(attacker.getUniqueId())){//prevent recussion
@@ -375,7 +375,7 @@ public class Listeners implements Listener {
                 double strikeRoll = random.nextDouble(1.01);
                 if(defualtChance >= strikeRoll){
                     target.setNoDamageTicks(0);
-                    double lightningDmg = target.getMaxHealth() * BoxPlugin.instance.getZeusEnchant().getMXPHDamageFromTotalLevel(zeusLvl);
+                    double lightningDmg = target.getMaxHealth() * CustomEnchantsMain.Enchant.Zeus.instance.getDamageFromTotalLevel(zeusLvl);
                     if(target instanceof Player pTarget){
                         calcDamage(pTarget, DamageType.MAGIC, lightningDmg, p);
                     } else {

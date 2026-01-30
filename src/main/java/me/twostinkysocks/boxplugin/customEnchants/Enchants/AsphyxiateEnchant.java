@@ -123,8 +123,8 @@ public class AsphyxiateEnchant extends AbstractEnchant{
         }
         return 0;
     }
-
-    public int getDamageFromTotalLevel(int totalLvl) {
+    @Override
+    public double getDamageFromTotalLevel(int totalLvl) {
         return (totalLvl * DAMAGE_PER_LEVEL);
     }
 }

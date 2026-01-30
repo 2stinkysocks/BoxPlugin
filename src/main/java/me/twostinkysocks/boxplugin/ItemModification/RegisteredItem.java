@@ -1,5 +1,8 @@
 package me.twostinkysocks.boxplugin.ItemModification;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 import java.sql.*;
 import java.util.*;
 
@@ -28,6 +31,8 @@ import org.bukkit.inventory.meta.trim.TrimMaterial;
 import org.bukkit.inventory.meta.trim.TrimPattern;
 import org.bukkit.persistence.PersistentDataContainer;
 import org.bukkit.persistence.PersistentDataType;
+import org.bukkit.util.io.BukkitObjectInputStream;
+import org.bukkit.util.io.BukkitObjectOutputStream;
 import org.jetbrains.annotations.NotNull;
 import su.nightexpress.nightcore.util.bridge.RegistryType;
 
@@ -45,6 +50,8 @@ public class RegisteredItem {
     public boolean hasHiddenEnchants = false;
     public boolean hasHiddenAttributes = false;
     public boolean hasCustomEnchants = false;
+    public boolean isCustomItem = false;
+    public String customItemName = null;
     public ArrayList<CustomEnchantsMain.Enchant> customEnchList = new ArrayList<>();
     public Color itemColor = null;
     public ArmorTrim armorTrim = null;
@@ -53,14 +60,14 @@ public class RegisteredItem {
 
     //primitive for database:
 
-    private static class AttributeData{
+    static class AttributeData{
         String attributeModifierKey = "";
         String attributeType = "";
         Double attributeValue;
         String attributeOperation = "";
         String attributeSlot = "";
     }
-    private static class RegisteredItemData {
+    static class RegisteredItemData {
         // attributes as JSON-string, enchants as simple map
         ArrayList<AttributeData> attributesList = new ArrayList<>();
         Map<String, Integer> serializedEnchantsMap = new HashMap<>();
@@ -79,8 +86,8 @@ public class RegisteredItem {
         boolean hideEnchants = false;
         boolean hideAttributes = false;
         boolean hasCustomEnchants = false;
-        String customEnchName = null;
-        int customEnchLvl = 0;
+        boolean isCustomItem = false;
+        String customItemName = null;
     }
 
     public boolean isArmor(ItemStack item){
@@ -148,23 +155,6 @@ public class RegisteredItem {
 
             newItem.serializedEnchantsMap.put(enchantKey, level);
         }
-        //set our attribute map
-//        for(Map.Entry<Attribute, AttributeModifier> entry : attributeMap.entries()){
-//            Attribute attribute = entry.getKey();
-//            AttributeModifier attributeModifier = entry.getValue();
-//            AttributeModifier.Operation operation = attributeModifier.getOperation();
-//            EquipmentSlotGroup slot = attributeModifier.getSlotGroup();
-//
-//            AttributeData currentData = new AttributeData();
-//
-//            currentData.attributeType = attribute.name();
-//            currentData.attributeModifierKey = attributeModifier.getKey().getKey();
-//            currentData.attributeValue = attributeModifier.getAmount();
-//            currentData.attributeOperation = operation.name();
-//            currentData.attributeSlot = (slot == null ? "" : slot.toString());
-//
-//            newItem.attributesList.add(currentData);
-//        }
 
         newItem.attributesList = (ArrayList<AttributeData>) attributeList;
 
@@ -187,6 +177,10 @@ public class RegisteredItem {
                 newItem.serializedCustomEnchantsMap.put(customEnchName, customEnchLvl);
             }
             newItem.hasCustomEnchants = true;
+        }
+        if(this.isCustomItem){
+            newItem.isCustomItem = true;
+            newItem.customItemName = this.customItemName;
         }
 
         newItem.hideAttributes = hasHiddenAttributes;
@@ -232,7 +226,8 @@ public class RegisteredItem {
         return registeredNameList;
     }
 
-    public void RegisterItem(@NotNull ItemStack item, String nameToSavAs) throws SQLException {//item cannot be null, check if a item is held in hand before calling
+    public void RegisterItemLegacy(@NotNull ItemStack item, String nameToSavAs) throws SQLException {//item cannot be null, check if a item is held in hand before calling
+
         ItemMeta itemMeta = item.getItemMeta();
 
         enchantHashMap.clear();
@@ -294,8 +289,202 @@ public class RegisteredItem {
             hasCustomEnchants = true;
             customEnchList = BoxPlugin.instance.getCustomEnchantsMain().getCustomEnchantsOnItem(item);
         }
+        if(item.getItemMeta().getPersistentDataContainer().has(new NamespacedKey(BoxPlugin.instance, "ITEM_ID"), PersistentDataType.STRING)) {
+            this.isCustomItem = true;
+            this.customItemName = item.getItemMeta().getPersistentDataContainer().get(new NamespacedKey(BoxPlugin.instance, "ITEM_ID"), PersistentDataType.STRING);
+        }
 
         UpdateDataBase(item);
+    }
+
+    public ItemStack SetToRegisteredItemLegcay(@NotNull ItemStack item) throws SQLException {//will only be called on items that have the appropriate tags
+
+        if(enchantHashMap != null){
+            enchantHashMap.clear();
+        }
+        if(attributeList != null){
+            attributeList.clear();
+        }
+        if(lore != null){
+            lore = null;
+        }
+        if(armorTrim != null){
+            armorTrim = null;
+        }
+        if(trimMaterial != null){
+            trimMaterial = null;
+        }
+        if(trimPattern != null){
+            trimPattern = null;
+        }
+
+        NamespacedKey keyReforge = new NamespacedKey(BoxPlugin.instance, "isReforged");
+        NamespacedKey keyReskin = new NamespacedKey(BoxPlugin.instance, "isReskinned");
+
+        ItemMeta itemMeta = item.getItemMeta();
+        PersistentDataContainer itemData = itemMeta.getPersistentDataContainer();
+
+        if(itemData.getOrDefault(keyReforge, PersistentDataType.BOOLEAN, false)){//if reforged then ignore
+            return item;
+        }
+        if(item != null && item.hasItemMeta() && item.getItemMeta().getPersistentDataContainer().has(new NamespacedKey(BoxPlugin.instance, "ghost"), PersistentDataType.INTEGER)) {
+            return item;//dont update ghost items
+        }
+        NamespacedKey key = new NamespacedKey(BoxPlugin.instance, "belongsToParentItem");
+        String registeredType = itemData.get(key, PersistentDataType.STRING);
+        setConnection();
+        Bukkit.getLogger().info("SetToRegisteredItem: registeredType=" + registeredType);
+
+        RegisteredItemData registeredItem;
+
+        try (PreparedStatement ps = connection.prepareStatement("SELECT data_json FROM registered_items WHERE registered_name = ? LIMIT 1")) {//this should make a RegisteredItemData object from database
+            ps.setString(1, registeredType);
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    String jsonData = rs.getString("data_json");
+                    registeredItem = gson.fromJson(jsonData, RegisteredItemData.class);
+                } else {
+                    CloseConnection();
+                    Bukkit.getLogger().info("item was not found in database: " + registeredType);
+                    return item; // item not found
+                }
+            }
+        }
+        gearScore = registeredItem.gearScore;
+        List<String> lore = registeredItem.lore != null ? new ArrayList<>(Arrays.asList(registeredItem.lore)) : new ArrayList<>();
+
+        if(BoxPlugin.instance.getItemLivesManager().hasLives(item)) {
+            int numLives = BoxPlugin.instance.getItemLivesManager().getLives(item);
+            lore.addAll(List.of("", ChatColor.RED + "" + (numLives) + " Lives"));
+        }
+        name = registeredItem.itemName;
+        itemModel = Material.getMaterial(registeredItem.itemType);
+
+        enchantHashMap.clear();
+        for(Map.Entry<String, Integer> entry : registeredItem.serializedEnchantsMap.entrySet()){
+            NamespacedKey enchantKey = NamespacedKey.fromString(entry.getKey());
+            Enchantment enchant = Enchantment.getByKey(enchantKey);
+
+            if(enchant != null){
+                enchantHashMap.put(enchant, entry.getValue());
+            }
+        }
+
+        LinkedHashMultimap<Attribute, AttributeModifier> attributeHashMap = LinkedHashMultimap.create();
+
+        for(AttributeData attributeData : registeredItem.attributesList){
+            Attribute attribute = Attribute.valueOf(attributeData.attributeType);
+
+            NamespacedKey attributeKey = new NamespacedKey("minecraft", attributeData.attributeModifierKey);
+            AttributeModifier.Operation operation = AttributeModifier.Operation.valueOf(attributeData.attributeOperation);
+            EquipmentSlotGroup slot = EquipmentSlotGroup.getByName(attributeData.attributeSlot);
+
+            AttributeModifier attributeModifier = new AttributeModifier(attributeKey, attributeData.attributeValue, operation, slot);
+
+            attributeHashMap.put(attribute, attributeModifier);
+        }
+
+
+        itemMeta.setAttributeModifiers(attributeHashMap);
+        if(!itemData.getOrDefault(keyReskin, PersistentDataType.BOOLEAN, false)){//ignore item model, lore, and name if its reskinned
+            item.setType(itemModel);
+            itemMeta.setDisplayName(Util.colorize(name));
+            if(!lore.isEmpty()){
+                itemMeta.setLore(lore);
+            } else {
+                itemMeta.setLore(null);
+            }
+        }
+
+        for(Enchantment enchant : itemMeta.getEnchants().keySet()){//removes current items enchants
+            itemMeta.removeEnchant(enchant);
+        }
+
+        if(itemMeta instanceof ArmorMeta){
+            if(registeredItem.isTrimmed){
+                ArmorMeta armorMeta = (ArmorMeta) itemMeta;
+
+                NamespacedKey patternKey = NamespacedKey.fromString(registeredItem.armorTrimPattern);
+                NamespacedKey matKey = NamespacedKey.fromString(registeredItem.armorTrimMat);
+
+                trimPattern = RegistryType.TRIM_PATTERN.getRegistry().get(patternKey);
+                trimMaterial = RegistryType.TRIM_MATERIAL.getRegistry().get(matKey);
+                armorTrim = new ArmorTrim(trimMaterial, trimPattern);
+                armorMeta.setTrim(armorTrim);
+
+                itemMeta = armorMeta;
+            } else{ //remove old unused trims
+                ArmorMeta armorMeta = (ArmorMeta) itemMeta;
+                if(armorMeta.hasTrim()){
+                    armorMeta.setTrim(null);
+                }
+            }
+
+            if(registeredItem.isColrable && itemMeta instanceof ColorableArmorMeta){
+                ArmorMeta armorMeta = (ArmorMeta) itemMeta;
+
+                ColorableArmorMeta coloredArmorMeta = (ColorableArmorMeta) armorMeta;
+                itemColor = Color.deserialize(registeredItem.itemColor);
+                coloredArmorMeta.setColor(itemColor);
+
+                itemMeta = armorMeta;
+            }
+        }
+
+        if(registeredItem.isCustomItem){
+            itemMeta.getPersistentDataContainer().set(new NamespacedKey(BoxPlugin.instance, "ITEM_ID"), PersistentDataType.STRING, registeredItem.customItemName);
+        }
+
+        itemMeta.setUnbreakable(registeredItem.isUnbreakable);
+
+        itemMeta.removeItemFlags(ItemFlag.HIDE_ENCHANTS, ItemFlag.HIDE_ATTRIBUTES);
+
+        item.setItemMeta(itemMeta);
+        item.addUnsafeEnchantments(enchantHashMap);
+
+        ItemMeta itemMetaFlags = item.getItemMeta();//must redo this to add item flags after other things
+
+        itemMetaFlags.setUnbreakable(registeredItem.isUnbreakable);
+
+        itemMetaFlags.removeItemFlags(ItemFlag.HIDE_ENCHANTS, ItemFlag.HIDE_ATTRIBUTES);
+        if(registeredItem.hideEnchants){
+            itemMetaFlags.addItemFlags(ItemFlag.HIDE_ENCHANTS);
+        }
+        if(registeredItem.hideAttributes){
+            itemMetaFlags.addItemFlags(ItemFlag.HIDE_ATTRIBUTES);
+        }
+
+        item.setItemMeta(itemMetaFlags);
+
+        item = GearScoreManager.setGearScore(item, gearScore);
+        if(registeredItem.hasCustomEnchants){
+            for(Map.Entry<String, Integer> entry : registeredItem.serializedCustomEnchantsMap.entrySet()){
+                item = BoxPlugin.instance.getCustomEnchantsMain().setCustomEnchant(item, entry.getKey(), entry.getValue());
+            }
+        }
+        CloseConnection();
+        return item;
+    }
+    //new method for deep copies
+    public void RegisterItem(@NotNull ItemStack item, String nameToSavAs) throws SQLException, IOException {//item cannot be null, check if a item is held in hand before calling
+        setConnection();
+        String base64ItemData;
+        try (ByteArrayOutputStream baos = new ByteArrayOutputStream();//clanker logic to deep copy item data
+             BukkitObjectOutputStream oos = new BukkitObjectOutputStream(baos)) {
+
+            oos.writeObject(item);
+
+            base64ItemData = Base64.getEncoder().encodeToString(baos.toByteArray());
+        }
+
+        try (PreparedStatement ps = connection.prepareStatement(
+                "INSERT OR REPLACE INTO registered_items (registered_name, data_json) VALUES (?, ?)"
+        )) {
+            ps.setString(1, nameToSavAs);
+            ps.setString(2, base64ItemData);
+            ps.executeUpdate();
+        }
+        CloseConnection();
     }
 
     public boolean ExistsInDatabase(String registeredName) throws SQLException {
@@ -379,27 +568,8 @@ public class RegisteredItem {
         item.setItemMeta(itemMeta);
         return item;
     }
-
-    public ItemStack SetToRegisteredItem(@NotNull ItemStack item) throws SQLException {//will only be called on items that have the appropriate tags
-
-        if(enchantHashMap != null){
-            enchantHashMap.clear();
-        }
-        if(attributeList != null){
-            attributeList.clear();
-        }
-        if(lore != null){
-            lore = null;
-        }
-        if(armorTrim != null){
-            armorTrim = null;
-        }
-        if(trimMaterial != null){
-            trimMaterial = null;
-        }
-        if(trimPattern != null){
-            trimPattern = null;
-        }
+    //new method for deep copies
+    public ItemStack SetToRegisteredItem(@NotNull ItemStack item) throws SQLException, IOException, ClassNotFoundException {//will only be called on items that have the appropriate tags
 
         NamespacedKey keyReforge = new NamespacedKey(BoxPlugin.instance, "isReforged");
         NamespacedKey keyReskin = new NamespacedKey(BoxPlugin.instance, "isReskinned");
@@ -418,186 +588,35 @@ public class RegisteredItem {
         setConnection();
         Bukkit.getLogger().info("SetToRegisteredItem: registeredType=" + registeredType);
 
-        RegisteredItemData registeredItem;
+        String base64_itemData;
 
         try (PreparedStatement ps = connection.prepareStatement("SELECT data_json FROM registered_items WHERE registered_name = ? LIMIT 1")) {//this should make a RegisteredItemData object from database
             ps.setString(1, registeredType);
             try (ResultSet rs = ps.executeQuery()) {
                 if (rs.next()) {
-                    String jsonData = rs.getString("data_json");
-                    registeredItem = gson.fromJson(jsonData, RegisteredItemData.class);
+                    base64_itemData = rs.getString("data_json");
                 } else {
                     CloseConnection();
+                    Bukkit.getLogger().info("item was not found in database: " + registeredType);
                     return item; // item not found
                 }
             }
         }
-        gearScore = registeredItem.gearScore;
-        List<String> lore = registeredItem.lore != null ? new ArrayList<>(Arrays.asList(registeredItem.lore)) : new ArrayList<>();
+        byte[] data = Base64.getDecoder().decode(base64_itemData);
 
-        if(BoxPlugin.instance.getItemLivesManager().hasLives(item)) {
-            int numLives = BoxPlugin.instance.getItemLivesManager().getLives(item);
-            lore.addAll(List.of("", ChatColor.RED + "" + (numLives) + " Lives"));
-        }
-        name = registeredItem.itemName;
-        itemModel = Material.getMaterial(registeredItem.itemType);
+        ByteArrayInputStream bais = new ByteArrayInputStream(data);
+        BukkitObjectInputStream ois = new BukkitObjectInputStream(bais);
 
-        enchantHashMap.clear();
-        for(Map.Entry<String, Integer> entry : registeredItem.serializedEnchantsMap.entrySet()){
-            NamespacedKey enchantKey = NamespacedKey.fromString(entry.getKey());
-            Enchantment enchant = Enchantment.getByKey(enchantKey);
+        item = (ItemStack) ois.readObject();
 
-            if(enchant != null){
-                enchantHashMap.put(enchant, entry.getValue());
-            }
-        }
+        ois.close();
 
-        LinkedHashMultimap<Attribute, AttributeModifier> attributeHashMap = LinkedHashMultimap.create();
-
-        for(AttributeData attributeData : registeredItem.attributesList){
-            Attribute attribute = Attribute.valueOf(attributeData.attributeType);
-
-            NamespacedKey attributeKey = new NamespacedKey("minecraft", attributeData.attributeModifierKey);
-            AttributeModifier.Operation operation = AttributeModifier.Operation.valueOf(attributeData.attributeOperation);
-            EquipmentSlotGroup slot = EquipmentSlotGroup.getByName(attributeData.attributeSlot);
-
-            AttributeModifier attributeModifier = new AttributeModifier(attributeKey, attributeData.attributeValue, operation, slot);
-
-            attributeHashMap.put(attribute, attributeModifier);
-        }
-
-        if(!lore.isEmpty()){
-            itemMeta.setLore(lore);
-        } else {
-            itemMeta.setLore(null);
-        }
-
-        itemMeta.setAttributeModifiers(attributeHashMap);
-        itemMeta.setDisplayName(Util.colorize(name));
-        if(!itemData.getOrDefault(keyReskin, PersistentDataType.BOOLEAN, false)){//ignore item model if its reskinned
-            item.setType(itemModel);
-        }
-
-        for(Enchantment enchant : itemMeta.getEnchants().keySet()){//removes current items enchants
-            itemMeta.removeEnchant(enchant);
-        }
-
-        if(itemMeta instanceof ArmorMeta){
-            if(registeredItem.isTrimmed){
-                ArmorMeta armorMeta = (ArmorMeta) itemMeta;
-
-                NamespacedKey patternKey = NamespacedKey.fromString(registeredItem.armorTrimPattern);
-                NamespacedKey matKey = NamespacedKey.fromString(registeredItem.armorTrimMat);
-
-                trimPattern = RegistryType.TRIM_PATTERN.getRegistry().get(patternKey);
-                trimMaterial = RegistryType.TRIM_MATERIAL.getRegistry().get(matKey);
-                armorTrim = new ArmorTrim(trimMaterial, trimPattern);
-                armorMeta.setTrim(armorTrim);
-
-                itemMeta = armorMeta;
-            } else{ //remove old unused trims
-                ArmorMeta armorMeta = (ArmorMeta) itemMeta;
-                if(armorMeta.hasTrim()){
-                    armorMeta.setTrim(null);
-                }
-            }
-
-            if(registeredItem.isColrable && itemMeta instanceof ColorableArmorMeta){
-                ArmorMeta armorMeta = (ArmorMeta) itemMeta;
-
-                ColorableArmorMeta coloredArmorMeta = (ColorableArmorMeta) armorMeta;
-                itemColor = Color.deserialize(registeredItem.itemColor);
-                coloredArmorMeta.setColor(itemColor);
-
-                itemMeta = armorMeta;
-            }
-        }
-
-        itemMeta.setUnbreakable(registeredItem.isUnbreakable);
-
-        if(registeredItem.hideEnchants){
-            itemMeta.addItemFlags(ItemFlag.HIDE_ENCHANTS);
-        }
-        if(registeredItem.hideAttributes){
-            itemMeta.addItemFlags(ItemFlag.HIDE_ATTRIBUTES);
-        }
-
-        item.setItemMeta(itemMeta);
-        item.addUnsafeEnchantments(enchantHashMap);
-        item = GearScoreManager.setGearScore(item, gearScore);
-        if(registeredItem.hasCustomEnchants){
-            for(Map.Entry<String, Integer> entry : registeredItem.serializedCustomEnchantsMap.entrySet()){
-                item = BoxPlugin.instance.getCustomEnchantsMain().setCustomEnchant(item, entry.getKey(), entry.getValue());
-            }
-        }
         CloseConnection();
         return item;
     }
 
     public boolean UpdateLegacyItems(@NotNull Player p) throws SQLException {
-        ItemStack item;
         boolean fixedItems = false;
-
-        item = p.getInventory().getHelmet();//next for are amor slots
-        if(item != null && item.hasItemMeta()){
-            name = item.getItemMeta().getDisplayName().replaceAll("§.", "").replaceAll("[^a-zA-Z0-9]", "");
-
-            if (!IsRegistered(item.getItemMeta()) && ExistsInDatabase(name)){
-                item = SetItemToBelongToRegisteredItem(item, name);
-                item = SetToRegisteredItem(item);
-                p.getInventory().setHelmet(item);
-                fixedItems = true;
-            }
-        }
-
-        item = p.getInventory().getChestplate();
-        if(item != null && item.hasItemMeta()){
-            name = item.getItemMeta().getDisplayName().replaceAll("§.", "").replaceAll("[^a-zA-Z0-9]", "");
-
-            if (!IsRegistered(item.getItemMeta()) && ExistsInDatabase(name)){
-                item = SetItemToBelongToRegisteredItem(item, name);
-                item = SetToRegisteredItem(item);
-                p.getInventory().setChestplate(item);
-                fixedItems = true;
-            }
-        }
-
-        item = p.getInventory().getLeggings();
-        if(item != null && item.hasItemMeta()){
-            name = item.getItemMeta().getDisplayName().replaceAll("§.", "").replaceAll("[^a-zA-Z0-9]", "");
-
-            if (!IsRegistered(item.getItemMeta()) && ExistsInDatabase(name)){
-                item = SetItemToBelongToRegisteredItem(item, name);
-                item = SetToRegisteredItem(item);
-                p.getInventory().setLeggings(item);
-                fixedItems = true;
-            }
-        }
-
-        item = p.getInventory().getBoots();
-        if(item != null && item.hasItemMeta()){
-            name = item.getItemMeta().getDisplayName().replaceAll("§.", "").replaceAll("[^a-zA-Z0-9]", "");
-
-            if (!IsRegistered(item.getItemMeta()) && ExistsInDatabase(name)){
-                item = SetItemToBelongToRegisteredItem(item, name);
-                item = SetToRegisteredItem(item);
-                p.getInventory().setBoots(item);
-                fixedItems = true;
-            }
-        }
-
-        item = p.getInventory().getItemInOffHand();//offhand item
-        if(item != null && item.hasItemMeta()){
-            name = item.getItemMeta().getDisplayName().replaceAll("§.", "").replaceAll("[^a-zA-Z0-9]", "");
-
-            if (!IsRegistered(item.getItemMeta()) && ExistsInDatabase(name)){
-                item = SetItemToBelongToRegisteredItem(item, name);
-                item = SetToRegisteredItem(item);
-                p.getInventory().setItemInOffHand(item);
-                fixedItems = true;
-            }
-        }
-
         int index = 0;
         ItemStack[] contents = p.getInventory().getContents();
         for(ItemStack inventoryItem : p.getInventory().getContents()) {//everything else
@@ -619,53 +638,6 @@ public class RegisteredItem {
     }
 
     public void UpdateCurrentItems(@NotNull Player p) throws SQLException {
-        ItemStack item;
-
-        item = p.getInventory().getHelmet();//next for are amor slots
-        if(item != null && item.hasItemMeta()){
-
-            if (IsRegistered(item.getItemMeta())){
-                item = SetToRegisteredItem(item);
-                p.getInventory().setHelmet(item);
-            }
-        }
-
-        item = p.getInventory().getChestplate();
-        if(item != null && item.hasItemMeta()){
-
-            if (IsRegistered(item.getItemMeta())){
-                item = SetToRegisteredItem(item);
-                p.getInventory().setChestplate(item);
-            }
-        }
-
-        item = p.getInventory().getLeggings();
-        if(item != null && item.hasItemMeta()){
-
-            if (IsRegistered(item.getItemMeta())){
-                item = SetToRegisteredItem(item);
-                p.getInventory().setLeggings(item);
-            }
-        }
-
-        item = p.getInventory().getBoots();
-        if(item != null && item.hasItemMeta()){
-
-            if (IsRegistered(item.getItemMeta())){
-                item = SetToRegisteredItem(item);
-                p.getInventory().setBoots(item);
-            }
-        }
-
-        item = p.getInventory().getItemInOffHand();//offhand item
-        if(item != null && item.hasItemMeta()){
-
-            if (IsRegistered(item.getItemMeta())){
-                item = SetToRegisteredItem(item);
-                p.getInventory().setItemInOffHand(item);
-            }
-        }
-
         int index = 0;
         ItemStack[] contents = p.getInventory().getContents();
         for(ItemStack inventoryItem : p.getInventory().getContents()) {//everything else
@@ -680,5 +652,22 @@ public class RegisteredItem {
             index ++;
         }
         p.getInventory().setContents(contents);
+    }
+
+    public ItemStack getItemFromName(String registeredName) throws SQLException, IOException, ClassNotFoundException {
+        ItemStack item = new ItemStack(Material.DIRT);
+        ItemMeta itemMeta = item.getItemMeta();
+        itemMeta.setDisplayName("Temp dirt lol (you should never see this)");
+
+        if(ExistsInDatabase(registeredName)){
+            itemMeta.setDisplayName(registeredName);
+            item.setItemMeta(itemMeta);
+            item = SetItemToBelongToRegisteredItem(item, registeredName);
+            item = SetToRegisteredItem(item);
+            item = SetToRegisteredItem(item); //needs to be called again for good mesuare
+        } else {
+            item.setItemMeta(itemMeta);
+        }
+        return item;
     }
 }

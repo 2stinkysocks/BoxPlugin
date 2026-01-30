@@ -98,6 +98,7 @@ public class WaterBornEnchant extends AbstractEnchant{
         }
         return numeral;
     }
+    @Override
     public double getStackingSpeedFromTotalLevel(int totalLvl){
         return ((totalLvl * STACKING_SPEED_PER_LVL) + 1);
     }

@@ -96,4 +96,24 @@ public class AbstractEnchant {
         return numeral;
     }
 
+    public double getStackingSpeedFromTotalLevel(int totalLvl){
+        return (1);
+    }
+
+    public double getChanceFromTotalLevel(int totalLvl) {
+        return (totalLvl);
+    }
+
+    public double getDamageFromTotalLevel(int totalLvl) {
+        return (totalLvl);
+    }
+
+    public double getDamageAmpFromTotalLevel(int totalLvl){
+        return (totalLvl);
+    }
+
+    public double getHealFromTotalLevel(int totalLvl){
+        return (totalLvl);
+    }
+
 }

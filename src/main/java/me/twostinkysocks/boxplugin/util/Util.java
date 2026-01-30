@@ -6,9 +6,7 @@ import net.minecraft.world.entity.LivingEntity;
 import org.bukkit.*;
 import org.bukkit.craftbukkit.v1_21_R3.entity.CraftHumanEntity;
 import org.bukkit.enchantments.Enchantment;
-import org.bukkit.entity.Entity;
-import org.bukkit.entity.HumanEntity;
-import org.bukkit.entity.Player;
+import org.bukkit.entity.*;
 import org.bukkit.event.entity.PlayerDeathEvent;
 import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
@@ -19,7 +17,9 @@ import org.bukkit.profile.PlayerProfile;
 import org.bukkit.profile.PlayerTextures;
 import org.bukkit.util.Vector;
 
+import java.io.IOException;
 import java.net.URL;
+import java.sql.SQLException;
 import java.util.*;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.function.Function;
@@ -331,8 +331,9 @@ public class Util {
      * @param e The event
      * @param dropChancePerSlot drop chance per slot (0.5 is 50% chance to drop that item)
      */
-    public static void dropPercent(PlayerDeathEvent e, double dropChancePerSlot) {
+    public static void dropPercent(PlayerDeathEvent e, double dropChancePerSlot) throws SQLException {
         Player target = e.getEntity();
+        Player cause = e.getEntity().getKiller();
         //int outof = (int)(Math.round(1/dropChancePerSlot));
         Util.debug(target, "Losing " + (int)(dropChancePerSlot*100) + "% of items");
         e.setKeepInventory(true);
@@ -348,8 +349,22 @@ public class Util {
                         continue;
                     }
                     Util.debug(target, "Lost " + e.getEntity().getInventory().getItem(i).getType());
-                    e.getDrops().add(e.getEntity().getInventory().getItem(i));
-                    e.getEntity().getInventory().setItem(i, null);
+                    if(cause != null && BoxPlugin.instance.getItemPopperManager().isPopable(item)){
+                        try {
+                            List<ItemStack> itemsToDrop = BoxPlugin.instance.getItemPopperManager().getItemsToDrop(item);
+                            for(ItemStack stack : itemsToDrop) {
+                                e.getDrops().add(stack);//adds the drops for the popped item
+                            }
+                        } catch (SQLException | ClassNotFoundException | IOException exception) {
+                            throw new RuntimeException(exception);
+                        }
+
+                        ItemStack downGradedItem = BoxPlugin.instance.getItemPopperManager().getDowngradedItem(item);
+                        e.getEntity().getInventory().setItem(i, downGradedItem);//downgrades the item
+                    } else {
+                        e.getDrops().add(item);//needs to become a list of popped drops if applicable and cause is not null
+                        e.getEntity().getInventory().setItem(i, null);//needs to become the predecessor item if applicable and cause is not null
+                    }
                 }
             }
         }
@@ -360,8 +375,23 @@ public class Util {
                 if(Math.random() < dropChancePerSlot) {
                     if(e.getEntity().getInventory().getArmorContents()[i] != null) {
                         Util.debug(target, "Lost " + e.getEntity().getInventory().getArmorContents()[i].getType());
-                        e.getDrops().add(e.getEntity().getInventory().getArmorContents()[i]);
-                        armor.set(i, null);
+                        ItemStack item = e.getEntity().getInventory().getArmorContents()[i];
+                        if(cause != null && BoxPlugin.instance.getItemPopperManager().isPopable(item)){
+                            try {
+                                List<ItemStack> itemsToDrop = BoxPlugin.instance.getItemPopperManager().getItemsToDrop(item);
+                                for(ItemStack stack : itemsToDrop) {
+                                    e.getDrops().add(stack);//adds the drops for the popped item
+                                }
+                            } catch (SQLException | ClassNotFoundException | IOException exception) {
+                                throw new RuntimeException(exception);
+                            }
+
+                            ItemStack downGradedItem = BoxPlugin.instance.getItemPopperManager().getDowngradedItem(item);
+                            armor.set(i, downGradedItem);//downgrades the item
+                        } else {
+                            e.getDrops().add(e.getEntity().getInventory().getArmorContents()[i]);//needs to become a list of popped drops if applicable and cause is not null
+                            armor.set(i, null);//needs to become the predecessor item if applicable and cause is not null
+                        }
                     }
                 }
             }
