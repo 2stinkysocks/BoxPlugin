@@ -162,4 +162,12 @@ public class XPManager {
         BoxPlugin.instance.getLuckPerms().getUserManager().saveUser(user);
     }
 
+    public void updateXPBar(Player p) {
+        int level = this.getLevel(p);
+        float xpInLevel = this.convertLevelToXP(level + 1) - this.convertLevelToXP(level);
+        float xpSoFar = xpInLevel - this.getNeededXp(p);
+        p.setLevel(level);
+        p.setExp(xpSoFar/xpInLevel);
+    }
+
 }
