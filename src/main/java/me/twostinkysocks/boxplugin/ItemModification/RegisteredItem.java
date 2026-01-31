@@ -5,15 +5,15 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.sql.*;
 import java.util.*;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.atomic.AtomicInteger;
 
-import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.LinkedHashMultimap;
-import com.google.common.collect.Multimap;
 import com.google.gson.Gson;
 import me.twostinkysocks.boxplugin.BoxPlugin;
 import me.twostinkysocks.boxplugin.customEnchants.CustomEnchantsMain;
 import me.twostinkysocks.boxplugin.manager.GearScoreManager;
-import me.twostinkysocks.boxplugin.manager.ItemLivesManager;
 import me.twostinkysocks.boxplugin.util.Util;
 import org.bukkit.*;
 import org.bukkit.attribute.Attribute;
@@ -38,6 +38,7 @@ import su.nightexpress.nightcore.util.bridge.RegistryType;
 
 public class RegisteredItem {
     private Connection connection;
+    private final ExecutorService dbExecutor = Executors.newSingleThreadExecutor();
     private static final Gson gson = new Gson();
     public List<AttributeData> attributeList = new ArrayList<>();
     public Map<Enchantment, Integer> enchantHashMap = new HashMap<Enchantment, Integer>();
@@ -92,10 +93,10 @@ public class RegisteredItem {
 
     public boolean isArmor(ItemStack item){
         ItemMeta meta = item.getItemMeta();
-        return meta instanceof org.bukkit.inventory.meta.ArmorMeta;
+        return meta instanceof ArmorMeta;
     }
     public boolean isColorable(ArmorMeta armorMeta){
-        return armorMeta instanceof org.bukkit.inventory.meta.ColorableArmorMeta;
+        return armorMeta instanceof ColorableArmorMeta;
     }
 
     public void setConnection() throws SQLException{
@@ -199,14 +200,25 @@ public class RegisteredItem {
     }
 
     public boolean RemoveFromDatabase(String registeredName) throws SQLException {//clanker made this one, removes item from database based on name
-        setConnection(); // ensure connection is set
-        int affected = 0;
-        try (PreparedStatement ps = connection.prepareStatement("DELETE FROM registered_items WHERE registered_name = ?")) {
-            ps.setString(1, registeredName);
-            affected = ps.executeUpdate();
-        }
-        CloseConnection();
-        return affected > 0; // true if something was deleted
+//        setConnection(); // ensure connection is set
+      AtomicInteger affected = new AtomicInteger();
+//        try (PreparedStatement ps = connection.prepareStatement("DELETE FROM registered_items WHERE registered_name = ?")) {
+//            ps.setString(1, registeredName);
+//            affected.set(ps.executeUpdate());
+//        }
+//        CloseConnection();
+        dbExecutor.execute(() -> {
+            try (Connection c = DriverManager.getConnection("jdbc:sqlite:" + BoxPlugin.instance.getDataFolder() + "/registeredItems.db");
+                 PreparedStatement ps = c.prepareStatement("DELETE FROM registered_items WHERE registered_name = ?")) {
+
+                ps.setString(1, registeredName);
+                affected.set(ps.executeUpdate());
+
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+        });
+        return affected.get() > 0; // true if something was deleted
     }
 
     public ArrayList<String> GetAllRegisteredNames() throws SQLException {
@@ -467,7 +479,7 @@ public class RegisteredItem {
     }
     //new method for deep copies
     public void RegisterItem(@NotNull ItemStack item, String nameToSavAs) throws SQLException, IOException {//item cannot be null, check if a item is held in hand before calling
-        setConnection();
+        //setConnection();
         String base64ItemData;
         try (ByteArrayOutputStream baos = new ByteArrayOutputStream();//clanker logic to deep copy item data
              BukkitObjectOutputStream oos = new BukkitObjectOutputStream(baos)) {
@@ -477,14 +489,26 @@ public class RegisteredItem {
             base64ItemData = Base64.getEncoder().encodeToString(baos.toByteArray());
         }
 
-        try (PreparedStatement ps = connection.prepareStatement(
-                "INSERT OR REPLACE INTO registered_items (registered_name, data_json) VALUES (?, ?)"
-        )) {
-            ps.setString(1, nameToSavAs);
-            ps.setString(2, base64ItemData);
-            ps.executeUpdate();
-        }
-        CloseConnection();
+        dbExecutor.execute(() -> {
+            try (Connection c = DriverManager.getConnection("jdbc:sqlite:" + BoxPlugin.instance.getDataFolder() + "/registeredItems.db");
+                 PreparedStatement ps = c.prepareStatement("INSERT INTO registered_items (registered_name, data_json) VALUES (?, ?)")) {
+
+                ps.setString(1, nameToSavAs);
+                ps.setString(2, base64ItemData);
+                ps.executeUpdate();
+
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+        });
+//        try (PreparedStatement ps = connection.prepareStatement(
+//                "INSERT OR REPLACE INTO registered_items (registered_name, data_json) VALUES (?, ?)"
+//        )) {
+//            ps.setString(1, nameToSavAs);
+//            ps.setString(2, base64ItemData);
+//            ps.executeUpdate();
+//        }
+        //CloseConnection();
     }
 
     public boolean ExistsInDatabase(String registeredName) throws SQLException {
@@ -615,7 +639,7 @@ public class RegisteredItem {
         return item;
     }
 
-    public boolean UpdateLegacyItems(@NotNull Player p) throws SQLException {
+    public boolean UpdateLegacyItems(@NotNull Player p) throws SQLException, IOException, ClassNotFoundException {//fix legacy after database fix
         boolean fixedItems = false;
         int index = 0;
         ItemStack[] contents = p.getInventory().getContents();
@@ -637,7 +661,7 @@ public class RegisteredItem {
         return fixedItems;
     }
 
-    public void UpdateCurrentItems(@NotNull Player p) throws SQLException {
+    public void UpdateCurrentItems(@NotNull Player p) throws SQLException, IOException, ClassNotFoundException {//fix legacy after database fix
         int index = 0;
         ItemStack[] contents = p.getInventory().getContents();
         for(ItemStack inventoryItem : p.getInventory().getContents()) {//everything else
@@ -654,7 +678,7 @@ public class RegisteredItem {
         p.getInventory().setContents(contents);
     }
 
-    public ItemStack getItemFromName(String registeredName) throws SQLException, IOException, ClassNotFoundException {
+    public ItemStack getItemFromName(String registeredName) throws SQLException, IOException, ClassNotFoundException {//fix legacy after database fix
         ItemStack item = new ItemStack(Material.DIRT);
         ItemMeta itemMeta = item.getItemMeta();
         itemMeta.setDisplayName("Temp dirt lol (you should never see this)");
@@ -664,10 +688,29 @@ public class RegisteredItem {
             item.setItemMeta(itemMeta);
             item = SetItemToBelongToRegisteredItem(item, registeredName);
             item = SetToRegisteredItem(item);
-            item = SetToRegisteredItem(item); //needs to be called again for good mesuare
+            item = SetToRegisteredItem(item); //needs to be called again for good measure
         } else {
             item.setItemMeta(itemMeta);
         }
         return item;
+    }
+
+    public void fuckItWeBall() throws SQLException, IOException {
+        //the nuclear option, make a database back up first just in case
+        ItemStack item = new ItemStack(Material.DIRT);
+        List<String> dataBaseItemNames = GetAllRegisteredNames();
+
+        for (String itemName : dataBaseItemNames){
+            if(ExistsInDatabase(itemName)){
+                ItemMeta itemMeta = item.getItemMeta();
+                itemMeta.setDisplayName(itemName);
+                item.setItemMeta(itemMeta);
+                item = SetItemToBelongToRegisteredItem(item, itemName);
+                item = SetToRegisteredItemLegcay(item);
+                item = SetToRegisteredItemLegcay(item); //needs to be called again for good measure
+                RemoveFromDatabase(itemName);
+                RegisterItem(item, itemName);
+            }
+        }
     }
 }

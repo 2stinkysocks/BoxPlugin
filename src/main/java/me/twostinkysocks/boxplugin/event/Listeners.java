@@ -441,12 +441,12 @@ public class Listeners implements Listener {
                 if(getRegisteredItem().UpdateLegacyItems(p)){
                     p.sendMessage(ChatColor.GOLD + "Old items were found in your inventory and updated automatically!");
                 }
-            } catch (SQLException ex) {
+            } catch (SQLException | IOException | ClassNotFoundException ex) {
                 throw new RuntimeException(ex);
             }
             try {
                 getRegisteredItem().UpdateCurrentItems(p);
-            } catch (SQLException ex) {
+            } catch (SQLException | IOException | ClassNotFoundException ex) {
                 throw new RuntimeException(ex);
             }
             GearScoreManager.UpdatePlayerGearscore(p);
@@ -640,7 +640,7 @@ public class Listeners implements Listener {
     }
 
     @EventHandler(priority = EventPriority.HIGHEST)
-    public void onPlayerDeath(PlayerDeathEvent e) throws SQLException {
+    public void onPlayerDeath(PlayerDeathEvent e) throws SQLException, IOException, ClassNotFoundException {
         // more than 10 below - 0xp
         // up to 10 below - 10xp
         // your level or higher - 100xp

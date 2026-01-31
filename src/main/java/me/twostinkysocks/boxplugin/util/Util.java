@@ -331,7 +331,7 @@ public class Util {
      * @param e The event
      * @param dropChancePerSlot drop chance per slot (0.5 is 50% chance to drop that item)
      */
-    public static void dropPercent(PlayerDeathEvent e, double dropChancePerSlot) throws SQLException {
+    public static void dropPercent(PlayerDeathEvent e, double dropChancePerSlot) throws SQLException, IOException, ClassNotFoundException {
         Player target = e.getEntity();
         Player cause = e.getEntity().getKiller();
         //int outof = (int)(Math.round(1/dropChancePerSlot));

@@ -144,6 +144,9 @@ commands:
   removepopfromdatabase:
     usage: /<command>
     description: removes pointer and items from parent item in database
+  fuckitweball(neverrunthisunlessitsneeded):
+    usage: /<command>
+    description: rebuilds database with new format
 permissions:
   boxplugin.manageperks:
     default: false

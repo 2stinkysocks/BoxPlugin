@@ -23,6 +23,7 @@ import org.bukkit.persistence.PersistentDataType;
 import org.checkerframework.checker.units.qual.N;
 import org.jetbrains.annotations.NotNull;
 
+import java.io.IOException;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -297,7 +298,7 @@ public class ReforgeManager {
             }
             try {
                 stripReforges(item, p);
-            } catch (SQLException ex) {
+            } catch (SQLException | IOException | ClassNotFoundException ex) {
                 throw new RuntimeException(ex);
             }
             BoxPlugin.instance.getScoreboardManager().queueUpdate(p);
@@ -361,7 +362,7 @@ public class ReforgeManager {
         gui.show(p);
     }
 
-    public ItemStack stripReforges(ItemStack item, Player p) throws SQLException {
+    public ItemStack stripReforges(ItemStack item, Player p) throws SQLException, IOException, ClassNotFoundException {
         ItemMeta itemMeta = item.getItemMeta();
         if (itemMeta == null || BoxPlugin.instance.getGhostTokenManager().isGhostItem(item)) {
             p.sendMessage(ChatColor.RED + "This item is not valid!");

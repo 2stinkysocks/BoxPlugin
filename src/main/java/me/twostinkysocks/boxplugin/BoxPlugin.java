@@ -260,6 +260,7 @@ public final class BoxPlugin extends JavaPlugin implements CommandExecutor, TabC
         getCommand("popperpointerset").setExecutor(this);
         getCommand("popitemtest").setExecutor(this);
         getCommand("removepopfromdatabase").setExecutor(this);
+        getCommand("fuckitweball(neverrunthisunlessitsneeded)").setExecutor(this);
         getServer().getPluginManager().registerEvents(new Listeners(), this);
         getServer().getPluginManager().registerEvents(new ArmorEquipEventListener(), this);
         load();
@@ -889,7 +890,7 @@ public final class BoxPlugin extends JavaPlugin implements CommandExecutor, TabC
                             getRegisteredItem().RemoveFromDatabase(args[0]);
                             getRegisteredItem().RegisterItem(item, args[0]);
                             p.sendMessage(ChatColor.GREEN + "Successfully updated item " + args[0] + " into the data base");
-                        } catch (SQLException e) {
+                        } catch (SQLException | IOException e) {
                             throw new RuntimeException(e);
                         }
                     }
@@ -1016,7 +1017,7 @@ public final class BoxPlugin extends JavaPlugin implements CommandExecutor, TabC
                     try {
                         getRegisteredItem().UpdateLegacyItems(players);
                         getRegisteredItem().UpdateCurrentItems(players);
-                    } catch (SQLException e) {
+                    } catch (SQLException | IOException | ClassNotFoundException e) {
                         throw new RuntimeException(e);
                     }
                 }
@@ -1186,6 +1187,19 @@ public final class BoxPlugin extends JavaPlugin implements CommandExecutor, TabC
                 }
                 return true;
 
+            } else if (label.equals("fuckitweball(neverrunthisunlessitsneeded)")) {
+                if(!p.hasPermission("boxplugin.manageitems")) {
+                    p.sendMessage(ChatColor.RED + "You don't have permission!");
+                    return true;
+                }
+
+                try {
+                    getRegisteredItem().fuckItWeBall();
+                    p.sendMessage(ChatColor.GREEN + "rebuilding database i hope");
+                } catch (SQLException | IOException e) {
+                    throw new RuntimeException(e);
+                }
+                return true;
             }
         }
 
