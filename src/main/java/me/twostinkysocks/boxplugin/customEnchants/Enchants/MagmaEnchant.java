@@ -10,7 +10,7 @@ public class MagmaEnchant extends AbstractEnchant {
 
     private String enchantName;
     private NamespacedKey enchantKey;
-    private final int DAMAGE_PER_LEVEL = 5;
+    private final double DAMAGE_PER_LEVEL = 3.75;
 
     public MagmaEnchant() {
         setEnchantName("Magma");

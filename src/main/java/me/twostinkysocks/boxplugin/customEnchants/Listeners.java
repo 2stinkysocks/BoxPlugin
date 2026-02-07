@@ -43,6 +43,49 @@ public class Listeners implements Listener {
     private final Set<UUID> voidProcessing = new HashSet<>();
 
     public void calcDamage(Player target, DamageType damageType, double ammount, Player attacker){
+        float attackStrength = attacker.getAttackCooldown();
+        int elementMult = 0;
+        int resistMult = 0;
+        double finalDamage;
+        if(damageType == DamageType.CACTUS){//calculate weaknesses to damage type
+            elementMult += BoxPlugin.instance.getCustomEnchantsMain().getNumElement(CustomEnchantsMain.Enchant.WaterBorn, target);
+        }
+        if (damageType == DamageType.LAVA) {
+            elementMult += BoxPlugin.instance.getCustomEnchantsMain().getNumElement(CustomEnchantsMain.Enchant.IceBorn, target);
+            elementMult += BoxPlugin.instance.getCustomEnchantsMain().getNumElement(CustomEnchantsMain.Enchant.Overgrowth, target);
+            resistMult += BoxPlugin.instance.getCustomEnchantsMain().getNumElement(CustomEnchantsMain.Enchant.WaterBorn, target);
+        }
+        if (damageType == DamageType.FREEZE) {
+            elementMult += BoxPlugin.instance.getCustomEnchantsMain().getNumElement(CustomEnchantsMain.Enchant.WaterBorn, target);
+            elementMult += BoxPlugin.instance.getCustomEnchantsMain().getNumElement(CustomEnchantsMain.Enchant.VoidBorn, target);
+        }
+        if (damageType == DamageType.DROWN) {
+            elementMult += BoxPlugin.instance.getCustomEnchantsMain().getNumElement(CustomEnchantsMain.Enchant.FireBorn, target);
+        }
+        if (damageType == DamageType.MAGIC) {
+            elementMult += BoxPlugin.instance.getCustomEnchantsMain().getNumElement(CustomEnchantsMain.Enchant.WaterBorn, target);
+        }
+        if (damageType == DamageType.OUT_OF_WORLD) {
+            elementMult += BoxPlugin.instance.getCustomEnchantsMain().getNumElement(CustomEnchantsMain.Enchant.GodBorn, target);
+            resistMult += BoxPlugin.instance.getCustomEnchantsMain().getNumElement(CustomEnchantsMain.Enchant.WaterBorn, target);
+        }
+        if(elementMult > 0){
+            finalDamage = (ammount * ((double) elementMult /6) + 1);
+        } else {
+            finalDamage = ammount;
+        }
+        if(resistMult > 0){
+            finalDamage = finalDamage * Math.max(0.4, (1.0) - 0.1 * (double) resistMult);//max 60% damage reduction
+        }
+        if(target.isBlocking()){
+            return;
+        }
+        finalDamage = finalDamage * attackStrength;
+        target.damage(finalDamage, DamageSource.builder(damageType).withCausingEntity(attacker).withDirectEntity(attacker).build());
+        Util.debug(attacker, "dealt " + (finalDamage) + " bonus damage to " + target.getName());
+    }
+
+    public void calcAttacklessDamage(Player target, DamageType damageType, double ammount, Player attacker){//same as above but no attack strength
         int elementMult = 0;
         int resistMult = 0;
         double finalDamage;
@@ -118,6 +161,8 @@ public class Listeners implements Listener {
                 if(target instanceof Player pTarget){
                     calcDamage(pTarget, DamageType.CACTUS, cacterDmg, p);
                 } else {
+                    float attackStrength = p.getAttackCooldown();
+                    cacterDmg *= attackStrength;
                     target.damage(cacterDmg, DamageSource.builder(DamageType.CACTUS).withCausingEntity(p).withDirectEntity(p).build());
                     Util.debug(p, "dealt " + (cacterDmg) + " bonus damage to " + target.getName());
                 }
@@ -172,7 +217,7 @@ public class Listeners implements Listener {
                     double cacterDmg = BoxPlugin.instance.getEnchantBramble().getDamageFromTotalLevel(totalBrambleLvl);
                     attacker.setNoDamageTicks(0);
                     if(attacker instanceof Player pTarget){
-                        calcDamage(pTarget, DamageType.CACTUS, cacterDmg, p);
+                        calcAttacklessDamage(pTarget, DamageType.CACTUS, cacterDmg, p);
                     } else {
                         attacker.damage(cacterDmg, DamageSource.builder(DamageType.CACTUS).withCausingEntity(p).withDirectEntity(p).build());
                         Util.debug(p, "dealt " + (cacterDmg) + " bonus damage to " + attacker.getName());
@@ -205,6 +250,8 @@ public class Listeners implements Listener {
                 if(target instanceof Player pTarget){
                     calcDamage(pTarget, DamageType.LAVA, magmaDmg, p);
                 } else {
+                    float attackStrength = p.getAttackCooldown();
+                    magmaDmg *= attackStrength;
                     target.damage(magmaDmg, DamageSource.builder(DamageType.LAVA).withCausingEntity(p).withDirectEntity(p).build());
                     Util.debug(p, "dealt " + (magmaDmg) + " bonus damage to " + target.getName());
                 }
@@ -257,6 +304,8 @@ public class Listeners implements Listener {
                 if(target instanceof Player pTarget){
                     calcDamage(pTarget, DamageType.FREEZE, freezeDmg, p);
                 } else {
+                    float attackStrength = p.getAttackCooldown();
+                    freezeDmg *= attackStrength;
                     target.damage(freezeDmg, DamageSource.builder(DamageType.FREEZE).withCausingEntity(p).withDirectEntity(p).build());
                     Util.debug(p, "dealt " + (freezeDmg) + " bonus damage to " + target.getName());
                 }
@@ -306,6 +355,8 @@ public class Listeners implements Listener {
                 if(target instanceof Player pTarget){
                     calcDamage(pTarget, DamageType.DROWN, drownDmg, p);
                 } else {
+                    float attackStrength = p.getAttackCooldown();
+                    drownDmg *= attackStrength;
                     target.damage(drownDmg, DamageSource.builder(DamageType.DROWN).withCausingEntity(p).withDirectEntity(p).build());
                     Util.debug(p, "dealt " + (drownDmg) + " bonus damage to " + target.getName());
                 }
@@ -341,7 +392,7 @@ public class Listeners implements Listener {
                     drownDmg *= 2;
                 }
                 if(target instanceof Player pTarget){
-                    calcDamage(pTarget, DamageType.DROWN, drownDmg, p);
+                    calcAttacklessDamage(pTarget, DamageType.DROWN, drownDmg, p);
                 } else {
                     target.damage(drownDmg, DamageSource.builder(DamageType.DROWN).withCausingEntity(p).withDirectEntity(trident).build());
                     Util.debug(p, "dealt " + (drownDmg) + " bonus damage to " + target.getName());
@@ -379,6 +430,8 @@ public class Listeners implements Listener {
                     if(target instanceof Player pTarget){
                         calcDamage(pTarget, DamageType.MAGIC, lightningDmg, p);
                     } else {
+                        float attackStrength = p.getAttackCooldown();
+                        lightningDmg *= attackStrength;
                         target.damage(lightningDmg, DamageSource.builder(DamageType.MAGIC).withCausingEntity(p).withDirectEntity(p).build());
                         Util.debug(p, "dealt " + (lightningDmg) + " bonus damage to " + target.getName());
                     }
@@ -413,6 +466,8 @@ public class Listeners implements Listener {
                 if(target instanceof Player pTarget){
                     calcDamage(pTarget, DamageType.OUT_OF_WORLD, voidDmg, p);
                 } else {
+                    float attackStrength = p.getAttackCooldown();
+                    voidDmg *= attackStrength;
                     target.damage(voidDmg, DamageSource.builder(DamageType.OUT_OF_WORLD).withCausingEntity(p).withDirectEntity(p).build());
                     Util.debug(p, "dealt " + (voidDmg) + " bonus damage to " + target.getName());
                 }

@@ -14,6 +14,7 @@ import com.google.gson.Gson;
 import me.twostinkysocks.boxplugin.BoxPlugin;
 import me.twostinkysocks.boxplugin.customEnchants.CustomEnchantsMain;
 import me.twostinkysocks.boxplugin.manager.GearScoreManager;
+import me.twostinkysocks.boxplugin.manager.MarketManager;
 import me.twostinkysocks.boxplugin.util.Util;
 import org.bukkit.*;
 import org.bukkit.attribute.Attribute;
@@ -52,6 +53,8 @@ public class RegisteredItem {
     public boolean hasHiddenAttributes = false;
     public boolean hasCustomEnchants = false;
     public boolean isCustomItem = false;
+    public boolean isTrimmed = false;
+    public boolean isColrable = false;
     public String customItemName = null;
     public ArrayList<CustomEnchantsMain.Enchant> customEnchList = new ArrayList<>();
     public Color itemColor = null;
@@ -597,6 +600,7 @@ public class RegisteredItem {
 
         NamespacedKey keyReforge = new NamespacedKey(BoxPlugin.instance, "isReforged");
         NamespacedKey keyReskin = new NamespacedKey(BoxPlugin.instance, "isReskinned");
+        boolean isReskinned = false;
 
         ItemMeta itemMeta = item.getItemMeta();
         PersistentDataContainer itemData = itemMeta.getPersistentDataContainer();
@@ -606,6 +610,36 @@ public class RegisteredItem {
         }
         if(item != null && item.hasItemMeta() && item.getItemMeta().getPersistentDataContainer().has(new NamespacedKey(BoxPlugin.instance, "ghost"), PersistentDataType.INTEGER)) {
             return item;//dont update ghost items
+        }
+
+        boolean reforgedStatus = itemData.getOrDefault(keyReforge, PersistentDataType.BOOLEAN, false);
+        boolean reskinnedStatus = itemData.getOrDefault(keyReskin, PersistentDataType.BOOLEAN, false);
+        boolean hadLives = false;
+        int numLives = 0;
+        if(BoxPlugin.instance.getItemLivesManager().hasLives(item)){
+            hadLives = true;
+            numLives = BoxPlugin.instance.getItemLivesManager().getLives(item);
+        }
+
+        if(itemMeta.getPersistentDataContainer().getOrDefault(keyReskin, PersistentDataType.BOOLEAN, true)){//if reskinned then save its reskin data to re apply after
+            this.name = itemMeta.getDisplayName();
+            this.itemModel = item.getType();
+            isReskinned = true;
+
+            if(itemMeta.hasLore()){
+                this.lore = itemMeta.getLore().toArray(new String[0]);
+            }
+            if(isArmor(item)){
+                ArmorMeta armorMeta = (ArmorMeta) itemMeta;
+                if(isColorable(armorMeta)){
+                    ColorableArmorMeta coloredArmorMeta = (ColorableArmorMeta) armorMeta;
+                    this.itemColor = coloredArmorMeta.getColor();
+                }
+                if(armorMeta.hasTrim()){
+                    this.isTrimmed = true;
+                    this.armorTrim = armorMeta.getTrim();
+                }
+            }
         }
         NamespacedKey key = new NamespacedKey(BoxPlugin.instance, "belongsToParentItem");
         String registeredType = itemData.get(key, PersistentDataType.STRING);
@@ -636,6 +670,53 @@ public class RegisteredItem {
         ois.close();
 
         CloseConnection();
+        if(isReskinned){
+            item.setType(this.itemModel);
+            itemMeta = item.getItemMeta();//update with new item meta
+            itemMeta.setDisplayName(this.name);
+
+            if(itemMeta.hasLore()){
+                itemMeta.setLore(List.of(this.lore));
+            }
+            if(isArmor(item)){
+                ArmorMeta armorMeta = (ArmorMeta) itemMeta;
+                if(this.isTrimmed){
+                    armorMeta.setTrim(this.armorTrim);
+
+                    itemMeta = armorMeta;
+                } else{ //remove old unused trims
+                    if(armorMeta.hasTrim()){
+                        armorMeta.setTrim(null);
+                    }
+                }
+
+                if(isColorable(armorMeta)){
+                    ColorableArmorMeta coloredArmorMeta = (ColorableArmorMeta) armorMeta;
+                    coloredArmorMeta.setColor(this.itemColor);
+
+                    itemMeta = armorMeta;
+                }
+            }
+            item.setItemMeta(itemMeta);
+        }
+        this.lore = null;
+        if(armorTrim != null){
+            armorTrim = null;
+        }
+        if(this.itemColor != null){
+            this.itemColor = null;
+        }
+
+        itemMeta = item.getItemMeta();
+        itemMeta.getPersistentDataContainer().set(keyReforge, PersistentDataType.BOOLEAN, reforgedStatus);
+        itemMeta.getPersistentDataContainer().set(keyReskin, PersistentDataType.BOOLEAN, reskinnedStatus);
+        itemMeta.getPersistentDataContainer().set(key, PersistentDataType.STRING, registeredType);
+        item.setItemMeta(itemMeta);
+
+        if(hadLives){
+            BoxPlugin.instance.getItemLivesManager().setLives(item, numLives);
+        }
+
         return item;
     }
 
@@ -708,6 +789,7 @@ public class RegisteredItem {
                 item = SetItemToBelongToRegisteredItem(item, itemName);
                 item = SetToRegisteredItemLegcay(item);
                 item = SetToRegisteredItemLegcay(item); //needs to be called again for good measure
+                item = RemoveItemFromBelongingToParent(item);
                 RemoveFromDatabase(itemName);
                 RegisterItem(item, itemName);
             }

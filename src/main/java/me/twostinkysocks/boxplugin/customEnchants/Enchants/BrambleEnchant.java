@@ -11,7 +11,7 @@ import org.bukkit.persistence.PersistentDataType;
 public class BrambleEnchant extends AbstractEnchant {
     private String enchantName;
     private NamespacedKey enchantKey;
-    private final int DAMAGE_PER_LEVEL = 1;
+    private final double DAMAGE_PER_LEVEL = 0.75;
     private final int CHANCE_PER_LVL = 6;
     public BrambleEnchant() {
         setEnchantName("Bramble");

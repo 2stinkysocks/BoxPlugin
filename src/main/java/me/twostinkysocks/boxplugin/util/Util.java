@@ -332,6 +332,7 @@ public class Util {
      * @param dropChancePerSlot drop chance per slot (0.5 is 50% chance to drop that item)
      */
     public static void dropPercent(PlayerDeathEvent e, double dropChancePerSlot) throws SQLException, IOException, ClassNotFoundException {
+        System.out.println("Calling death drops");
         Player target = e.getEntity();
         Player cause = e.getEntity().getKiller();
         //int outof = (int)(Math.round(1/dropChancePerSlot));
@@ -348,8 +349,8 @@ public class Util {
                         Util.debug(target, "Lost a life on " + item.getType());
                         continue;
                     }
-                    Util.debug(target, "Lost " + e.getEntity().getInventory().getItem(i).getType());
                     if(cause != null && BoxPlugin.instance.getItemPopperManager().isPopable(item)){
+                        Util.debug(target, "Downgraded " + e.getEntity().getInventory().getItem(i).getType());
                         try {
                             List<ItemStack> itemsToDrop = BoxPlugin.instance.getItemPopperManager().getItemsToDrop(item);
                             for(ItemStack stack : itemsToDrop) {
@@ -362,43 +363,45 @@ public class Util {
                         ItemStack downGradedItem = BoxPlugin.instance.getItemPopperManager().getDowngradedItem(item);
                         e.getEntity().getInventory().setItem(i, downGradedItem);//downgrades the item
                     } else {
+                        Util.debug(target, "Lost " + e.getEntity().getInventory().getItem(i).getType());
                         e.getDrops().add(item);//needs to become a list of popped drops if applicable and cause is not null
                         e.getEntity().getInventory().setItem(i, null);//needs to become the predecessor item if applicable and cause is not null
                     }
                 }
             }
         }
-        try {
-            ArrayList<ItemStack> armor = new ArrayList<>(List.of(e.getEntity().getInventory().getArmorContents()));
-            for(int i = 0; i < e.getEntity().getInventory().getArmorContents().length; i++) {
-                //int rand = (int)(Math.random() * (outof) + 1);
-                if(Math.random() < dropChancePerSlot) {
-                    if(e.getEntity().getInventory().getArmorContents()[i] != null) {
-                        Util.debug(target, "Lost " + e.getEntity().getInventory().getArmorContents()[i].getType());
-                        ItemStack item = e.getEntity().getInventory().getArmorContents()[i];
-                        if(cause != null && BoxPlugin.instance.getItemPopperManager().isPopable(item)){
-                            try {
-                                List<ItemStack> itemsToDrop = BoxPlugin.instance.getItemPopperManager().getItemsToDrop(item);
-                                for(ItemStack stack : itemsToDrop) {
-                                    e.getDrops().add(stack);//adds the drops for the popped item
-                                }
-                            } catch (SQLException | ClassNotFoundException | IOException exception) {
-                                throw new RuntimeException(exception);
-                            }
-
-                            ItemStack downGradedItem = BoxPlugin.instance.getItemPopperManager().getDowngradedItem(item);
-                            armor.set(i, downGradedItem);//downgrades the item
-                        } else {
-                            e.getDrops().add(e.getEntity().getInventory().getArmorContents()[i]);//needs to become a list of popped drops if applicable and cause is not null
-                            armor.set(i, null);//needs to become the predecessor item if applicable and cause is not null
-                        }
-                    }
-                }
-            }
-            e.getEntity().getInventory().setArmorContents(armor.toArray(new ItemStack[4]));
-        } catch (NullPointerException ex) {
-            // don't care if armor is null
-        }
+//        try {
+//            ArrayList<ItemStack> armor = new ArrayList<>(List.of(e.getEntity().getInventory().getArmorContents()));
+//            for(int i = 0; i < e.getEntity().getInventory().getArmorContents().length; i++) {
+//                //int rand = (int)(Math.random() * (outof) + 1);
+//                if(Math.random() < dropChancePerSlot) {
+//                    if(e.getEntity().getInventory().getArmorContents()[i] != null) {
+//                        ItemStack item = e.getEntity().getInventory().getArmorContents()[i];
+//                        if(cause != null && BoxPlugin.instance.getItemPopperManager().isPopable(item)){
+//                            Util.debug(target, "Downgraded " + e.getEntity().getInventory().getItem(i).getType());
+//                            try {
+//                                List<ItemStack> itemsToDrop = BoxPlugin.instance.getItemPopperManager().getItemsToDrop(item);
+//                                for(ItemStack stack : itemsToDrop) {
+//                                    e.getDrops().add(stack);//adds the drops for the popped item
+//                                }
+//                            } catch (SQLException | ClassNotFoundException | IOException exception) {
+//                                throw new RuntimeException(exception);
+//                            }
+//
+//                            ItemStack downGradedItem = BoxPlugin.instance.getItemPopperManager().getDowngradedItem(item);
+//                            armor.set(i, downGradedItem);//downgrades the item
+//                        } else {
+//                            Util.debug(target, "Lost " + e.getEntity().getInventory().getArmorContents()[i].getType());
+//                            e.getDrops().add(e.getEntity().getInventory().getArmorContents()[i]);//needs to become a list of popped drops if applicable and cause is not null
+//                            armor.set(i, null);//needs to become the predecessor item if applicable and cause is not null
+//                        }
+//                    }
+//                }
+//            }
+//            e.getEntity().getInventory().setArmorContents(armor.toArray(new ItemStack[4]));
+//        } catch (NullPointerException ex) {
+//            // don't care if armor is null
+//        }
     }
     public static ItemStack getSkull(String url) {//new method for 1.21+
         ItemStack skull = new ItemStack(Material.PLAYER_HEAD, 1);

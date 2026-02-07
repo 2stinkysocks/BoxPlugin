@@ -215,6 +215,25 @@ public class ItemLivesManager {
         return true;
     }
 
+    public void setLives(ItemStack item, int amount){
+        if(item == null) return;
+        if(BoxPlugin.instance.getGhostTokenManager().isGhostItem(item)) return;
+        if(Util.isSoulbound(item)) return;
+        if(amount < 1) return;
+        if(amount > 10) return;
+
+        ItemMeta meta =  item.getItemMeta();
+        meta.getPersistentDataContainer().set(itemLivesKey, PersistentDataType.INTEGER, amount);
+        List<String> lore = meta.hasLore() ? meta.getLore() : new ArrayList<>();
+        if(hasLives(item)) {
+            lore.set(lore.size()-1, ChatColor.RED + "" + (amount) + " Lives");
+        } else {
+            lore.addAll(List.of("", ChatColor.RED + "" + (amount) + " Lives"));
+        }
+        meta.setLore(lore);
+        item.setItemMeta(meta);
+    }
+
     /**
      *
      * @param item The item to remove lives from

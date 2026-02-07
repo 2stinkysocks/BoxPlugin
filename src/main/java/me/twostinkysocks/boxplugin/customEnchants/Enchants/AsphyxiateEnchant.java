@@ -10,7 +10,7 @@ import org.bukkit.persistence.PersistentDataType;
 public class AsphyxiateEnchant extends AbstractEnchant{
     private String enchantName;
     private NamespacedKey enchantKey;
-    private final int DAMAGE_PER_LEVEL = 3;
+    private final double DAMAGE_PER_LEVEL = 2.5;
 
     public AsphyxiateEnchant() {
         setEnchantName("Asphyxiation");

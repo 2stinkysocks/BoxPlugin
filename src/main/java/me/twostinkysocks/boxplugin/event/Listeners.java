@@ -755,7 +755,7 @@ public class Listeners implements Listener {
 
         double dropChanceFromXp = 205.0 - (100.0*xpdiff);
         double dropChanceFromGearScore = 185.0 - (100.0*gearScoreDiff);
-        double dropChance = 0;
+        double dropChance;
 
         if(gearScoreDiff > 2){//if diff is over 2 make the first part negative because its quadratic
             dropChance = -(dropChanceConst1)*(Math.pow((dropChanceFromGearScore/100), dropChanceConst2)) + ((1 - dropChanceConst1)*(dropChanceFromXp/100)); //big fucky formula that works in favoring gearscore

@@ -35,6 +35,7 @@ public class GhostTokenManager {
         HELLFIRE(980, null, "HELLFIRE_BOX"),
         OBSIDIAN(1200, null, "OBSIDIAN_BOX"),
         SUPER_GOLDEN(1600, null, "SUPER_GOLDEN_BOX"),
+        WATER_TOWER(800, null),
         AXOLOTL(2200, "TASTY_SNACK", "AXOLOTL_BOX"),
         AXOLOTL_SAMURAI(2750, "PUFFERMACE", "AXOLOTL_SAMURAI_BOX"),
         MODERN(3450, "FUTURISTIC_DEVICE", "MODERN_BOX"),
@@ -255,6 +256,9 @@ public class GhostTokenManager {
                         if(BoxPlugin.instance.getReforgeManager().hasReforges(currentItem)){
                             int bonusCoins = BoxPlugin.instance.getReforgeManager().getNumReforges(currentItem) * 40000;
                             coins += bonusCoins;
+                        }
+                        if(currentItem.getAmount() > 1){
+                            coins *= currentItem.getAmount();
                         }
                         lore.addAll(List.of("", ChatColor.GOLD + "" + ChatColor.BOLD + "Reclaim cost: " + coins + " Xanatos coins"));
                         currentItemMeta.setLore(currentLore);
