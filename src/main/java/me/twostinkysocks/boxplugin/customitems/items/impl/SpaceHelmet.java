@@ -32,6 +32,7 @@ public class SpaceHelmet extends CustomItem {
                 "SPACE_HELMET",
                 Material.RED_STAINED_GLASS,
                 plugin,
+                true,
                 "§7§oA rare space helmet forged",
                 "§7§ofrom shards of moon glass",
                 "",

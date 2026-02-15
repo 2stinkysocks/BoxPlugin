@@ -46,7 +46,10 @@ public class PerksManager {
         ROCKETS(new PerkRockets()),
         OBSIDIAN(new PerkObsidian()),
         XPBOOST(new PerkXPBoost()),
-        MAGNET(new PerkMagnet());
+        MAGNET(new PerkMagnet()),
+        RESISTANCE(new PerkResistance()),
+        REGEN(new PerkRegen()),
+        SHULKERPEEK(new PerkShulkerPeek());
 
         public final AbstractPerk instance;
 
@@ -450,6 +453,11 @@ public class PerksManager {
                     p.playSound(p.getLocation(), Sound.BLOCK_FIRE_EXTINGUISH, 1f, 1f);
                     return;
                 }
+                if(BoxPlugin.instance.getCurseManager().hasCurse(p)) {
+                    p.sendMessage(ChatColor.RED + "You are CURSED, you cannot use Mega Perks!");
+                    p.playSound(p.getLocation(), Sound.BLOCK_FIRE_EXTINGUISH, 1f, 1f);
+                    return;
+                }
                 if(ownsMegaPerk(p, perk)) {
                     if(selectedPerks.size() < slot) {
                         selectedPerks.add(perk);
@@ -545,7 +553,11 @@ public class PerksManager {
                 newLore.add(ChatColor.GRAY + "Click to equip");
             } else { // show cost
                 newLore.add("");
-                newLore.add(ChatColor.GOLD + "Costs " + perk.instance.getCost() + ChatColor.BOLD + " Giga Coins");
+                if(perk == Perk.SHULKERPEEK || perk == Perk.RESISTANCE || perk == Perk.REGEN){
+                    newLore.add("§x§1§F§7§0§F§BCosts " + perk.instance.getCost() + ChatColor.translateAlternateColorCodes('&', " &x&1&F&7&0&F&B&lT&x&1&D&8&3&F&B&le&x&1&C&9&6&F&C&lr&x&1&A&A&9&F&C&la&x&1&8&B&D&F&C&lC&x&1&6&D&0&F&C&lu&x&1&5&E&3&F&D&lb&x&1&3&F&6&F&D&le") + ((perk.instance.getCost()) > 1 ? "s" : ""));
+                }else {
+                    newLore.add(ChatColor.GOLD + "Costs " + perk.instance.getCost() + ChatColor.BOLD + " Giga Coins");
+                }
                 newLore.add(ChatColor.GRAY + "Click to buy and equip");
             }
             if(perk.instance instanceof Upgradable && ((Upgradable) perk.instance).getLevel(p) < ((Upgradable) perk.instance).getMaxLevel()) {
@@ -626,8 +638,18 @@ public class PerksManager {
                         p.sendMessage(ChatColor.RED + "You already have this perk equipped!");
                         return;
                     }
-                    if(BoxPlugin.instance.getGhostTokenManager().hasGhostItems(p) && selectedPerks.size()>0) {
+                    if(BoxPlugin.instance.getGhostTokenManager().hasGhostItems(p) && !selectedPerks.isEmpty()) {
                         p.sendMessage(ChatColor.RED + "You have ghost items in your inventory! You can only equip one perk!");
+                        p.playSound(p.getLocation(), Sound.BLOCK_FIRE_EXTINGUISH, 1f, 1f);
+                        return;
+                    }
+                    if(BoxPlugin.instance.getCurseManager().hasCurse(p) && !selectedPerks.isEmpty()) {
+                        p.sendMessage(ChatColor.RED + "You are CURSED, You can only equip one perk!");
+                        p.playSound(p.getLocation(), Sound.BLOCK_FIRE_EXTINGUISH, 1f, 1f);
+                        return;
+                    }
+                    if(BoxPlugin.instance.getCurseManager().hasCurse(p) && (BoxPlugin.instance.getXpManager().getLevel(p) < 50)) {
+                        p.sendMessage(ChatColor.RED + "You are CURSED, You cannot use perks!");
                         p.playSound(p.getLocation(), Sound.BLOCK_FIRE_EXTINGUISH, 1f, 1f);
                         return;
                     }
@@ -643,7 +665,12 @@ public class PerksManager {
                         openMainGui(p);
                     } else {
                         // this deducts coins but does not add the perk
-                        boolean canBuy = buyPerk(perk, p);
+                        boolean canBuy;
+                        if(perk == Perk.SHULKERPEEK || perk == Perk.RESISTANCE || perk == Perk.REGEN){
+                            canBuy = buyPerkTera(perk, p);
+                        } else {
+                            canBuy = buyPerk(perk, p);
+                        }
                         if(canBuy) {
                             addPerk(p, perk);
                             if(selectedPerks.size() < slot) {
@@ -656,22 +683,61 @@ public class PerksManager {
                             p.playSound(p.getLocation(), Sound.BLOCK_NOTE_BLOCK_PLING, 0.5f, 2f);
                             openMainGui(p);
                         } else {
-                            p.playSound(p.getLocation(), Sound.ENTITY_ENDERMAN_TELEPORT, 0.25f, 0.5f);
-                            p.sendMessage(ChatColor.RED + "You don't have enough " + ChatColor.GOLD + "" + ChatColor.BOLD + "Giga Coins");
+                            if(perk == Perk.SHULKERPEEK || perk == Perk.RESISTANCE || perk == Perk.REGEN) {
+                                p.playSound(p.getLocation(), Sound.ENTITY_ENDERMAN_TELEPORT, 0.25f, 0.5f);
+                                p.sendMessage(ChatColor.RED + "You don't have enough " + ChatColor.AQUA + "" + ChatColor.BOLD + "Tera Cubes");
+                            } else {
+                                p.playSound(p.getLocation(), Sound.ENTITY_ENDERMAN_TELEPORT, 0.25f, 0.5f);
+                                p.sendMessage(ChatColor.RED + "You don't have enough " + ChatColor.GOLD + "" + ChatColor.BOLD + "Giga Coins");
+                            }
                         }
                     }
                 }
             });
-            int x = 0;
-            int y = 0;
-            if(j == 2 || j == 3 || j == 6 || j == 7) {
-                x+=1;
+            if (perk == Perk.SHULKERPEEK){
+                pane.addItem(item, 7, 1); // center of first row
+                continue;
+            } else if (perk == Perk.OBSIDIAN) {
+                pane.addItem(item, 6, 1); // center of first row
+                continue;
+            } else if (perk == Perk.ROCKETS) {
+                pane.addItem(item, 5, 1); // center of first row
+                continue;
+            } else if (perk == Perk.MAGNET) {
+                pane.addItem(item, 6, 2); // center of first row
+                continue;
+            } else if (perk == Perk.XPBOOST) {
+                pane.addItem(item, 5, 2); // center of first row
+                continue;
+            } else if (perk == Perk.SPEED) {
+                pane.addItem(item, 2, 1); // center of first row
+                continue;
+            } else if (perk == Perk.WATER_BREATHING) {
+                pane.addItem(item, 3, 1); // center of first row
+                continue;
+            } else if (perk == Perk.STRENGTH) {
+                pane.addItem(item, 2, 2); // center of first row
+                continue;
+            } else if (perk == Perk.HASTE) {
+                pane.addItem(item, 3, 2); // center of first row
+                continue;
+            } else if (perk == Perk.RESISTANCE) {
+                pane.addItem(item, 1, 1); // center of first row
+                continue;
+            } else if (perk == Perk.REGEN) {
+                pane.addItem(item, 1, 2); // center of first row
+                continue;
             }
-            if(j >= 4) {
-                y+=1;
-                x-=4;
-            }
-            pane.addItem(item, j+2+x, 1+y);
+//            int x = 0;
+//            int y = 0;
+//            if(j == 2 || j == 3 || j == 6 || j == 7) {
+//                x+=1;
+//            }
+//            if(j >= 4) {
+//                y+=1;
+//                x-=4;
+//            }
+//            pane.addItem(item, j+2+x, 1+y);
         }
         ItemStack cancel = new ItemStack(Material.BARRIER);
         ItemMeta meta = cancel.getItemMeta();
@@ -744,6 +810,32 @@ public class PerksManager {
             for(ItemStack item : p.getInventory().getContents()) {
                 if(cost == 0) return true;
                 if(Util.isGigaCoin(item)) {
+                    int amount = item.getAmount();
+                    for(int i = 0; i < amount; i++) {
+                        cost--;
+                        item.setAmount(item.getAmount() - 1);
+                        if(cost == 0) return true;
+                    }
+                }
+            }
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    public boolean buyPerkTera(Perk perk, Player p) {
+        int teraCubesHeld = 0;
+        int cost = perk.instance.getCost();
+        for(ItemStack item : p.getInventory().getContents()) {
+            if(Util.isTeraCube(item)) {
+                teraCubesHeld += item.getAmount();
+            }
+        }
+        if(teraCubesHeld >= cost) {
+            for(ItemStack item : p.getInventory().getContents()) {
+                if(cost == 0) return true;
+                if(Util.isTeraCube(item)) {
                     int amount = item.getAmount();
                     for(int i = 0; i < amount; i++) {
                         cost--;

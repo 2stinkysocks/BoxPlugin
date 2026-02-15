@@ -16,6 +16,7 @@ import java.io.File;
 import java.util.Random;
 
 public class XPManager {
+    private static final double XP_FACTOR = 0.85; // 1 - 0.15, 15% less xp than you really have (trust this is better)
     public int getRandNumFromLimit(int limit){
         Random random = new Random();
         int randNum = random.nextInt(limit) + 1;
@@ -72,11 +73,11 @@ public class XPManager {
     }
 
     public int convertXPToLevel(int xp) {
-        return (int) (Math.sqrt(Math.abs(((double)xp)/BoxPlugin.instance.getConfig().getInt("xp-equation-constant")))+1);
+        return (int) (Math.sqrt(Math.abs(((double)xp * XP_FACTOR)/BoxPlugin.instance.getConfig().getInt("xp-equation-constant")))+1);
     }
 
     public int convertLevelToXP(int level) {
-        return (int) (BoxPlugin.instance.getConfig().getInt("xp-equation-constant") * Math.pow(level - 1, 2));
+        return (int) ((BoxPlugin.instance.getConfig().getInt("xp-equation-constant") * Math.pow(level - 1, 2)) / XP_FACTOR) + 1;
     }
 
     public int getNeededXp(Player p) {

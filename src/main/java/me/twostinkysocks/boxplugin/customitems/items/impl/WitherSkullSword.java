@@ -27,6 +27,7 @@ public class WitherSkullSword extends CustomItem {
                 "WITHER_SKULL_SWORD",
                 Material.BONE,
                 plugin,
+                false,
                 ""
         );
         cooldown = new HashMap<>();

@@ -13,10 +13,7 @@ import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
 import org.bukkit.event.entity.*;
-import org.bukkit.event.player.PlayerArmorStandManipulateEvent;
-import org.bukkit.event.player.PlayerInteractEvent;
-import org.bukkit.event.player.PlayerJoinEvent;
-import org.bukkit.event.player.PlayerQuitEvent;
+import org.bukkit.event.player.*;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.persistence.PersistentDataType;
 import org.bukkit.potion.PotionEffect;
@@ -46,6 +43,10 @@ public class Listeners implements Listener {
                 if(e.getAction() == Action.RIGHT_CLICK_BLOCK || e.getAction() == Action.RIGHT_CLICK_AIR) {
                     for(CustomItem i : items) {
                         if(itemId.equals(i.getItemId())) {
+                            if(BoxPlugin.instance.getCurseManager().hasCurse(e.getPlayer()) && !i.getCurseOveride()){//ignore for curses and non overide items
+                                e.getPlayer().sendMessage(ChatColor.RED + "You cannot use magic items without a soul!");
+                                continue;
+                            }
                             i.getClick().accept(e, e.getAction());
                         }
                     }
@@ -53,6 +54,10 @@ public class Listeners implements Listener {
                     if(e.getPlayer().getInventory().getItemInMainHand().getType() != Material.AIR) {
                         for(CustomItem i : items) {
                             if(itemId.equals(i.getItemId())) {
+                                if(BoxPlugin.instance.getCurseManager().hasCurse(e.getPlayer()) && !i.getCurseOveride()){//ignore for curses and non overide items
+                                    e.getPlayer().sendMessage(ChatColor.RED + "You cannot use magic items without a soul!");
+                                    continue;
+                                }
                                 i.getClick().accept(e, e.getAction());
                             }
                         }
@@ -70,9 +75,23 @@ public class Listeners implements Listener {
     }
 
     @EventHandler
+    public void playerCrouch(PlayerToggleSneakEvent e){
+        if(BoxPlugin.instance.getCurseManager().hasCurse(e.getPlayer())){
+            e.getPlayer().sendMessage(ChatColor.RED + "You cannot use magic items without a soul!");
+            return;
+        }
+        for(CustomItem i : items){
+            i.getSneak().accept(e);
+        }
+    }
+
+    @EventHandler
     public void entityDamage(EntityDamageByEntityEvent e) {
+        Player p = (Player) e.getDamager();
+        if(BoxPlugin.instance.getCurseManager().hasCurse(p)){
+            return;
+        }
         if(e.getDamager() instanceof Player) {
-            Player p = (Player) e.getDamager();
             for(ItemStack item : p.getInventory().getContents()) {
                 // TODO: implement for all items
                 if(item != null && item.hasItemMeta() && item.getItemMeta().getPersistentDataContainer().has(new NamespacedKey(BoxPlugin.instance, "ITEM_ID"), PersistentDataType.STRING) && item.getItemMeta().getPersistentDataContainer().get(new NamespacedKey(BoxPlugin.instance, "ITEM_ID"), PersistentDataType.STRING).equals("TALISMAN_OF_ENERGY")) {
@@ -87,8 +106,8 @@ public class Listeners implements Listener {
             }
         }
         if(e.getEntity() instanceof Player) {
-            Player damaged = (Player) e.getEntity();
-            for(ItemStack item : damaged.getInventory().getContents()) {
+            p = (Player) e.getEntity();
+            for(ItemStack item : p.getInventory().getContents()) {
                 if(item != null && item.hasItemMeta() && item.getItemMeta().getPersistentDataContainer().has(new NamespacedKey(BoxPlugin.instance, "ITEM_ID"), PersistentDataType.STRING)&& item.getItemMeta().getPersistentDataContainer().get(new NamespacedKey(BoxPlugin.instance, "ITEM_ID"), PersistentDataType.STRING).equals("WOLF_PACK")) {
                     for(CustomItem ci : items) {
                         if(ci.getItemId().equals("WOLF_PACK")) {
@@ -313,6 +332,9 @@ public class Listeners implements Listener {
     public void onBow(EntityShootBowEvent e) {
         if(e.getEntity() instanceof Player) {
             Player p = (Player) e.getEntity();
+            if(BoxPlugin.instance.getCurseManager().hasCurse(p)){
+                return;
+            }
             if((p.getInventory().getItemInMainHand().getType() == Material.BOW && p.getInventory().getItemInMainHand().hasItemMeta() && p.getInventory().getItemInMainHand().getItemMeta().getPersistentDataContainer().has(new NamespacedKey(BoxPlugin.instance, "ITEM_ID"), PersistentDataType.STRING) && p.getInventory().getItemInMainHand().getItemMeta().getPersistentDataContainer().get(new NamespacedKey(BoxPlugin.instance, "ITEM_ID"), PersistentDataType.STRING).equals("PULSE_BOW")) || (p.getInventory().getItemInOffHand().getType() == Material.BOW && p.getInventory().getItemInOffHand().hasItemMeta() && p.getInventory().getItemInOffHand().getItemMeta().getPersistentDataContainer().has(new NamespacedKey(BoxPlugin.instance, "ITEM_ID"), PersistentDataType.STRING) && p.getInventory().getItemInOffHand().getItemMeta().getPersistentDataContainer().get(new NamespacedKey(BoxPlugin.instance, "ITEM_ID"), PersistentDataType.STRING).equals("PULSE_BOW"))) {
                 e.getProjectile().getPersistentDataContainer().set(new NamespacedKey(BoxPlugin.instance, "PULSE_ARROW"), PersistentDataType.INTEGER, 1);
                 e.getEntity().getWorld().playSound(e.getEntity().getLocation(), Sound.BLOCK_CONDUIT_DEACTIVATE, 1f, 2f);

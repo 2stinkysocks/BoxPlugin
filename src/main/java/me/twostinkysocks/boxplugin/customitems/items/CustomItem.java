@@ -10,6 +10,7 @@ import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.EntityInteractEvent;
 import org.bukkit.event.entity.EntityTargetEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
+import org.bukkit.event.player.PlayerToggleSneakEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.persistence.PersistentDataType;
@@ -30,22 +31,26 @@ public abstract class CustomItem {
     private Consumer<Player> join;
     private Consumer<EntityInteractEvent> entityInteract;
     private BiConsumer<PlayerInteractEvent, Action> click;
+    private Consumer<PlayerToggleSneakEvent> sneak;
     private Consumer<EntityTargetEvent> entityTarget;
     private Consumer<EntityDamageByEntityEvent> entityDamageByEntity;
+    private boolean canOveride;
 
-    public CustomItem(String name, String itemId, Material material, CustomItemsMain plugin, String...lore) {
+    public CustomItem(String name, String itemId, Material material, CustomItemsMain plugin, boolean overideCurse, String...lore) {
         this.name = name;
         this.lore = lore;
         this.material = material;
         this.plugin = plugin;
         this.itemId = itemId;
         this.click = (e, a) -> {};
+        this.sneak = p -> {};
         this.leave = p -> {};
         this.join = p -> {};
         this.entityTarget = e -> {};
         this.entityInteract = e -> {};
         this.entityDamageByEntity = e -> {};
         this.item = new ItemStack(material);
+        this.canOveride = overideCurse;
 
         ItemMeta im = item.getItemMeta();
         im.setDisplayName(name);
@@ -67,6 +72,9 @@ public abstract class CustomItem {
 
     public void setClick(BiConsumer<PlayerInteractEvent, Action> toRun) {
         this.click = toRun;
+    }
+    public void setSneak(Consumer<PlayerToggleSneakEvent> toRun) {
+        this.sneak = toRun;
     }
 
     public void setEntityTarget(Consumer<EntityTargetEvent> toRun) {
@@ -100,6 +108,9 @@ public abstract class CustomItem {
     public BiConsumer<PlayerInteractEvent, Action> getClick() {
         return click;
     }
+    public Consumer<PlayerToggleSneakEvent> getSneak(){
+        return sneak;
+    }
 
     public Consumer<EntityTargetEvent> getEntityTarget() {
         return entityTarget;
@@ -115,5 +126,8 @@ public abstract class CustomItem {
 
     public String getName() {
         return name;
+    }
+    public boolean getCurseOveride(){
+        return canOveride;
     }
 }

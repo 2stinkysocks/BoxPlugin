@@ -51,6 +51,7 @@ public class AxeOfTheShredded extends CustomItem {
                 "THROWING_KNIFE",
                 Material.IRON_SWORD,
                 plugin,
+                false,
                 "",
                 ChatColor.GRAY + "Right click to throw!"
         );

@@ -40,7 +40,7 @@ public class CageStaff extends CustomItem {
                 "CAGE_STAFF",
                 Material.BLAZE_ROD,
                 plugin,
-                ""
+                false
         );
         cooldown = new HashMap<>();
         cooldown2 = new HashMap<>();

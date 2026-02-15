@@ -31,7 +31,8 @@ public class HealSpear extends CustomItem implements Listener {
                 "Heal Spear",
                 "HEAL_SPEAR",
                 Material.TRIDENT,
-                plugin
+                plugin,
+                false
         );
         cooldown = new HashMap<>();
         setClick((e, a) -> {

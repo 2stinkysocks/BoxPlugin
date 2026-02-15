@@ -27,6 +27,7 @@ public class WolfPack extends CustomItem {
                 "WOLF_PACK",
                 Material.BONE,
                 plugin,
+                false,
                 "",
                 "put in inventory to spawn wolf lol",
                 "20s cooldown"

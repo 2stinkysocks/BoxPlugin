@@ -4,6 +4,7 @@ import com.github.stefvanschie.inventoryframework.gui.GuiItem;
 import com.github.stefvanschie.inventoryframework.gui.type.ChestGui;
 import com.github.stefvanschie.inventoryframework.pane.StaticPane;
 import me.twostinkysocks.boxplugin.BoxPlugin;
+import me.twostinkysocks.boxplugin.util.Util;
 import org.bukkit.*;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Item;
@@ -68,6 +69,37 @@ public class ItemPopper {
         }
     }
 
+    public void changeSuccessorName(String oldName, String newName) throws SQLException {
+        setConnection();
+        String base64ItemData = null;
+        try (PreparedStatement ps = connection.prepareStatement("SELECT data_base64 FROM item_successor WHERE item_pointer = ? LIMIT 1")) {//this should make a RegisteredItemData object from database
+            ps.setString(1, oldName);
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    base64ItemData = rs.getString("data_base64");
+                } else {
+                    CloseConnection();
+                    Bukkit.getLogger().info("no item data found: " + oldName);
+                    return;
+                }
+            }
+        }
+        if(base64ItemData == null){
+            return;
+        }
+
+
+        try (PreparedStatement ps = connection.prepareStatement(
+                "INSERT OR REPLACE INTO item_successor (item_pointer, data_base64) VALUES (?, ?)"
+        )) {
+            ps.setString(1, newName);
+            ps.setString(2, base64ItemData);
+            ps.executeUpdate();
+        }
+        CloseConnection();
+        RemoveSuccessorDataFromDatabase(oldName);
+    }
+
     public void ExperimentalUpdateDatabase(List<ItemStack> items, String predecessorName, String successorName) throws SQLException, IOException {
         setConnection();
         String base64ItemData;
@@ -85,7 +117,7 @@ public class ItemPopper {
         try (PreparedStatement ps = connection.prepareStatement(
                 "INSERT OR REPLACE INTO item_successor (item_pointer, data_base64) VALUES (?, ?)"
         )) {
-            ps.setString(1, predecessorName);
+            ps.setString(1, successorName);
             ps.setString(2, base64ItemData);
             ps.executeUpdate();
         }
@@ -107,11 +139,11 @@ public class ItemPopper {
         CloseConnection();
     }
 
-    public boolean RemoveFromDatabase(String successorName, String predecessorName) throws SQLException {//clanker made this one, removes item from database based on name
+    public boolean RemoveFromDatabase(String successorName) throws SQLException {//clanker made this one, removes item from database based on name
         setConnection(); // ensure connection is set
         int affected = 0;
         try (PreparedStatement ps = connection.prepareStatement("DELETE FROM item_successor WHERE item_pointer = ?")) {
-            ps.setString(1, predecessorName);
+            ps.setString(1, successorName);
             affected = ps.executeUpdate();
         }
         CloseConnection();
@@ -122,6 +154,14 @@ public class ItemPopper {
         }
         CloseConnection();
         return affected > 0; // true if something was deleted
+    }
+    public void RemoveSuccessorDataFromDatabase(String successorName) throws SQLException {//clanker made this one, removes item from database based on name
+        setConnection(); // ensure connection is set
+        try (PreparedStatement ps = connection.prepareStatement("DELETE FROM item_successor WHERE item_pointer = ?")) {
+            ps.setString(1, successorName);
+            ps.executeUpdate();
+        }
+        CloseConnection();
     }
     public boolean isPopable(ItemStack item) throws SQLException {
         ItemMeta itemMeta = item.getItemMeta();
@@ -165,6 +205,87 @@ public class ItemPopper {
         return answer;
     }
 
+//    public List<ItemStack> getItemsToDrop(ItemStack item) throws SQLException, IOException, ClassNotFoundException {//will only be called on items that have the appropriate tags
+//        ItemMeta itemMeta = item.getItemMeta();
+//        List<ItemStack> itemsToDrop = new ArrayList<>();
+//        if(!BoxPlugin.instance.getRegisteredItem().IsRegistered(itemMeta)){
+//            return itemsToDrop;
+//        }
+//        NamespacedKey itemKey = new NamespacedKey(BoxPlugin.instance, "belongsToParentItem");
+//        String successorName = itemMeta.getPersistentDataContainer().get(itemKey, PersistentDataType.STRING);
+//
+//        if(!SuccessorExistsInDatabase(successorName)){
+//            return itemsToDrop;
+//        }
+//
+//        ItemStack rubyItem = Util.getSkull("http://textures.minecraft.net/texture/2530191500c2453624dd937ec125d44f0942cc2b664073e2a366b3fa67a0c897");
+//        ItemMeta rubyItemMeta = rubyItem.getItemMeta();
+//        rubyItemMeta.setDisplayName("&x&F&B&0&0&0&0&lR&x&F&C&1&B&1&B&lu&x&F&C&3&7&3&7&lb&x&F&D&5&2&5&2&ly");
+//        rubyItemMeta.setLore(List.of(
+//                "&cRare Gemstone that can enhance items."
+//        ));
+//        rubyItem.setItemMeta(rubyItemMeta);
+//        int numRubies = 0;
+//        if(BoxPlugin.instance.getReforgeManager().hasReforges(item)){
+//            int numReforges = BoxPlugin.instance.getReforgeManager().getNumReforges(item) - BoxPlugin.instance.getReforgeManager().getNumFreeReforges(item); //if you had free reforges, the bonus no longer counts to your refund
+//            numRubies = (int) (BoxPlugin.instance.getReforgeManager().getREFORGECOST() * numReforges * 0.9);
+//        }
+//
+//        setConnectionPointer();
+//
+//        try (PreparedStatement ps = connection.prepareStatement("SELECT predecessor_name FROM item_successor_pointer WHERE successor_name = ? LIMIT 1")) {//this should make a RegisteredItemData object from database
+//            ps.setString(1, successorName);
+//            try (ResultSet rs = ps.executeQuery()) {
+//                if (rs.next()) {
+//                    this.predecessorName = rs.getString("predecessor_name");
+//                } else {
+//                    CloseConnection();
+//                    Bukkit.getLogger().info("no predecessor found: " + successorName);
+//                    return itemsToDrop; // item not found
+//                }
+//            }
+//        }
+//        CloseConnection();
+//        if(!PredecessorExistsInDatabase(this.predecessorName)){
+//            return itemsToDrop;
+//        }
+//        setConnection();
+//        String base64_itemData;
+//
+//        try (PreparedStatement ps = connection.prepareStatement("SELECT data_base64 FROM item_successor WHERE item_pointer = ? LIMIT 1")) {//this should make a RegisteredItemData object from database
+//            ps.setString(1, predecessorName);
+//            try (ResultSet rs = ps.executeQuery()) {
+//                if (rs.next()) {
+//                    base64_itemData = rs.getString("data_base64");
+//                } else {
+//                    CloseConnection();
+//                    Bukkit.getLogger().info("no item data found: " + predecessorName);
+//                    return itemsToDrop; // item not found
+//                }
+//            }
+//        }
+//
+//        byte[] data = Base64.getDecoder().decode(base64_itemData);
+//
+//        ByteArrayInputStream bais = new ByteArrayInputStream(data);
+//        BukkitObjectInputStream ois = new BukkitObjectInputStream(bais);
+//
+//        int count = ois.readInt();
+//        for (int i = 0; i < count; i++) {
+//            itemsToDrop.add((ItemStack) ois.readObject());
+//        }
+//
+//        ois.close();
+//
+//        CloseConnection();
+//        if(numRubies > 0){
+//            rubyItem.setAmount(numRubies);
+//            itemsToDrop.add(rubyItem);
+//        }
+//
+//        return itemsToDrop;
+//    }
+
     public List<ItemStack> getItemsToDrop(ItemStack item) throws SQLException, IOException, ClassNotFoundException {//will only be called on items that have the appropriate tags
         ItemMeta itemMeta = item.getItemMeta();
         List<ItemStack> itemsToDrop = new ArrayList<>();
@@ -178,35 +299,32 @@ public class ItemPopper {
             return itemsToDrop;
         }
 
-        setConnectionPointer();
-
-        try (PreparedStatement ps = connection.prepareStatement("SELECT predecessor_name FROM item_successor_pointer WHERE successor_name = ? LIMIT 1")) {//this should make a RegisteredItemData object from database
-            ps.setString(1, successorName);
-            try (ResultSet rs = ps.executeQuery()) {
-                if (rs.next()) {
-                    this.predecessorName = rs.getString("predecessor_name");
-                } else {
-                    CloseConnection();
-                    Bukkit.getLogger().info("no predecessor found: " + successorName);
-                    return itemsToDrop; // item not found
-                }
-            }
+        ItemStack rubyItem = Util.getSkull("http://textures.minecraft.net/texture/2530191500c2453624dd937ec125d44f0942cc2b664073e2a366b3fa67a0c897");
+        ItemMeta rubyItemMeta = rubyItem.getItemMeta();
+        rubyItemMeta.setDisplayName("§x§F§B§0§0§0§0§lR§x§F§C§1§B§1§B§lu§x§F§C§3§7§3§7§lb§x§F§D§5§2§5§2§ly");
+        rubyItemMeta.setLore(List.of(
+                "§cRare Gemstone that can enhance items."
+        ));
+        rubyItem.setItemMeta(rubyItemMeta);
+        int numRubies = 0;
+        if(BoxPlugin.instance.getReforgeManager().hasReforges(item)){
+            int numReforges = BoxPlugin.instance.getReforgeManager().getNumReforges(item) - BoxPlugin.instance.getReforgeManager().getNumFreeReforges(item); //if you had free reforges, the bonus no longer counts to your refund
+            numRubies = (int) (BoxPlugin.instance.getReforgeManager().getREFORGECOST() * numReforges * 0.9);
         }
-        CloseConnection();
-        if(!PredecessorExistsInDatabase(this.predecessorName)){
+        if(!SuccessorExistsInDatabase(successorName)){
             return itemsToDrop;
         }
         setConnection();
         String base64_itemData;
 
         try (PreparedStatement ps = connection.prepareStatement("SELECT data_base64 FROM item_successor WHERE item_pointer = ? LIMIT 1")) {//this should make a RegisteredItemData object from database
-            ps.setString(1, predecessorName);
+            ps.setString(1, successorName);
             try (ResultSet rs = ps.executeQuery()) {
                 if (rs.next()) {
                     base64_itemData = rs.getString("data_base64");
                 } else {
                     CloseConnection();
-                    Bukkit.getLogger().info("no item data found: " + predecessorName);
+                    Bukkit.getLogger().info("no item data found: " + successorName);
                     return itemsToDrop; // item not found
                 }
             }
@@ -225,6 +343,11 @@ public class ItemPopper {
         ois.close();
 
         CloseConnection();
+        if(numRubies > 0){
+            rubyItem.setAmount(numRubies);
+            itemsToDrop.add(rubyItem);
+        }
+
         return itemsToDrop;
     }
 

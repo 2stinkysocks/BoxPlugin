@@ -17,6 +17,7 @@ public class PulseBow extends CustomItem {
                 "PULSE_BOW",
                 Material.BOW,
                 plugin,
+                false,
                 ""
         );
         Bukkit.getScheduler().runTaskTimer(BoxPlugin.instance, () -> {

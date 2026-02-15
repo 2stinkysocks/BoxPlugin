@@ -49,6 +49,7 @@ public class TalismanOfEnergy extends CustomItem {
                 "TALISMAN_OF_ENERGY",
                 Material.NETHER_STAR,
                 plugin,
+                false,
                 "",
                 "§6Item Ability: Electrocute",
                 "§7Landing 3 hits within 3 seconds makes your last hit strike twice,",

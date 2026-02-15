@@ -100,6 +100,36 @@ public class Util {
         return item;
     }
 
+    public static ItemStack ruby(int ammount){
+        ItemStack rubyItem = Util.getSkull("http://textures.minecraft.net/texture/2530191500c2453624dd937ec125d44f0942cc2b664073e2a366b3fa67a0c897");
+        ItemMeta rubyItemMeta = rubyItem.getItemMeta();
+        rubyItemMeta.setDisplayName("§x§F§B§0§0§0§0§lR§x§F§C§1§B§1§B§lu§x§F§C§3§7§3§7§lb§x§F§D§5§2§5§2§ly");
+        rubyItemMeta.setLore(List.of(
+                "§cRare Gemstone that can enhance items."
+        ));
+        rubyItem.setItemMeta(rubyItemMeta);
+        rubyItem.setAmount(ammount);
+        return rubyItem;
+    }
+
+    public static ItemStack soulOfPlayer(String name){
+        ItemStack soulItem = Util.getSkull("http://textures.minecraft.net/texture/9d3d250e25bbca3a62be5b3ef02cfcab6dcdc424884c9a7d5cc95c9d0");
+        ItemMeta soulItemMeta = soulItem.getItemMeta();
+        soulItemMeta.setDisplayName("§x§8§3§4§3§F§F§l" + name + "'s Soul");
+        soulItemMeta.setLore(List.of(
+                "§bOne without a soul is cursed for enternity!",
+                "§bReturn this soul to §dAroura §bto lift a curse,",
+                "§bor claim its value."
+        ));
+        soulItem.setItemMeta(soulItemMeta);
+        return soulItem;
+    }
+
+    public static ItemStack soulItem(){
+        ItemStack soulItem = Util.getSkull("http://textures.minecraft.net/texture/9d3d250e25bbca3a62be5b3ef02cfcab6dcdc424884c9a7d5cc95c9d0");
+        return soulItem;
+    }
+
     public static ItemStack gigaCoin(int amount) {
         ItemStack item = new ItemStack(Material.GOLD_BLOCK);
         ItemMeta meta = item.getItemMeta();
@@ -332,7 +362,6 @@ public class Util {
      * @param dropChancePerSlot drop chance per slot (0.5 is 50% chance to drop that item)
      */
     public static void dropPercent(PlayerDeathEvent e, double dropChancePerSlot) throws SQLException, IOException, ClassNotFoundException {
-        System.out.println("Calling death drops");
         Player target = e.getEntity();
         Player cause = e.getEntity().getKiller();
         //int outof = (int)(Math.round(1/dropChancePerSlot));

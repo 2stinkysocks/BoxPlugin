@@ -31,7 +31,8 @@ public class ClusterGrenade extends CustomItem {
                 ChatColor.WHITE + "Cluster Grenade",
                 "CLUSTER_GRENADE",
                 Material.TNT,
-                plugin
+                plugin,
+                true
         );
         cooldown = new HashMap<>();
         setClick((e, a) -> {

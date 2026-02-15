@@ -26,6 +26,7 @@ public class SuperSexShovel extends CustomItem {
                 "SUPER_SEX_SHOVEL",
                 Material.DIAMOND_SHOVEL,
                 plugin,
+                false,
                 "",
                 "§6Item Ability: Super Warp §e§lRIGHT CLICK",
                 "§7Teleport forward 20 blocks on cast",

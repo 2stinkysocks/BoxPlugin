@@ -17,7 +17,8 @@ public class MilkPotion extends CustomItem {
                 ChatColor.WHITE + "Splash Potion of Milk",
                 "MILK_POTION",
                 Material.SPLASH_POTION,
-                plugin
+                plugin,
+                true
         );
     }
 

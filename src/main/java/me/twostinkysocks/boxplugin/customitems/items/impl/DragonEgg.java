@@ -17,6 +17,7 @@ public class DragonEgg extends CustomItem {
                 "DRAGON_EGG",
                 Material.DRAGON_EGG,
                 plugin,
+                false,
                 ChatColor.LIGHT_PURPLE + "Place on the altar in the end to summon the dragon!"
         );
         setClick((e, a) -> {

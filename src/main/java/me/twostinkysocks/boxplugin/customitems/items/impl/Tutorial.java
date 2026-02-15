@@ -18,6 +18,7 @@ public class Tutorial extends CustomItem {
                 "TUTORIAL",
                 Material.KNOWLEDGE_BOOK,
                 plugin,
+                true,
                 "§bRight click to start the §ltutorial§b quest. You",
                 "§bwill receive a reward at the end of the quest, and",
                 "§bget a better understanding of the game."

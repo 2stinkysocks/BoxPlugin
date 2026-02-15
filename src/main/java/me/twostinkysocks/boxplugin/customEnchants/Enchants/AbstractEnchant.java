@@ -22,7 +22,7 @@ public class AbstractEnchant {
         this.enchantKey = new NamespacedKey(BoxPlugin.instance, "Abstract_Enchant");
     }
 
-    public String  getEnchantRGB(int lvl){
+    public String getEnchantRGB(int lvl){
         return "§x§3§6§C§8§2§E" + getEnchantName() + " " + getlvlToRoman(lvl);
     }
 

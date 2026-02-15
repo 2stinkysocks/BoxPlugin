@@ -35,7 +35,8 @@ public class AugmentedRailgun extends CustomItem {
                 ChatColor.WHITE + "Augmented Railgun",
                 "AUGMENTED_RAILGUN",
                 Material.DIAMOND_HOE,
-                plugin
+                plugin,
+                false
         );
         cooldown = new HashMap<>();
         particleTimers = new HashMap<>();

@@ -17,6 +17,7 @@ public class SuperDragonEgg extends CustomItem {
                 "SUPER_DRAGON_EGG",
                 Material.DRAGON_EGG,
                 plugin,
+                true,
                 ChatColor.LIGHT_PURPLE + "Place on the altar in the end to summon the dragon!"
         );
         setClick((e, a) -> {

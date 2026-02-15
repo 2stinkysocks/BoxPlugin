@@ -26,6 +26,7 @@ public class ThrowableLava extends CustomItem {
                 "THROWABLE_LAVA",
                 Material.LAVA_BUCKET,
                 plugin,
+                false,
                 ""
         );
         cooldown = new HashMap<>();

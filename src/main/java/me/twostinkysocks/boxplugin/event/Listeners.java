@@ -183,6 +183,7 @@ public class Listeners implements Listener {
             String command = e.getItem().getItemMeta().getPersistentDataContainer().get(new NamespacedKey(BoxPlugin.instance, "eggcommand"), PersistentDataType.STRING);
             command = command.replaceAll("%x%", String.valueOf(toSpawn.getBlockX())).replaceAll("%y%", String.valueOf(toSpawn.getBlockY())).replaceAll("%z%", String.valueOf(toSpawn.getBlockZ())).replaceAll("%world%", toSpawn.getWorld().getName());
             if(command.contains("Jayngar") && (p.getWorld().getEnvironment() != World.Environment.THE_END)){//only spawn jayngar in end
+                p.sendMessage(ChatColor.RED + "You can only spawn Jayngar in the End");
                 e.setCancelled(true);
                 return;
             }
@@ -670,9 +671,10 @@ public class Listeners implements Listener {
         if(cause == null) {
             BoxPlugin.instance.getPvpManager().resetStreak(target);
             BoxPlugin.instance.getScoreboardManager().queueUpdate(target);
-            Util.dropPercent(e, 0.10);
-            target.sendMessage(ChatColor.RED + "You lost 10% of your items from dying to a non-player!");
-            BoxPlugin.instance.getGhostTokenManager().onPostDeath(e.getDrops(), e.getEntity());
+            Util.dropPercent(e, 0);
+//            target.sendMessage(ChatColor.RED + "You lost 10% of your items from dying to a non-player!");
+//            BoxPlugin.instance.getGhostTokenManager().onPostDeath(e.getDrops(), e.getEntity());
+            BoxPlugin.instance.getCurseManager().setCurse(target, target.getLocation());
             return;
         }
 
@@ -751,10 +753,12 @@ public class Listeners implements Listener {
         double dropChanceConst2 = 1.6;
 
         double xpdiff = ((double) causexp) / BoxPlugin.instance.getXpManager().getXP(target);
-        double gearScoreDiff = (causeGearscore / targetGearscore);
+        double gearScoreDiff = (causeGearscore / Math.max(targetGearscore, 1));
 
         double dropChanceFromXp = 205.0 - (100.0*xpdiff);
         double dropChanceFromGearScore = 185.0 - (100.0*gearScoreDiff);
+        dropChanceFromXp = Math.max(dropChanceFromXp, 0);
+        dropChanceFromGearScore = Math.max(dropChanceFromGearScore, 0);
         double dropChance;
 
         if(gearScoreDiff > 2){//if diff is over 2 make the first part negative because its quadratic

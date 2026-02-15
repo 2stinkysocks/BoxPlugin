@@ -42,6 +42,10 @@ public class ReforgeManager {
 
     public final int REFORGECOST = 5;
 
+    public int getREFORGECOST(){
+        return REFORGECOST;
+    }
+
     public int getNumReforges(@NotNull ItemStack item){
         ItemMeta itemMeta = item.getItemMeta();
         int numRefoges = 0;

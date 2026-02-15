@@ -105,6 +105,7 @@ public final class BoxPlugin extends JavaPlugin implements CommandExecutor, TabC
     private VoidAspectEnchant voidAspectEnchant;
     private VoidBornEnchant voidBornEnchant;
     private ItemPopper itemPopperManager;
+    private CurseManager curseManager;
 
     private Economy econ = null;
 
@@ -206,6 +207,7 @@ public final class BoxPlugin extends JavaPlugin implements CommandExecutor, TabC
         voidBornEnchant = new VoidBornEnchant();
         customEnchantsMain = new CustomEnchantsMain();
         itemPopperManager = new ItemPopper();
+        curseManager = new CurseManager();
 
         excellentCrates = (CratesPlugin) getServer().getPluginManager().getPlugin("ExcellentCrates");
         keyManager = excellentCrates.getKeyManager();
@@ -242,6 +244,7 @@ public final class BoxPlugin extends JavaPlugin implements CommandExecutor, TabC
         getCommand("openbank").setExecutor(this);
         getCommand("setmarketmultipier").setExecutor(this);
         getCommand("openxanatosgui").setExecutor(this);
+        getCommand("openauroragui").setExecutor(this);
         getCommand("redeemtrialrank").setExecutor(this);
         getCommand("registeritem").setExecutor(this);
         getCommand("registeritemupdate").setExecutor(this);
@@ -261,6 +264,7 @@ public final class BoxPlugin extends JavaPlugin implements CommandExecutor, TabC
         getCommand("popitemtest").setExecutor(this);
         getCommand("removepopfromdatabase").setExecutor(this);
         getCommand("fuckitweball(neverrunthisunlessitsneeded)").setExecutor(this);
+        getCommand("changepopname").setExecutor(this);
         getServer().getPluginManager().registerEvents(new Listeners(), this);
         getServer().getPluginManager().registerEvents(new ArmorEquipEventListener(), this);
         load();
@@ -414,6 +418,9 @@ public final class BoxPlugin extends JavaPlugin implements CommandExecutor, TabC
     }
     public CustomEnchantsMain getCustomEnchantsMain() {
         return customEnchantsMain;
+    }
+    public CurseManager getCurseManager(){
+        return curseManager;
     }
     public MegaPerkHeartSteal getMegaPerkHeartSteal() {
         return megaperkHeartSteal;
@@ -608,6 +615,8 @@ public final class BoxPlugin extends JavaPlugin implements CommandExecutor, TabC
                 getMarketManager().openGui(p);
             } else if(label.equals("openperkgui")) {
                 getPerksManager().openMainGui(p);
+            } else if(label.equals("openauroragui")) {
+                getCurseManager().openSoulGui(p);
             } else if(label.equals("getownedperks")) {
                 p.sendMessage(String.join("\n", getPerksManager().getPurchasedPerks(p).stream().map(pe -> pe.instance.getKey()).collect(Collectors.toList())));
             } else if(label.equals("getselectedperks")) {
@@ -1174,16 +1183,30 @@ public final class BoxPlugin extends JavaPlugin implements CommandExecutor, TabC
                 return true;
 
             } else if (label.equals("removepopfromdatabase")) {
-                if(args.length == 2){
+                if(args.length == 1){
                     try {
-                        getItemPopperManager().RemoveFromDatabase(args[0], args[1]);
+                        getItemPopperManager().RemoveFromDatabase(args[0]);
                         p.sendMessage(ChatColor.GREEN + "Successfully removed item " + args[0] + " from the data base");
                     } catch (SQLException e) {
                         throw new RuntimeException(e);
                     }
                 }
                 else {
-                    p.sendMessage(ChatColor.RED + "Incorrect Usage: use /removefromdatabase [successor name] [predecessor name]");
+                    p.sendMessage(ChatColor.RED + "Incorrect Usage: use /removefromdatabase [successor name]");
+                }
+                return true;
+
+            } else if (label.equals("changepopname")) {
+                if(args.length == 2){
+                    try {
+                        getItemPopperManager().changeSuccessorName(args[0], args[1]);
+                        p.sendMessage(ChatColor.GREEN + "Successfully moved " + args[0] + " to " + args[1]);
+                    } catch (SQLException e) {
+                        throw new RuntimeException(e);
+                    }
+                }
+                else {
+                    p.sendMessage(ChatColor.RED + "Incorrect Usage: use /changepopname [old name] [new name]");
                 }
                 return true;
 
@@ -1192,13 +1215,14 @@ public final class BoxPlugin extends JavaPlugin implements CommandExecutor, TabC
                     p.sendMessage(ChatColor.RED + "You don't have permission!");
                     return true;
                 }
+                p.sendMessage(ChatColor.GREEN + "disabled for now");
 
-                try {
-                    getRegisteredItem().fuckItWeBall();
-                    p.sendMessage(ChatColor.GREEN + "rebuilding database i hope");
-                } catch (SQLException | IOException e) {
-                    throw new RuntimeException(e);
-                }
+//                try {
+//                    getRegisteredItem().fuckItWeBall();
+//                    p.sendMessage(ChatColor.GREEN + "rebuilding database i hope");
+//                } catch (SQLException | IOException e) {
+//                    throw new RuntimeException(e);
+//                }
                 return true;
             }
         }
@@ -1303,7 +1327,7 @@ public final class BoxPlugin extends JavaPlugin implements CommandExecutor, TabC
                 StringUtil.copyPartialMatches(args[0], registeredNames, completions);
                 return completions;
             }
-        } else if (alias.equals("popperpointerset") || alias.equals("removepopfromdatabase")) {
+        } else if (alias.equals("popperpointerset") || alias.equals("removepopfromdatabase") || alias.equals("changepopname")) {
             if(args.length >= 1) {
                 ArrayList<String> registeredNames;
                 try {

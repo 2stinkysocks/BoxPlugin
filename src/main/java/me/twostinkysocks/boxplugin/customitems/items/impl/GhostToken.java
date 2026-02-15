@@ -29,6 +29,7 @@ public class GhostToken extends CustomItem {
                 "GHOST_TOKEN",
                 Material.MUSIC_DISC_5,
                 plugin,
+                false,
                 ChatColor.GRAY + "Right click to reclaim your ghost items",
                 ChatColor.RED + "Left click 3 times to permanently delete your ghost items"
         );

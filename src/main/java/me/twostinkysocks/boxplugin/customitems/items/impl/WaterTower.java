@@ -36,7 +36,8 @@ public class WaterTower extends CustomItem {
                 "§9Water Tower",
                 "WATER_TOWER",
                 Material.BREEZE_ROD,
-                plugin
+                plugin,
+                false
         );
 
         cooldown = new HashMap<>();
@@ -85,7 +86,7 @@ public class WaterTower extends CustomItem {
                     Particle.DustOptions dustOptions = new Particle.DustOptions(Color.fromRGB(0, 140, 255), 1.5F);
                     RenderUtil.renderDustLine(origin, travelDir, dustOptions);
                     RenderUtil.renderParticleHelix(origin, travelDir, 0.3, 60, Particle.BUBBLE, 0.05);
-                    RenderUtil.renderParticleHelix(origin, travelDir, 0.3, 60, Particle.DRIPPING_WATER, 0.05);
+                    RenderUtil.renderParticleHelix(origin, travelDir, 0.3, 30, Particle.DRIPPING_WATER, 0.05);
                     p.getWorld().playSound(e.getLocation(), Sound.BLOCK_BUBBLE_COLUMN_WHIRLPOOL_INSIDE, 0.9F, 1.8F);
                     p.getWorld().playSound(origin, Sound.BLOCK_BUBBLE_COLUMN_WHIRLPOOL_INSIDE, 0.8F, 1.8F);
                     LivingEntity dmg = (LivingEntity) e;
@@ -118,14 +119,14 @@ public class WaterTower extends CustomItem {
             if(task.isCancelled()) return; // just in case
 
             Particle.DustOptions dustOptions = new Particle.DustOptions(Color.fromRGB(0, 140, 255), 1.5F);
-            RenderUtil.renderParticleOrb(origin, 360, 1, Particle.DOLPHIN, 0.2);
-            RenderUtil.renderDustOrb(origin, 60, 0.3, dustOptions);
+            RenderUtil.renderParticleOrb(origin, 320, 1, Particle.DOLPHIN, 0.2);
+            RenderUtil.renderDustOrb(origin, 20, 0.3, dustOptions);
 
 
             //dustOptions = new Particle.DustOptions(Color.fromRGB(0, 100, 255), 1F);
             Vector travelDirection = origin.clone().add(0, -5.5, 0).toVector().subtract(origin.toVector());
             Location newOrigin = origin.clone().subtract(0, 0.8, 0);
-            RenderUtil.renderParticleCYL(newOrigin, travelDirection,6, 0.2, 3, Particle.DOLPHIN, 0);
+            RenderUtil.renderParticleCYL(newOrigin, travelDirection,4, 0.2, 2, Particle.DOLPHIN, 0);
             RenderUtil.renderDustLine(newOrigin, travelDirection, dustOptions);
 
             if(renderTimers.containsKey(p.getUniqueId())) {

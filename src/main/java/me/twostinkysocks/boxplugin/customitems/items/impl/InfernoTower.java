@@ -36,7 +36,8 @@ public class InfernoTower extends CustomItem {
                 "§cInferno Tower",
                 "INFERNO_TOWER",
                 Material.LANTERN,
-                plugin
+                plugin,
+                false
         );
 
         cooldown = new HashMap<>();
@@ -48,7 +49,7 @@ public class InfernoTower extends CustomItem {
             if(a != Action.RIGHT_CLICK_AIR && a != Action.RIGHT_CLICK_BLOCK) return;
             Player p = e.getPlayer();
             if(p.hasPermission("customitems.cooldownbypass") || !cooldown.containsKey(p.getUniqueId()) || cooldown.get(p.getUniqueId()) < System.currentTimeMillis()) {
-                cooldown.put(p.getUniqueId(), System.currentTimeMillis() + (long)(1000*25 * (BoxPlugin.instance.getPerksManager().getSelectedMegaPerks(p).contains(PerksManager.MegaPerk.MEGA_COOLDOWN_REDUCTION) ? 0.5 : 1)));
+                cooldown.put(p.getUniqueId(), System.currentTimeMillis() + (long)(1000*35 * (BoxPlugin.instance.getPerksManager().getSelectedMegaPerks(p).contains(PerksManager.MegaPerk.MEGA_COOLDOWN_REDUCTION) ? 0.5 : 1)));
                 go(p);
             } else {
                 BigDecimal bd = new BigDecimal(((double)(cooldown.get(p.getUniqueId()) - System.currentTimeMillis()))/1000.0);
@@ -70,8 +71,8 @@ public class InfernoTower extends CustomItem {
         Bukkit.getScheduler().runTaskTimer(BoxPlugin.instance, task -> {
             if(task.isCancelled()) return; // just in case
 
-            Collection<Entity> nearby = p.getWorld().getNearbyEntities(origin, 36, 36, 36, e -> !p.getUniqueId().equals(e.getUniqueId()) && e instanceof LivingEntity && !e.isDead() && e.getLocation().distanceSquared(origin) <= 36*36);
-            Util.debug(p, "Found " + nearby.size() + " living entities within 36 blocks");
+            Collection<Entity> nearby = p.getWorld().getNearbyEntities(origin, 32, 32, 32, e -> !p.getUniqueId().equals(e.getUniqueId()) && e instanceof LivingEntity && !e.isDead() && e.getLocation().distanceSquared(origin) <= 32*32);
+            Util.debug(p, "Found " + nearby.size() + " living entities within 32 blocks");
             int i = 0; // max 8 entities
             for(Entity e : nearby) {
                 if(i >= 8) break;
@@ -87,11 +88,11 @@ public class InfernoTower extends CustomItem {
                     Util.debug(p, "Raytraced entity was FOUND");
                     Particle.DustOptions dustOptions = new Particle.DustOptions(Color.fromRGB(255, 0, 0), 1.5F);
                     RenderUtil.renderDustLine(origin, travelDir, dustOptions);
-                    RenderUtil.renderParticleHelix(origin, travelDir, 0.3, 60, Particle.FLAME, 0.02);
-                    p.getWorld().playSound(e.getLocation(), Sound.ITEM_FIRECHARGE_USE, 0.9F, 1.5F);
-                    p.getWorld().playSound(origin, Sound.BLOCK_FIRE_EXTINGUISH, 0.8F, 1.4F);
-                    p.getWorld().playSound(origin, Sound.ITEM_FIRECHARGE_USE, 0.8F, 1.5F);
-                    p.getWorld().playSound(e.getLocation(), Sound.BLOCK_FIRE_EXTINGUISH, 0.7F, 1.4F);
+                    RenderUtil.renderParticleHelix(origin, travelDir, 0.3, 30, Particle.FLAME, 0.02);
+                    p.getWorld().playSound(e.getLocation(), Sound.ITEM_FIRECHARGE_USE, 0.7F, 1.5F);
+                    p.getWorld().playSound(origin, Sound.BLOCK_FIRE_EXTINGUISH, 0.6F, 1.4F);
+                    p.getWorld().playSound(origin, Sound.ITEM_FIRECHARGE_USE, 0.6F, 1.5F);
+                    p.getWorld().playSound(e.getLocation(), Sound.BLOCK_FIRE_EXTINGUISH, 0.5F, 1.4F);
                     LivingEntity dmg = (LivingEntity) e;
                     if(dmg instanceof Player target) {
                         if(target.isBlocking()){
@@ -122,14 +123,14 @@ public class InfernoTower extends CustomItem {
             if(task.isCancelled()) return; // just in case
 
             Particle.DustOptions dustOptions = new Particle.DustOptions(Color.fromRGB(255, 0, 0), 1.5F);
-            RenderUtil.renderParticleOrb(origin, 300, 1, Particle.SMALL_FLAME, 0.02);
-            RenderUtil.renderDustOrb(origin, 60, 0.3, dustOptions);
+            RenderUtil.renderParticleOrb(origin, 240, 1, Particle.SMALL_FLAME, 0.02);
+            RenderUtil.renderDustOrb(origin, 20, 0.3, dustOptions);
 
 
             //dustOptions = new Particle.DustOptions(Color.fromRGB(0, 100, 255), 1F);
             Vector travelDirection = origin.clone().add(0, -9.5, 0).toVector().subtract(origin.toVector());
             Location newOrigin = origin.clone().subtract(0, 0.8, 0);
-            RenderUtil.renderParticleCYL(newOrigin, travelDirection,4, 0.2, 3, Particle.SMALL_FLAME, 0);
+            RenderUtil.renderParticleCYL(newOrigin, travelDirection,4, 0.2, 1, Particle.SMALL_FLAME, 0);
             RenderUtil.renderDustLine(newOrigin, travelDirection, dustOptions);
 
             if(renderTimers.containsKey(p.getUniqueId())) {

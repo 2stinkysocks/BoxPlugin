@@ -74,9 +74,9 @@ public class RenderUtil {
 
     public static void renderDustLine(Location origin, Vector direction, Particle.DustOptions dustOption) {
         Location originClone = origin.clone();
-        int points = (int) direction.length() * 8;
+        int points = (int) direction.length() * 6;
 
-        Vector directionShort = direction.clone().normalize().divide(new Vector(8,8,8)); //.normalize to make it 1 block long, 8 points per block
+        Vector directionShort = direction.clone().normalize().divide(new Vector(6,6,6)); //.normalize to make it 1 block long, 8 points per block
 
         for(int i = 0; i < points; i++) {
             originClone.getWorld().spawnParticle(Particle.DUST, originClone, 1, 0, 0, 0, dustOption);
@@ -123,8 +123,8 @@ public class RenderUtil {
 
     public static void renderDustTube(Location origin, Vector direction, int circlePoints, double radius, Particle.DustOptions dustOption) {
         Vector dir = direction.clone().normalize();
-        int points = Math.max(1, (int) (direction.length() * 8));
-        Vector step = dir.clone().multiply(1.0 / 8.0);
+        int points = Math.max(1, (int) (direction.length() * 7));
+        Vector step = dir.clone().multiply(1.0 / 7.0);
 
         // Find a perpendicular basis
         Vector up = Math.abs(dir.getY()) < 0.99 ? new Vector(0, 1, 0) : new Vector(1, 0, 0);
@@ -149,8 +149,8 @@ public class RenderUtil {
     public static void renderParticleCYL(Location origin, Vector direction, int circlePoints, double radius, int particlesPerPoint, Particle particle, double speed) {
         Vector dir = direction.clone().normalize();
         Location originClone = origin.clone();
-        int points = (int) direction.length() * 8;
-        Vector directionShort = dir.divide(new Vector(8,8,8)); //.normalize to make it 1 block long, 8 points per block
+        int points = (int) direction.length() * 7;
+        Vector directionShort = dir.divide(new Vector(7,7,7)); //.normalize to make it 1 block long, 8 points per block
         double interval = 2*Math.PI/circlePoints;
         for(int j = 0; j < points; j++){
             for(int i = 0; i < circlePoints; i++) {

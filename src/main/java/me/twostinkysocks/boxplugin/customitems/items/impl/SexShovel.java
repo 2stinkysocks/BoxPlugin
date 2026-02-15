@@ -26,6 +26,7 @@ public class SexShovel extends CustomItem {
                 "SEX_SHOVEL",
                 Material.GOLDEN_SHOVEL,
                 plugin,
+                false,
                 "",
                 "§6Item Ability: Warp §e§lRIGHT CLICK",
                 "§7Teleport forward 10 blocks on cast",

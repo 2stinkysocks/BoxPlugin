@@ -77,7 +77,7 @@ public class Listeners implements Listener {
         if(resistMult > 0){
             finalDamage = finalDamage * Math.max(0.4, (1.0) - 0.1 * (double) resistMult);//max 60% damage reduction
         }
-        if(target.isBlocking()){
+        if(target.isBlocking() || BoxPlugin.instance.getCurseManager().hasCurse(attacker)){
             return;
         }
         finalDamage = finalDamage * attackStrength;
@@ -127,6 +127,10 @@ public class Listeners implements Listener {
     }
 
     public void updateSpeed(Player p){
+        if(BoxPlugin.instance.getCurseManager().hasCurse(p)){
+            return;
+        }
+
         p.getAttribute(Attribute.MOVEMENT_SPEED).setBaseValue(0.1);
         if(BoxPlugin.instance.getCustomEnchantsMain().hasFullSetBonus(p, CustomEnchantsMain.Enchant.WaterBorn)){
             ItemStack boots = p.getInventory().getBoots();
@@ -148,6 +152,11 @@ public class Listeners implements Listener {
     public void entityDamageLeaf(EntityDamageByEntityEvent e){
         if(e.getDamager() instanceof Player && e.getEntity() instanceof LivingEntity && (e.getCause() == EntityDamageEvent.DamageCause.ENTITY_ATTACK || e.getCause() == EntityDamageEvent.DamageCause.ENTITY_SWEEP_ATTACK)) {
             Player p = (Player) e.getDamager();
+
+            if(BoxPlugin.instance.getCurseManager().hasCurse(p)){
+                return;
+            }
+
             //P is the main player with the cactus gear
             LivingEntity target = (LivingEntity) e.getEntity();
             ItemStack mainHandItem = p.getItemInHand();
@@ -234,6 +243,10 @@ public class Listeners implements Listener {
         if(e.getDamager() instanceof Player && e.getEntity() instanceof LivingEntity && (e.getCause() == EntityDamageEvent.DamageCause.ENTITY_ATTACK || e.getCause() == EntityDamageEvent.DamageCause.ENTITY_SWEEP_ATTACK)) {
             Player p = (Player) e.getDamager();
             //P is the main player with the lava gear
+            if(BoxPlugin.instance.getCurseManager().hasCurse(p)){
+                return;
+            }
+
             LivingEntity target = (LivingEntity) e.getEntity();
             ItemStack mainHandItem = p.getItemInHand();
             if(mainHandItem != null && mainHandItem.getItemMeta() != null && CustomEnchantsMain.Enchant.Magma.instance.hasEnchant(mainHandItem)){//magma enchant on weapon
@@ -265,6 +278,10 @@ public class Listeners implements Listener {
         if(e.getDamager() instanceof Player && e.getEntity() instanceof LivingEntity && (e.getCause() == EntityDamageEvent.DamageCause.ENTITY_ATTACK || e.getCause() == EntityDamageEvent.DamageCause.ENTITY_SWEEP_ATTACK)) {
             Player p = (Player) e.getDamager();
             //P is the main player with the ice gear
+            if(BoxPlugin.instance.getCurseManager().hasCurse(p)){
+                return;
+            }
+
             LivingEntity target = (LivingEntity) e.getEntity();
             ItemStack mainHandItem = p.getItemInHand();
             if(mainHandItem != null && mainHandItem.getItemMeta() != null && CustomEnchantsMain.Enchant.IceAspect.instance.hasEnchant(mainHandItem)){//ice enchant on weapon
@@ -319,6 +336,10 @@ public class Listeners implements Listener {
         if(e.getDamager() instanceof Player && e.getEntity() instanceof LivingEntity && (e.getCause() == EntityDamageEvent.DamageCause.ENTITY_ATTACK || e.getCause() == EntityDamageEvent.DamageCause.ENTITY_SWEEP_ATTACK)) {
             Player p = (Player) e.getDamager();
             //P is the main player with the water gear
+            if(BoxPlugin.instance.getCurseManager().hasCurse(p)){
+                return;
+            }
+
             LivingEntity target = (LivingEntity) e.getEntity();
             ItemStack mainHandItem = p.getItemInHand();
             if(mainHandItem != null && mainHandItem.getItemMeta() != null && CustomEnchantsMain.Enchant.Asphyxiate.instance.hasEnchant(mainHandItem)){//asphixiate enchant on weapon
@@ -408,6 +429,10 @@ public class Listeners implements Listener {
         if(e.getDamager() instanceof Player && e.getEntity() instanceof LivingEntity && (e.getCause() == EntityDamageEvent.DamageCause.ENTITY_ATTACK)) {
             Player p = (Player) e.getDamager();
             //P is the main player with the god gear
+            if(BoxPlugin.instance.getCurseManager().hasCurse(p)){
+                return;
+            }
+
             LivingEntity target = (LivingEntity) e.getEntity();
             ItemStack mainHandItem = p.getItemInHand();
             if(mainHandItem != null && mainHandItem.getItemMeta() != null && CustomEnchantsMain.Enchant.Zeus.instance.hasEnchant(mainHandItem)){//zeus enchant on weapon
@@ -450,6 +475,10 @@ public class Listeners implements Listener {
         if(e.getDamager() instanceof Player && e.getEntity() instanceof LivingEntity && (e.getCause() == EntityDamageEvent.DamageCause.ENTITY_ATTACK || e.getCause() == EntityDamageEvent.DamageCause.ENTITY_SWEEP_ATTACK)) {
             Player p = (Player) e.getDamager();
             //P is the main player with the void gear
+            if(BoxPlugin.instance.getCurseManager().hasCurse(p)){
+                return;
+            }
+
             LivingEntity target = (LivingEntity) e.getEntity();
             ItemStack mainHandItem = p.getItemInHand();
             if(mainHandItem != null && mainHandItem.getItemMeta() != null && CustomEnchantsMain.Enchant.VoidAspect.instance.hasEnchant(mainHandItem)){//ice enchant on weapon
@@ -480,6 +509,9 @@ public class Listeners implements Listener {
     public void onTridentThrow(ProjectileLaunchEvent e) {
         if (!(e.getEntity() instanceof Trident trident)) return;
         if (!(trident.getShooter() instanceof Player p)) return;
+        if(BoxPlugin.instance.getCurseManager().hasCurse(p)){
+            return;
+        }
 
         ItemStack item = p.getInventory().getItemInMainHand();
 

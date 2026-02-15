@@ -48,7 +48,8 @@ public class Hyperion extends CustomItem {
                 "Hyperion",
                 "HYPERION",
                 Material.NETHERITE_SWORD,
-                plugin
+                plugin,
+                false
         );
         tpcooldown = new HashMap<>();
         slamcooldown = new HashMap<>();
@@ -56,6 +57,10 @@ public class Hyperion extends CustomItem {
         inAirTime = new HashMap<>();
         setClick((e, a) -> {
             Player p = e.getPlayer();
+            if(BoxPlugin.instance.getCurseManager().hasCurse(p)){
+                p.sendMessage(ChatColor.RED + "You cannot use magic items without a soul!");
+                return;
+            }
             if((a == Action.RIGHT_CLICK_BLOCK && !p.isSneaking()) || a == Action.RIGHT_CLICK_AIR) {
                 if(p.hasPermission("customitems.cooldownbypass") || !tpcooldown.containsKey(p.getUniqueId()) || tpcooldown.get(p.getUniqueId()) < System.currentTimeMillis()) {
                     tpcooldown.put(p.getUniqueId(), System.currentTimeMillis() + (long)(10000 * (BoxPlugin.instance.getPerksManager().getSelectedMegaPerks(p).contains(PerksManager.MegaPerk.MEGA_COOLDOWN_REDUCTION) ? 0.5 : 1)));
@@ -69,7 +74,7 @@ public class Hyperion extends CustomItem {
                 }
             } else if(a == Action.RIGHT_CLICK_BLOCK && p.getLocation().getPitch() > 45) {
                 if(p.hasPermission("customitems.cooldownbypass") || !resistancecooldown.containsKey(p.getUniqueId()) || resistancecooldown.get(p.getUniqueId()) < System.currentTimeMillis()) {
-                    resistancecooldown.put(p.getUniqueId(), System.currentTimeMillis() + (long)(45000 * (BoxPlugin.instance.getPerksManager().getSelectedMegaPerks(p).contains(PerksManager.MegaPerk.MEGA_COOLDOWN_REDUCTION) ? 0.5 : 1)));
+                    resistancecooldown.put(p.getUniqueId(), System.currentTimeMillis() + (long)(25000 * (BoxPlugin.instance.getPerksManager().getSelectedMegaPerks(p).contains(PerksManager.MegaPerk.MEGA_COOLDOWN_REDUCTION) ? 0.5 : 1)));
                     resistance(p);
                 } else {
                     e.setCancelled(true);
@@ -80,8 +85,13 @@ public class Hyperion extends CustomItem {
                 }
             }
         });
-        Bukkit.getScheduler().runTaskTimer(BoxPlugin.instance, task -> {
-            for(Player p : Bukkit.getOnlinePlayers()) {
+        setSneak((e) -> {
+            Player p = e.getPlayer();
+            if(!p.isSneaking()){
+                return;
+            }
+            Bukkit.getScheduler().runTaskTimer(BoxPlugin.instance, task -> {
+                if(task.isCancelled()) return; // just in case
                 if(p.isSneaking() && !p.isFlying() && p.getVelocity().getY() < -0.1 && !p.isInWater() && !p.isInsideVehicle() && !p.isClimbing() && !p.isGliding() && p.getPotionEffect(PotionEffectType.SLOW_FALLING) == null) {
                     if(p.hasPermission("customitems.cooldownbypass") || !slamcooldown.containsKey(p.getUniqueId()) || slamcooldown.get(p.getUniqueId()) < System.currentTimeMillis()) {
                         if(p.getInventory().getItemInMainHand() != null && p.getInventory().getItemInMainHand().hasItemMeta() && p.getInventory().getItemInMainHand().getItemMeta().getPersistentDataContainer().has(new NamespacedKey(BoxPlugin.instance, "ITEM_ID"), PersistentDataType.STRING) && p.getInventory().getItemInMainHand().getItemMeta().getPersistentDataContainer().get(new NamespacedKey(BoxPlugin.instance, "ITEM_ID"), PersistentDataType.STRING).equals("HYPERION")) {
@@ -106,7 +116,6 @@ public class Hyperion extends CustomItem {
                     if(p.hasPermission("customitems.cooldownbypass") || !slamcooldown.containsKey(p.getUniqueId()) || slamcooldown.get(p.getUniqueId()) < System.currentTimeMillis()) {
                         if (p.getInventory().getItemInMainHand() != null && p.getInventory().getItemInMainHand().hasItemMeta() && p.getInventory().getItemInMainHand().getItemMeta().getPersistentDataContainer().has(new NamespacedKey(BoxPlugin.instance, "ITEM_ID"), PersistentDataType.STRING) && p.getInventory().getItemInMainHand().getItemMeta().getPersistentDataContainer().get(new NamespacedKey(BoxPlugin.instance, "ITEM_ID"), PersistentDataType.STRING).equals("HYPERION")) {
                             int ticks = inAirTime.get(p.getUniqueId());
-
                             float rad = 4;
                             double multiplier = 1.0;
                             if (ticks < 5) return;
@@ -140,24 +149,29 @@ public class Hyperion extends CustomItem {
                             tnt.setSource(p);
                             PrimedTnt nmsTNT = ((CraftTNTPrimed) tnt).getHandle();
                             nmsTNT.explosionPower = rad;
-//                            LargeFireball fireball = p.getWorld().spawn(p.getLocation(), LargeFireball.class);
-//                            fireball.setShooter(p);
-//                            fireball.setYield(rad);
-//                            fireball.setVelocity(new Vector(0, -1, 0));
-//                            tnt.setFuseTicks(0);
-//                            fireball.getPersistentDataContainer().set(new NamespacedKey(BoxPlugin.instance, "HYPERION_BOOM_MULTIPLIER"), PersistentDataType.DOUBLE, multiplier);
+//                          LargeFireball fireball = p.getWorld().spawn(p.getLocation(), LargeFireball.class);
+//                          fireball.setShooter(p);
+//                          fireball.setYield(rad);
+//                          fireball.setVelocity(new Vector(0, -1, 0));
+//                          tnt.setFuseTicks(0);
+//                          fireball.getPersistentDataContainer().set(new NamespacedKey(BoxPlugin.instance, "HYPERION_BOOM_MULTIPLIER"), PersistentDataType.DOUBLE, multiplier);
                             slamcooldown.put(p.getUniqueId(), System.currentTimeMillis() + (long) (45000 * (BoxPlugin.instance.getPerksManager().getSelectedMegaPerks(p).contains(PerksManager.MegaPerk.MEGA_COOLDOWN_REDUCTION) ? 0.5 : 1)));
+                            task.cancel();
                         } else {
-                            inAirTime.put(p.getUniqueId(), 0);
+                            inAirTime.remove(p.getUniqueId());
+                            task.cancel();
                         }
                     } else {
-                        inAirTime.put(p.getUniqueId(), 0);
+                        inAirTime.remove(p.getUniqueId());
+                        task.cancel();
                     }
                 } else {
-                    inAirTime.put(p.getUniqueId(), 0);
+                    inAirTime.remove(p.getUniqueId());
+                    task.cancel();
                 }
-            }
-        }, 0L, 1L);
+            }, 0L, 1L);
+        });
+
     }
 
     private void tp(Player p) {

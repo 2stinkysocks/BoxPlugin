@@ -22,6 +22,8 @@ commands:
     description: xp
   openperkgui:
     usage: /<command>
+  openauroragui:
+    usage: /<command>
   getselectedperks:
     usage: /<command>
   getownedperks:
@@ -147,6 +149,9 @@ commands:
   fuckitweball(neverrunthisunlessitsneeded):
     usage: /<command>
     description: rebuilds database with new format
+  changepopname:
+    usage: /<command>
+    description: change the name of where data is stored for popping
 permissions:
   boxplugin.manageperks:
     default: false
