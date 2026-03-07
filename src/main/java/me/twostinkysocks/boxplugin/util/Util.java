@@ -118,9 +118,10 @@ public class Util {
         soulItemMeta.setDisplayName("§x§8§3§4§3§F§F§l" + name + "'s Soul");
         soulItemMeta.setLore(List.of(
                 "§bOne without a soul is cursed for enternity!",
-                "§bReturn this soul to §dAroura §bto lift a curse,",
+                "§bReturn this soul to §dAurora §bto lift a curse,",
                 "§bor claim its value."
         ));
+        soulItemMeta.getPersistentDataContainer().set(new NamespacedKey(BoxPlugin.instance, "noplace"), PersistentDataType.INTEGER, 1);
         soulItem.setItemMeta(soulItemMeta);
         return soulItem;
     }

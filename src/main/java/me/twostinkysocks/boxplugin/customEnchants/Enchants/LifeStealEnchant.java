@@ -2,24 +2,23 @@ package me.twostinkysocks.boxplugin.customEnchants.Enchants;
 
 import me.twostinkysocks.boxplugin.BoxPlugin;
 import org.bukkit.NamespacedKey;
-import org.bukkit.entity.Trident;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.persistence.PersistentDataType;
 
-public class VoidAspectEnchant extends AbstractEnchant{
+public class LifeStealEnchant extends AbstractEnchant{
     private String enchantName;
     private NamespacedKey enchantKey;
-    private final double DAMAGE_PER_LEVEL = 1.5;
+    private final double LIFESTEAL_PER_LVL = 0.025;//2.5%
 
-    public VoidAspectEnchant() {
-        setEnchantName("Void Aspect");
-        setEnchantKey(new NamespacedKey(BoxPlugin.instance, "VoidAspect_Enchant"));
+    public LifeStealEnchant() {
+        setEnchantName("Life Steal");
+        setEnchantKey(new NamespacedKey(BoxPlugin.instance, "Lifesteal_Enchant"));
     }
 
     @Override
     public String getEnchantRGB(int lvl) {
-        return "§x§6§2§2§F§B§7" + getEnchantName() + " " + getlvlToRoman(lvl);
+        return "§x§E§5§3§C§5§0" + getEnchantName() + " " + getlvlToRoman(lvl);
     }
 
     @Override
@@ -82,8 +81,9 @@ public class VoidAspectEnchant extends AbstractEnchant{
         }
         return false;
     }
+
     @Override
-    public double getDamageFromTotalLevel(int totalLvl) {
-        return (totalLvl * DAMAGE_PER_LEVEL);
+    public double getEffectivnessFromTotalLvl(int totalLvl) {
+        return (totalLvl * LIFESTEAL_PER_LVL);
     }
 }

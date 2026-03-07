@@ -5,6 +5,7 @@ import com.github.sirblobman.api.shaded.adventure.text.minimessage.MiniMessage;
 import me.twostinkysocks.boxplugin.BoxPlugin;
 import org.bukkit.NamespacedKey;
 import org.bukkit.entity.Player;
+import org.bukkit.entity.Trident;
 import org.bukkit.event.entity.PlayerDeathEvent;
 import org.bukkit.event.player.PlayerRespawnEvent;
 import org.bukkit.inventory.ItemStack;
@@ -114,6 +115,9 @@ public class AbstractEnchant {
 
     public double getHealFromTotalLevel(int totalLvl){
         return (totalLvl);
+    }
+    public double getEffectivnessFromTotalLvl(int totaLvl){
+        return (totaLvl);
     }
 
 }

@@ -4,6 +4,7 @@ import com.github.sirblobman.api.shaded.adventure.text.Component;
 import com.github.sirblobman.api.shaded.adventure.text.minimessage.MiniMessage;
 import me.twostinkysocks.boxplugin.BoxPlugin;
 import org.bukkit.NamespacedKey;
+import org.bukkit.entity.Trident;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.persistence.PersistentDataType;
@@ -73,32 +74,6 @@ public class PrickleEnchant extends AbstractEnchant{
             return true;
         }
         return false;
-    }
-    @Override
-    public String getlvlToRoman(int level){
-        String numeral = Integer.toString(level);
-        if(level == 1){
-            numeral = "I";
-        } else if (level == 2) {
-            numeral = "II";
-        } else if (level == 3) {
-            numeral = "III";
-        } else if (level == 4) {
-            numeral = "IV";
-        } else if (level == 5) {
-            numeral = "V";
-        } else if (level == 6) {
-            numeral = "VI";
-        } else if (level == 7) {
-            numeral = "VII";
-        } else if (level == 8) {
-            numeral = "VIII";
-        } else if (level == 9) {
-            numeral = "IX";
-        } else if (level == 10) {
-            numeral = "X";
-        }
-        return numeral;
     }
     @Override
     public double getDamageFromTotalLevel(int totalLvl){

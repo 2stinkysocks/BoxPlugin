@@ -208,7 +208,7 @@ public class MarketManager {
         pane.addItem(guiBalance, 0, 2);
         pane.addItem(guiRubies, 8, 2);
         pane.addItem(guiLottery, 4, 2);
-        pane.addItem(guiPillars, 4, 1);
+        //pane.addItem(guiPillars, 4, 1); disabled for now
         gui.addPane(pane);
         gui.copy().show(p);
     }

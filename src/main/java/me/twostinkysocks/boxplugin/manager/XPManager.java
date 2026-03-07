@@ -114,6 +114,10 @@ public class XPManager {
         return total;
     }
 
+    public void levelUpRubies(Player p){
+        BoxPlugin.instance.getMarketManager().addRubies(p, 10);
+    }
+
     public void handleGroupUpdate(Player p, int beforelevel, int afterlevel) {
         User user = BoxPlugin.instance.getLuckPerms().getUserManager().getUser(p.getUniqueId());
         // add xp

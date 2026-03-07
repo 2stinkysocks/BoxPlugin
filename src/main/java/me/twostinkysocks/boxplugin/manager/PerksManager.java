@@ -230,13 +230,13 @@ public class PerksManager {
                 });
             }
         }
-        if(!BoxPlugin.instance.getMarketManager().has3rdPerk(p)) {
+        if(BoxPlugin.instance.getXpManager().getLevel(p) < 150) {
             ItemStack itemThree = new ItemStack(Material.BEDROCK);
             ItemMeta itemThreeMeta = itemThree.getItemMeta();
-            itemThreeMeta.setDisplayName(ChatColor.RED + "Unlocked from Progression Pillars");
-            itemThreeMeta.setLore(List.of(
-                    ChatColor.RED + "Visit the " + ChatColor.AQUA + "" + ChatColor.BOLD + "Banker" + ChatColor.RED +" to claim"
-            ));
+            itemThreeMeta.setDisplayName(ChatColor.RED + "Unlocks at lvl 150");
+//            itemThreeMeta.setLore(List.of(
+//                    ChatColor.RED + "Visit the " + ChatColor.AQUA + "" + ChatColor.BOLD + "Banker" + ChatColor.RED +" to claim"
+//            ));
             itemThree.setItemMeta(itemThreeMeta);
             perkThree = new GuiItem(itemThree, e -> {
                 e.setCancelled(true);

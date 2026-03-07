@@ -6,7 +6,7 @@
 
     <groupId>me.twostinkysocks</groupId>
     <artifactId>aetherplugin</artifactId>
-    <version>2.6</version>
+    <version>3.0</version>
     <packaging>jar</packaging>
 
     <name>BoxPlugin</name>

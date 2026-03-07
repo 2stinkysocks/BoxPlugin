@@ -109,20 +109,6 @@ public class AsphyxiateEnchant extends AbstractEnchant{
         }
         return numeral;
     }
-
-    public boolean hasEnchantTrident(Trident item) {
-        if (item.getPersistentDataContainer().has(getEnchantKey())) {
-            return true;
-        }
-        return false;
-    }
-
-    public int getLevelTrident(Trident item) {
-        if (item.getPersistentDataContainer().has(getEnchantKey())) {
-            return item.getPersistentDataContainer().get(getEnchantKey(), PersistentDataType.INTEGER);
-        }
-        return 0;
-    }
     @Override
     public double getDamageFromTotalLevel(int totalLvl) {
         return (totalLvl * DAMAGE_PER_LEVEL);

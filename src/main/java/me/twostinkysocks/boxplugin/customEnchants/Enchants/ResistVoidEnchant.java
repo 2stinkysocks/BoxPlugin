@@ -2,19 +2,17 @@ package me.twostinkysocks.boxplugin.customEnchants.Enchants;
 
 import me.twostinkysocks.boxplugin.BoxPlugin;
 import org.bukkit.NamespacedKey;
-import org.bukkit.entity.Trident;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.persistence.PersistentDataType;
 
-public class VoidAspectEnchant extends AbstractEnchant{
+public class ResistVoidEnchant extends AbstractEnchant{
     private String enchantName;
     private NamespacedKey enchantKey;
-    private final double DAMAGE_PER_LEVEL = 1.5;
 
-    public VoidAspectEnchant() {
-        setEnchantName("Void Aspect");
-        setEnchantKey(new NamespacedKey(BoxPlugin.instance, "VoidAspect_Enchant"));
+    public ResistVoidEnchant() {
+        setEnchantName("Void Resist");
+        setEnchantKey(new NamespacedKey(BoxPlugin.instance, "VoidResist_enchant"));
     }
 
     @Override
@@ -81,9 +79,5 @@ public class VoidAspectEnchant extends AbstractEnchant{
             return true;
         }
         return false;
-    }
-    @Override
-    public double getDamageFromTotalLevel(int totalLvl) {
-        return (totalLvl * DAMAGE_PER_LEVEL);
     }
 }

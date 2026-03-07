@@ -76,22 +76,27 @@ public class Listeners implements Listener {
 
     @EventHandler
     public void playerCrouch(PlayerToggleSneakEvent e){
-        if(BoxPlugin.instance.getCurseManager().hasCurse(e.getPlayer())){
-            e.getPlayer().sendMessage(ChatColor.RED + "You cannot use magic items without a soul!");
-            return;
-        }
-        for(CustomItem i : items){
-            i.getSneak().accept(e);
+        ItemStack item = e.getPlayer().getInventory().getItemInMainHand();
+        if(item.getItemMeta() != null && item.getItemMeta().getPersistentDataContainer().has(new NamespacedKey(BoxPlugin.instance, "ITEM_ID"), PersistentDataType.STRING)) {
+            String itemId = item.getItemMeta().getPersistentDataContainer().get(new NamespacedKey(BoxPlugin.instance, "ITEM_ID"), PersistentDataType.STRING);
+            for(CustomItem i : items) {
+                if(itemId.equals(i.getItemId())) {
+                    if(BoxPlugin.instance.getCurseManager().hasCurse(e.getPlayer()) && !i.getCurseOveride()){//ignore for curses and non overide items
+                        e.getPlayer().sendMessage(ChatColor.RED + "You cannot use magic items without a soul!");
+                        continue;
+                    }
+                    i.getSneak().accept(e);;
+                }
+            }
         }
     }
 
     @EventHandler
     public void entityDamage(EntityDamageByEntityEvent e) {
-        Player p = (Player) e.getDamager();
-        if(BoxPlugin.instance.getCurseManager().hasCurse(p)){
-            return;
-        }
-        if(e.getDamager() instanceof Player) {
+        if(e.getDamager() instanceof Player p) {
+            if(BoxPlugin.instance.getCurseManager().hasCurse(p)){
+                return;
+            }
             for(ItemStack item : p.getInventory().getContents()) {
                 // TODO: implement for all items
                 if(item != null && item.hasItemMeta() && item.getItemMeta().getPersistentDataContainer().has(new NamespacedKey(BoxPlugin.instance, "ITEM_ID"), PersistentDataType.STRING) && item.getItemMeta().getPersistentDataContainer().get(new NamespacedKey(BoxPlugin.instance, "ITEM_ID"), PersistentDataType.STRING).equals("TALISMAN_OF_ENERGY")) {
@@ -105,8 +110,7 @@ public class Listeners implements Listener {
                 }
             }
         }
-        if(e.getEntity() instanceof Player) {
-            p = (Player) e.getEntity();
+        if(e.getEntity() instanceof Player p) {
             for(ItemStack item : p.getInventory().getContents()) {
                 if(item != null && item.hasItemMeta() && item.getItemMeta().getPersistentDataContainer().has(new NamespacedKey(BoxPlugin.instance, "ITEM_ID"), PersistentDataType.STRING)&& item.getItemMeta().getPersistentDataContainer().get(new NamespacedKey(BoxPlugin.instance, "ITEM_ID"), PersistentDataType.STRING).equals("WOLF_PACK")) {
                     for(CustomItem ci : items) {
@@ -243,15 +247,17 @@ public class Listeners implements Listener {
                     Player p = (Player) e.getEntity().getShooter();
                     double maxHealCap = p.getMaxHealth() * 0.5; //50% of max hp
                     double maxHealCap2 = 60;
-                    if((finalDamage * 0.7 > maxHealCap) && (finalDamage * 0.7 > maxHealCap2)){// implements heal cap
-                        p.setHealth(Math.min((p.getHealth() + maxHealCap2), p.getMaxHealth()));
-                        Util.debug(p, "Healed for " + Math.max(maxHealCap2, 0));
-                    } else if (finalDamage * 0.7 > maxHealCap) {
-                        p.setHealth(Math.min((p.getHealth() + maxHealCap), p.getMaxHealth()));
-                        Util.debug(p, "Healed for " + Math.max(maxHealCap, 0));
-                    } else {
-                        p.setHealth(Math.min((p.getHealth() + (finalDamage*0.7)), p.getMaxHealth()));
-                        Util.debug(p, "Healed for " + Math.max(finalDamage*0.7, 0));
+                    if(!p.isDead()){
+                        if((finalDamage * 0.7 > maxHealCap) && (finalDamage * 0.7 > maxHealCap2)){// implements heal cap
+                            p.setHealth(Math.min((p.getHealth() + maxHealCap2), p.getMaxHealth()));
+                            Util.debug(p, "Healed for " + Math.max(maxHealCap2, 0));
+                        } else if (finalDamage * 0.7 > maxHealCap) {
+                            p.setHealth(Math.min((p.getHealth() + maxHealCap), p.getMaxHealth()));
+                            Util.debug(p, "Healed for " + Math.max(maxHealCap, 0));
+                        } else {
+                            p.setHealth(Math.min((p.getHealth() + (finalDamage*0.7)), p.getMaxHealth()));
+                            Util.debug(p, "Healed for " + Math.max(finalDamage*0.7, 0));
+                        }
                     }
                     task.cancel();
                 }

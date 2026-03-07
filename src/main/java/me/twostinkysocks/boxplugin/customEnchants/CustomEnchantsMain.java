@@ -4,6 +4,7 @@ import com.github.sirblobman.api.shaded.adventure.text.serializer.legacy.LegacyC
 import com.google.common.collect.Maps;
 import me.twostinkysocks.boxplugin.BoxPlugin;
 import me.twostinkysocks.boxplugin.customEnchants.Enchants.*;
+import org.bukkit.ChatColor;
 import org.bukkit.NamespacedKey;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Listener;
@@ -34,7 +35,14 @@ public class CustomEnchantsMain {
         Zeus(new ZeusEnchant()),
         GodBorn(new GodBornEnchant()),
         VoidAspect(new VoidAspectEnchant()),
-        VoidBorn(new VoidBornEnchant());
+        VoidBorn(new VoidBornEnchant()),
+        LifeSteal(new LifeStealEnchant()),
+        Titan(new TitanEnchant()),
+        IceResist(new ResistIceEnchant()),
+        NatureResist(new ResistPlantEnchant()),
+        WaterResist(new ResistWaterEnchant()),
+        LightningResist(new ResistLightningEnchant()),
+        VoidResist(new ResistVoidEnchant());
 
 
         private static final Map<String, CustomEnchantsMain.Enchant> BY_NAME = Maps.newHashMap();
@@ -118,8 +126,50 @@ public class CustomEnchantsMain {
         // Remove old lore lines matching any custom enchant
         List<String> keys = Enchant.getKeys();
         lore.removeIf(line -> {
+            String stripped = ChatColor.stripColor(line);
+            for (String key : keys) {
+                if (stripped.startsWith(key)) return true;
+            }
+            return false;
+        });
+
+        //re add all lines
+        int enchLevel;
+        for(String key : keys){
+            enchant = Enchant.getByName(key);
+            if(enchant.instance.hasEnchant(item)){
+                enchLevel = enchant.instance.getLevel(item);
+                lore.add(0, enchant.instance.getEnchantRGB(enchLevel)); // insert as first line
+            }
+        }
+        itemMeta.setLore(lore);
+        item.setItemMeta(itemMeta);
+        return item;
+    }
+
+    public ItemStack setCustomEnchantByEnchant(ItemStack item, Enchant enchant, int lvl){
+        if(enchant == null) return item;
+
+        if(lvl > 0){
+            item = enchant.instance.setLevel(item, lvl);
+        }
+        else {
+            item = enchant.instance.removeEnchant(item);
+        }
+        item = setCustomEnchantStatus(item);
+//        if(!hasCustomEnchants(item)){
+//            return;
+//        }
+        //lore part
+        ItemMeta itemMeta = item.getItemMeta();
+        if(itemMeta == null) return item;
+        List<String> lore = itemMeta.hasLore() ? new ArrayList<>(itemMeta.getLore()) : new ArrayList<>();
+
+        // Remove old lore lines matching any custom enchant
+        List<String> keys = Enchant.getKeys();
+        lore.removeIf(line -> {
             for(String key : keys){
-                if(line.contains(key)) return true;
+                if(line.contains(ChatColor.stripColor(key))) return true;
             }
             return false;
         });

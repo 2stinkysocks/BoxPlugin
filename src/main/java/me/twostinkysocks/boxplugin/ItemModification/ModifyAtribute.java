@@ -3,6 +3,7 @@ package me.twostinkysocks.boxplugin.ItemModification;
 import com.google.common.collect.Multimap;
 
 import me.twostinkysocks.boxplugin.BoxPlugin;
+import me.twostinkysocks.boxplugin.customEnchants.CustomEnchantsMain;
 import me.twostinkysocks.boxplugin.manager.GearScoreManager;
 import net.minecraft.world.item.TridentItem;
 import org.bukkit.NamespacedKey;
@@ -404,6 +405,16 @@ public class ModifyAtribute {
             ammount += item.getEnchantmentLevel(enchant);
         }
         item.addUnsafeEnchantment(enchant, ammount);
+        return item;
+    } 
+
+    public static ItemStack modifyCustomEnchant(ItemStack item, CustomEnchantsMain.Enchant enchant, int ammount){
+        if(enchant.instance.hasEnchant(item)){
+            int enchLvl = enchant.instance.getLevel(item) + ammount;
+            BoxPlugin.instance.getCustomEnchantsMain().setCustomEnchantByEnchant(item, enchant, enchLvl);
+        } else {
+            BoxPlugin.instance.getCustomEnchantsMain().setCustomEnchantByEnchant(item, enchant, ammount);
+        }
         return item;
     }
 
