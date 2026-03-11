@@ -38,6 +38,10 @@ public class HealSpear extends CustomItem implements Listener {
         setClick((e, a) -> {
             Player p = e.getPlayer();
             if(a == Action.RIGHT_CLICK_AIR || a == Action.RIGHT_CLICK_BLOCK) {
+                // allow shield blocking to take priority
+                if(p.isSneaking() && p.getInventory().getItemInOffHand().getType() == Material.SHIELD) {
+                    return;
+                }
                 if(!p.hasPermission("customitems.cooldownbypass") && cooldown.containsKey(p.getUniqueId()) && cooldown.get(p.getUniqueId()) > System.currentTimeMillis()) {
                     e.setCancelled(true);
                     BigDecimal bd = new BigDecimal(((double)(cooldown.get(p.getUniqueId()) - System.currentTimeMillis()))/1000.0);

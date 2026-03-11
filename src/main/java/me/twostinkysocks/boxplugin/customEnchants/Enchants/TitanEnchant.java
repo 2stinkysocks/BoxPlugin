@@ -9,7 +9,7 @@ import org.bukkit.persistence.PersistentDataType;
 public class TitanEnchant extends AbstractEnchant{
     private String enchantName;
     private NamespacedKey enchantKey;
-    private final double DAMAGE_AMP_PERLVL = 0.02;
+    private final double DAMAGE_AMP_PERLVL = 0.015;
     public TitanEnchant() {
         setEnchantName("Titan");
         setEnchantKey(new NamespacedKey(BoxPlugin.instance, "Titan_Enchant"));

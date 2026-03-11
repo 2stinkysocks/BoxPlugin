@@ -34,6 +34,10 @@ public class WitherSkullSword extends CustomItem {
         setClick((e, a) -> {
             Player p = e.getPlayer();
             if(a == Action.RIGHT_CLICK_AIR || a == Action.RIGHT_CLICK_BLOCK) {
+                // allow shield blocking to take priority
+                if(p.isSneaking() && p.getInventory().getItemInOffHand().getType() == Material.SHIELD) {
+                    return;
+                }
                 if(p.hasPermission("customitems.cooldownbypass") || !cooldown.containsKey(p.getUniqueId()) || cooldown.get(p.getUniqueId()) < System.currentTimeMillis()) {
                     cooldown.put(p.getUniqueId(), System.currentTimeMillis() + (long)(5000 * (BoxPlugin.instance.getPerksManager().getSelectedMegaPerks(p).contains(PerksManager.MegaPerk.MEGA_COOLDOWN_REDUCTION) ? 0.5 : 1))); // 5 seconds
                     //

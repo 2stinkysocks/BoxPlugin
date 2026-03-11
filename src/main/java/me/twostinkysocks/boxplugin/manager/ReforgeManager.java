@@ -410,6 +410,9 @@ public class ReforgeManager {
                 p.sendMessage(ChatColor.RED + "This item is not reforged!");
                 p.playSound(p.getLocation(), Sound.BLOCK_FIRE_EXTINGUISH, 3.0F, 1.0F);
             }
+        if(cleanedItem == null){
+            return item;
+        }
         return cleanedItem;
     }
 
@@ -763,21 +766,16 @@ public class ReforgeManager {
                     return HelmetReforges(item, p, rarityChance);
                 }
                 p.sendMessage(ChatColor.BLUE + "Rare reforge: God Born level increased!");
-                if (reforgeChoiceChance2 <= 60) {
+                if (reforgeChoiceChance2 <= 80) {
                     p.sendMessage(ChatColor.DARK_AQUA + "Obtained tier I");
                     ModifyAtribute.modifyCustomEnchant(item, CustomEnchantsMain.Enchant.GodBorn, 1);
                     item = ModifyAtribute.ModifyGearScore(item, 6);
                     item = setReforgeList(item, "+ 1 God Born");
-                } else if (reforgeChoiceChance2 <= 90) {
+                } else {
                     p.sendMessage(ChatColor.DARK_AQUA + "Obtained tier II");
                     ModifyAtribute.modifyCustomEnchant(item, CustomEnchantsMain.Enchant.GodBorn, 2);
                     item = ModifyAtribute.ModifyGearScore(item, 12);
                     item = setReforgeList(item, "+ 2 God Born");
-                } else {
-                    p.sendMessage(ChatColor.DARK_AQUA + "Obtained tier III");
-                    ModifyAtribute.modifyCustomEnchant(item, CustomEnchantsMain.Enchant.GodBorn, 3);
-                    item = ModifyAtribute.ModifyGearScore(item, 18);
-                    item = setReforgeList(item, "+ 3 God Born");
                 }
             } else if (reforgeChoiceChance1 <= chancePerRare*7) { //choose void Born
                 //Match enchant with pre-existing enchants if it has some already, else place it on normal gear
@@ -1178,21 +1176,16 @@ public class ReforgeManager {
                     return ChestplateReforge(item, p, rarityChance);
                 }
                 p.sendMessage(ChatColor.BLUE + "Rare reforge: God Born level increased!");
-                if (reforgeChoiceChance2 <= 60) {
+                if (reforgeChoiceChance2 <= 80) {
                     p.sendMessage(ChatColor.DARK_AQUA + "Obtained tier I");
                     ModifyAtribute.modifyCustomEnchant(item, CustomEnchantsMain.Enchant.GodBorn, 1);
                     item = ModifyAtribute.ModifyGearScore(item, 6);
                     item = setReforgeList(item, "+ 1 God Born");
-                } else if (reforgeChoiceChance2 <= 90) {
+                } else {
                     p.sendMessage(ChatColor.DARK_AQUA + "Obtained tier II");
                     ModifyAtribute.modifyCustomEnchant(item, CustomEnchantsMain.Enchant.GodBorn, 2);
                     item = ModifyAtribute.ModifyGearScore(item, 12);
                     item = setReforgeList(item, "+ 2 God Born");
-                } else {
-                    p.sendMessage(ChatColor.DARK_AQUA + "Obtained tier III");
-                    ModifyAtribute.modifyCustomEnchant(item, CustomEnchantsMain.Enchant.GodBorn, 3);
-                    item = ModifyAtribute.ModifyGearScore(item, 18);
-                    item = setReforgeList(item, "+ 3 God Born");
                 }
             } else if (reforgeChoiceChance1 <= chancePerRare*6) { //choose void Born
                 //Match enchant with pre-existing enchants if it has some already, else place it on normal gear
@@ -1617,21 +1610,16 @@ public class ReforgeManager {
                     return LeggingsReforge(item, p, rarityChance);
                 }
                 p.sendMessage(ChatColor.BLUE + "Rare reforge: God Born level increased!");
-                if (reforgeChoiceChance2 <= 60) {
+                if (reforgeChoiceChance2 <= 80) {
                     p.sendMessage(ChatColor.DARK_AQUA + "Obtained tier I");
                     ModifyAtribute.modifyCustomEnchant(item, CustomEnchantsMain.Enchant.GodBorn, 1);
                     item = ModifyAtribute.ModifyGearScore(item, 6);
                     item = setReforgeList(item, "+ 1 God Born");
-                } else if (reforgeChoiceChance2 <= 90) {
+                } else {
                     p.sendMessage(ChatColor.DARK_AQUA + "Obtained tier II");
                     ModifyAtribute.modifyCustomEnchant(item, CustomEnchantsMain.Enchant.GodBorn, 2);
                     item = ModifyAtribute.ModifyGearScore(item, 12);
                     item = setReforgeList(item, "+ 2 God Born");
-                } else {
-                    p.sendMessage(ChatColor.DARK_AQUA + "Obtained tier III");
-                    ModifyAtribute.modifyCustomEnchant(item, CustomEnchantsMain.Enchant.GodBorn, 3);
-                    item = ModifyAtribute.ModifyGearScore(item, 18);
-                    item = setReforgeList(item, "+ 3 God Born");
                 }
             } else if (reforgeChoiceChance1 <= chancePerRare*6) { //choose void Born
                 //Match enchant with pre-existing enchants if it has some already, else place it on normal gear
@@ -2085,21 +2073,16 @@ public class ReforgeManager {
                     return BootsReforge(item, p, rarityChance);
                 }
                 p.sendMessage(ChatColor.BLUE + "Rare reforge: God Born level increased!");
-                if (reforgeChoiceChance2 <= 60) {
+                if (reforgeChoiceChance2 <= 80) {
                     p.sendMessage(ChatColor.DARK_AQUA + "Obtained tier I");
                     ModifyAtribute.modifyCustomEnchant(item, CustomEnchantsMain.Enchant.GodBorn, 1);
                     item = ModifyAtribute.ModifyGearScore(item, 6);
                     item = setReforgeList(item, "+ 1 God Born");
-                } else if (reforgeChoiceChance2 <= 90) {
+                } else {
                     p.sendMessage(ChatColor.DARK_AQUA + "Obtained tier II");
                     ModifyAtribute.modifyCustomEnchant(item, CustomEnchantsMain.Enchant.GodBorn, 2);
                     item = ModifyAtribute.ModifyGearScore(item, 12);
                     item = setReforgeList(item, "+ 2 God Born");
-                } else {
-                    p.sendMessage(ChatColor.DARK_AQUA + "Obtained tier III");
-                    ModifyAtribute.modifyCustomEnchant(item, CustomEnchantsMain.Enchant.GodBorn, 3);
-                    item = ModifyAtribute.ModifyGearScore(item, 18);
-                    item = setReforgeList(item, "+ 3 God Born");
                 }
             } else if (reforgeChoiceChance1 <= chancePerRare*6) { //choose void Born
                 //Match enchant with pre-existing enchants if it has some already, else place it on normal gear

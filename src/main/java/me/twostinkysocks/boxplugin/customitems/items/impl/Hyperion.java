@@ -61,7 +61,11 @@ public class Hyperion extends CustomItem {
                 p.sendMessage(ChatColor.RED + "You cannot use magic items without a soul!");
                 return;
             }
-            if((a == Action.RIGHT_CLICK_BLOCK && !p.isSneaking()) || a == Action.RIGHT_CLICK_AIR) {
+            if(a == Action.RIGHT_CLICK_BLOCK  || a == Action.RIGHT_CLICK_AIR) {
+                // allow shield blocking to take priority
+                if(p.isSneaking() && p.getInventory().getItemInOffHand().getType() == Material.SHIELD) {
+                    return;
+                }
                 if(p.hasPermission("customitems.cooldownbypass") || !tpcooldown.containsKey(p.getUniqueId()) || tpcooldown.get(p.getUniqueId()) < System.currentTimeMillis()) {
                     tpcooldown.put(p.getUniqueId(), System.currentTimeMillis() + (long)(10000 * (BoxPlugin.instance.getPerksManager().getSelectedMegaPerks(p).contains(PerksManager.MegaPerk.MEGA_COOLDOWN_REDUCTION) ? 0.5 : 1)));
                     tp(p);
@@ -72,7 +76,7 @@ public class Hyperion extends CustomItem {
                     p.sendMessage(ChatColor.RED + "That's too fast! Wait " + bd.doubleValue() + " more seconds!");
                     p.playSound(p.getLocation(), Sound.BLOCK_FIRE_EXTINGUISH, 3.0F, 1.0F);
                 }
-            } else if(a == Action.RIGHT_CLICK_BLOCK && p.getLocation().getPitch() > 45) {
+            } if(a == Action.RIGHT_CLICK_BLOCK && p.isSneaking() && p.getLocation().getPitch() > 45) {
                 if(p.hasPermission("customitems.cooldownbypass") || !resistancecooldown.containsKey(p.getUniqueId()) || resistancecooldown.get(p.getUniqueId()) < System.currentTimeMillis()) {
                     resistancecooldown.put(p.getUniqueId(), System.currentTimeMillis() + (long)(25000 * (BoxPlugin.instance.getPerksManager().getSelectedMegaPerks(p).contains(PerksManager.MegaPerk.MEGA_COOLDOWN_REDUCTION) ? 0.5 : 1)));
                     resistance(p);
@@ -87,7 +91,7 @@ public class Hyperion extends CustomItem {
         });
         setSneak((e) -> {
             Player p = e.getPlayer();
-            if(!p.isSneaking()){
+            if(!e.isSneaking()){
                 return;
             }
             Bukkit.getScheduler().runTaskTimer(BoxPlugin.instance, task -> {

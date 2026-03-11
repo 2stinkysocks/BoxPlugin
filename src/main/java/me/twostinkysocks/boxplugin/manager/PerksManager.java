@@ -49,6 +49,7 @@ public class PerksManager {
         MAGNET(new PerkMagnet()),
         RESISTANCE(new PerkResistance()),
         REGEN(new PerkRegen()),
+        STEAK(new PerkSteak()),
         SHULKERPEEK(new PerkShulkerPeek());
 
         public final AbstractPerk instance;
@@ -117,6 +118,8 @@ public class PerksManager {
         GuiItem perkOne = null;
         GuiItem perkTwo = null;
         GuiItem perkThree = null;
+        GuiItem perkFour = null;
+        GuiItem perkFive = null;
         // note to self, never write code like this ever again
         if(BoxPlugin.instance.getXpManager().getLevel(p) < 50) {
             if(selectedPerks.size() == 0) {
@@ -268,13 +271,92 @@ public class PerksManager {
                 });
             }
         }
+        if(BoxPlugin.instance.getXpManager().getLevel(p) < 300) {
+            ItemStack itemFour = new ItemStack(Material.BEDROCK);
+            ItemMeta itemFourMeta = itemFour.getItemMeta();
+            itemFourMeta.setDisplayName(ChatColor.RED + "Unlocks at lvl 300");
+//            itemThreeMeta.setLore(List.of(
+//                    ChatColor.RED + "Visit the " + ChatColor.AQUA + "" + ChatColor.BOLD + "Banker" + ChatColor.RED +" to claim"
+//            ));
+            itemFour.setItemMeta(itemFourMeta);
+            perkFour = new GuiItem(itemFour, e -> {
+                e.setCancelled(true);
+            });
+        } else {
+            if(selectedPerks.size() < 4) {
+                ItemStack itemFour = new ItemStack(Material.STONE);
+                ItemMeta itemFourMeta = itemFour.getItemMeta();
+                itemFourMeta.setDisplayName(ChatColor.GRAY + "No perk selected");
+                List<String> newItemThreeLore = itemFourMeta.getLore() == null ? new ArrayList<>() : itemFourMeta.getLore();
+                newItemThreeLore.add("");
+                newItemThreeLore.add(ChatColor.GRAY + "Click to change perk");
+                itemFourMeta.setLore(newItemThreeLore);
+                itemFour.setItemMeta(itemFourMeta);
+                perkFour = new GuiItem(itemFour, e -> {
+                    clickPerkSlot(e, 4);
+                });
+            } else {
+                Perk selected = selectedPerks.get(3);
+                ItemStack itemFour = selected.instance.getGuiItem(p).clone();
+                ItemMeta itemFourMeta = itemFour.getItemMeta();
+                List<String> newItemThreeLore = itemFourMeta.getLore() == null ? new ArrayList<>() : itemFourMeta.getLore();
+                newItemThreeLore.add("");
+                newItemThreeLore.add(ChatColor.GRAY + "Click to change perk");
+                itemFourMeta.setLore(newItemThreeLore);
+                itemFour.setItemMeta(itemFourMeta);
+                perkFour = new GuiItem(itemFour, e -> {
+                    clickPerkSlot(e, 4);
+                });
+            }
+        }
+        if(BoxPlugin.instance.getXpManager().getLevel(p) < 500) {
+            ItemStack itemFive = new ItemStack(Material.BEDROCK);
+            ItemMeta itemFiveMeta = itemFive.getItemMeta();
+            itemFiveMeta.setDisplayName(ChatColor.RED + "Unlocks at lvl 500");
+//            itemThreeMeta.setLore(List.of(
+//                    ChatColor.RED + "Visit the " + ChatColor.AQUA + "" + ChatColor.BOLD + "Banker" + ChatColor.RED +" to claim"
+//            ));
+            itemFive.setItemMeta(itemFiveMeta);
+            perkFive = new GuiItem(itemFive, e -> {
+                e.setCancelled(true);
+            });
+        } else {
+            if(selectedPerks.size() < 5) {
+                ItemStack itemFive = new ItemStack(Material.STONE);
+                ItemMeta itemFiveMeta = itemFive.getItemMeta();
+                itemFiveMeta.setDisplayName(ChatColor.GRAY + "No perk selected");
+                List<String> newItemThreeLore = itemFiveMeta.getLore() == null ? new ArrayList<>() : itemFiveMeta.getLore();
+                newItemThreeLore.add("");
+                newItemThreeLore.add(ChatColor.GRAY + "Click to change perk");
+                itemFiveMeta.setLore(newItemThreeLore);
+                itemFive.setItemMeta(itemFiveMeta);
+                perkFive = new GuiItem(itemFive, e -> {
+                    clickPerkSlot(e, 5);
+                });
+            } else {
+                Perk selected = selectedPerks.get(4);
+                ItemStack itemFive = selected.instance.getGuiItem(p).clone();
+                ItemMeta itemFiveMeta = itemFive.getItemMeta();
+                List<String> newItemThreeLore = itemFiveMeta.getLore() == null ? new ArrayList<>() : itemFiveMeta.getLore();
+                newItemThreeLore.add("");
+                newItemThreeLore.add(ChatColor.GRAY + "Click to change perk");
+                itemFiveMeta.setLore(newItemThreeLore);
+                itemFive.setItemMeta(itemFiveMeta);
+                perkFive = new GuiItem(itemFive, e -> {
+                    clickPerkSlot(e, 5);
+                });
+            }
+        }
 
         pane.addItem(perkOne, 2,1);
         pane.addItem(perkTwo, 4,1);
         pane.addItem(perkThree, 6, 1);
+        pane.addItem(perkFour, 3,2);
+        pane.addItem(perkFive, 5,2);
 
         GuiItem megaperkOne = null;
         GuiItem megaperkTwo = null;
+        GuiItem megaperkThree = null;
 
         if(BoxPlugin.instance.getXpManager().getLevel(p) < 200) {
             ItemStack item = new ItemStack(Material.BEDROCK);
@@ -354,6 +436,45 @@ public class PerksManager {
                 });
             }
         }
+        if(BoxPlugin.instance.getXpManager().getLevel(p) < 650) {
+            ItemStack item = new ItemStack(Material.BEDROCK);
+            ItemMeta meta = item.getItemMeta();
+            meta.setDisplayName(ChatColor.RED + "Unlocks at level 650");
+            item.setItemMeta(meta);
+            megaperkThree = new GuiItem(item, e -> {
+                e.setCancelled(true);
+            });
+        } else {
+            if(getSelectedMegaPerks(p).size() <= 2) { // unlocked but nothing equipped
+                ItemStack item = new ItemStack(Material.STONE);
+                ItemMeta meta = item.getItemMeta();
+                meta.setDisplayName(ChatColor.GRAY + "No Megaperk selected");
+                List<String> newLore = meta.getLore() == null ? new ArrayList<>() : meta.getLore();
+                newLore.add("");
+                newLore.add(ChatColor.GRAY + "Click to change perk");
+                meta.setLore(newLore);
+                item.setItemMeta(meta);
+                megaperkThree = new GuiItem(item, e -> {
+                    clickMegaPerkSlot(e, 3);
+                });
+            } else { // unlocked and equipped
+                MegaPerk selected = getSelectedMegaPerks(p).get(2);
+                ItemStack item = selected.instance.getGuiItem(p).clone();
+                ItemMeta meta = item.getItemMeta();
+                List<String> newItemTwoLore = meta.getLore() == null ? new ArrayList<>() : meta.getLore();
+                newItemTwoLore.add("");
+                if(selected.equals(MegaPerk.MEGA_HEARTSTEEL)){
+                    newItemTwoLore.add(ChatColor.GREEN + "Your stacks: " + BoxPlugin.instance.getMegaPerkHeartSteal().getStacks(p));
+                    newItemTwoLore.add("");
+                }
+                newItemTwoLore.add(ChatColor.GRAY + "Click to change perk");
+                meta.setLore(newItemTwoLore);
+                item.setItemMeta(meta);
+                megaperkThree = new GuiItem(item, e -> {
+                    clickMegaPerkSlot(e, 2);
+                });
+            }
+        }
 
         // xp upgrade
 //        ItemStack xpUpgradeStack = new ItemStack(Material.EXPERIENCE_BOTTLE);
@@ -374,8 +495,9 @@ public class PerksManager {
 
 
 
-        pane.addItem(megaperkOne, 3, 3);
-        pane.addItem(megaperkTwo, 5, 3);
+        pane.addItem(megaperkOne, 2, 3);
+        pane.addItem(megaperkTwo, 4, 3);
+        pane.addItem(megaperkThree, 6, 3);
 
 
         gui.addPane(pane);
@@ -540,7 +662,6 @@ public class PerksManager {
         });
         StaticPane pane = new StaticPane(0, 0, 9, 6);
         for(int i = 0; i < Perk.getKeys().size(); i++) {
-            final int j = i;
             Perk perk = Perk.getByName(Perk.getKeys().get(i));
             ItemStack visualItem = perk.instance.getGuiItem(p).clone();
             ItemMeta meta = visualItem.getItemMeta();
@@ -696,37 +817,28 @@ public class PerksManager {
             });
             if (perk == Perk.SHULKERPEEK){
                 pane.addItem(item, 7, 1); // center of first row
-                continue;
             } else if (perk == Perk.OBSIDIAN) {
                 pane.addItem(item, 6, 1); // center of first row
-                continue;
             } else if (perk == Perk.ROCKETS) {
                 pane.addItem(item, 5, 1); // center of first row
-                continue;
             } else if (perk == Perk.MAGNET) {
                 pane.addItem(item, 6, 2); // center of first row
-                continue;
             } else if (perk == Perk.XPBOOST) {
                 pane.addItem(item, 5, 2); // center of first row
-                continue;
             } else if (perk == Perk.SPEED) {
                 pane.addItem(item, 2, 1); // center of first row
-                continue;
             } else if (perk == Perk.WATER_BREATHING) {
                 pane.addItem(item, 3, 1); // center of first row
-                continue;
             } else if (perk == Perk.STRENGTH) {
                 pane.addItem(item, 2, 2); // center of first row
-                continue;
             } else if (perk == Perk.HASTE) {
                 pane.addItem(item, 3, 2); // center of first row
-                continue;
             } else if (perk == Perk.RESISTANCE) {
                 pane.addItem(item, 1, 1); // center of first row
-                continue;
             } else if (perk == Perk.REGEN) {
                 pane.addItem(item, 1, 2); // center of first row
-                continue;
+            } else if (perk == Perk.STEAK) {
+                pane.addItem(item, 7, 2); // center of first row
             }
 //            int x = 0;
 //            int y = 0;

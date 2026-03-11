@@ -163,6 +163,9 @@ public class Listeners implements Listener {
             //P is the main player with the cactus gear
             LivingEntity target = (LivingEntity) e.getEntity();
             ItemStack mainHandItem = p.getItemInHand();
+            if(p.getLocation().distance(e.getEntity().getLocation()) > 6){
+                return;
+            }
             if(mainHandItem != null && mainHandItem.getItemMeta() != null && CustomEnchantsMain.Enchant.Prickle.instance.hasEnchant(mainHandItem)){//prickle enchant on weapon
                 if(prickleProcessing.contains(target.getUniqueId())){// prevent recussion
                     return;
@@ -253,6 +256,10 @@ public class Listeners implements Listener {
                 return;
             }
 
+            if(p.getLocation().distance(e.getEntity().getLocation()) > 6){
+                return;
+            }
+
             LivingEntity target = (LivingEntity) e.getEntity();
             ItemStack mainHandItem = p.getItemInHand();
             if(mainHandItem != null && mainHandItem.getItemMeta() != null && CustomEnchantsMain.Enchant.Magma.instance.hasEnchant(mainHandItem)){//magma enchant on weapon
@@ -288,6 +295,10 @@ public class Listeners implements Listener {
             Player p = (Player) e.getDamager();
             //P is the main player with the ice gear
             if(BoxPlugin.instance.getCurseManager().hasCurse(p)){
+                return;
+            }
+
+            if(p.getLocation().distance(e.getEntity().getLocation()) > 6){
                 return;
             }
 
@@ -349,6 +360,10 @@ public class Listeners implements Listener {
                 return;
             }
 
+            if(p.getLocation().distance(e.getEntity().getLocation()) > 6){
+                return;
+            }
+
             LivingEntity target = (LivingEntity) e.getEntity();
             ItemStack mainHandItem = p.getItemInHand();
             if(mainHandItem != null && mainHandItem.getItemMeta() != null && CustomEnchantsMain.Enchant.Asphyxiate.instance.hasEnchant(mainHandItem)){//asphixiate enchant on weapon
@@ -405,6 +420,10 @@ public class Listeners implements Listener {
                 return;
             }
 
+            if(p.getLocation().distance(e.getEntity().getLocation()) > 6){
+                return;
+            }
+
             LivingEntity target = (LivingEntity) e.getEntity();
             ItemStack mainHandItem = p.getItemInHand();
             if(mainHandItem != null && mainHandItem.getItemMeta() != null && CustomEnchantsMain.Enchant.Zeus.instance.hasEnchant(mainHandItem)){//zeus enchant on weapon
@@ -429,7 +448,7 @@ public class Listeners implements Listener {
                     } else {
                         float attackStrength = p.getAttackCooldown();
                         lightningDmg *= attackStrength;
-                        lightningDmg = lightningDmg/2;//half against non players
+                        lightningDmg = lightningDmg/4;//25% against non players
                         target.damage(lightningDmg, DamageSource.builder(DamageType.MAGIC).withCausingEntity(p).withDirectEntity(p).build());
                         Util.debug(p, "dealt " + (lightningDmg) + " bonus damage to " + target.getName());
                     }
@@ -448,6 +467,10 @@ public class Listeners implements Listener {
         if(e.getDamager() instanceof Player p && e.getEntity() instanceof LivingEntity && (e.getCause() == EntityDamageEvent.DamageCause.ENTITY_ATTACK || e.getCause() == EntityDamageEvent.DamageCause.ENTITY_SWEEP_ATTACK)) {
             //P is the main player with the void gear
             if(BoxPlugin.instance.getCurseManager().hasCurse(p)){
+                return;
+            }
+
+            if(p.getLocation().distance(e.getEntity().getLocation()) > 6){
                 return;
             }
 
@@ -484,6 +507,10 @@ public class Listeners implements Listener {
             if(BoxPlugin.instance.getCurseManager().hasCurse(p)){
                 return;
             }
+            if(p.getLocation().distance(e.getEntity().getLocation()) > 6){
+                return;
+            }
+
 
             ItemStack mainHandItem = p.getItemInHand();
             if(mainHandItem != null && mainHandItem.getItemMeta() != null && CustomEnchantsMain.Enchant.LifeSteal.instance.hasEnchant(mainHandItem)){//lifesteal enchant on weapon
@@ -502,6 +529,10 @@ public class Listeners implements Listener {
             Player p = (Player) e.getDamager();
             //P is the main player with the titan gear
             if(BoxPlugin.instance.getCurseManager().hasCurse(p)){
+                return;
+            }
+
+            if(p.getLocation().distance(e.getEntity().getLocation()) > 6){
                 return;
             }
 
@@ -662,7 +693,7 @@ public class Listeners implements Listener {
                     } else {
                         float attackStrength = p.getAttackCooldown();
                         lightningDmg *= attackStrength;
-                        lightningDmg = lightningDmg/2;//half against non players
+                        lightningDmg = lightningDmg/4;//25% against non players
                         target.damage(lightningDmg, DamageSource.builder(DamageType.MAGIC).withCausingEntity(p).withDirectEntity(p).build());
                         Util.debug(p, "dealt " + (lightningDmg) + " bonus damage to " + target.getName());
                     }

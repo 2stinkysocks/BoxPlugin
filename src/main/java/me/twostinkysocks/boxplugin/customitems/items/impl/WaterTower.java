@@ -48,6 +48,10 @@ public class WaterTower extends CustomItem {
             e.setCancelled(true);
             if(a != Action.RIGHT_CLICK_AIR && a != Action.RIGHT_CLICK_BLOCK) return;
             Player p = e.getPlayer();
+            // allow shield blocking to take priority
+            if(p.isSneaking() && p.getInventory().getItemInOffHand().getType() == Material.SHIELD) {
+                return;
+            }
             if(p.hasPermission("customitems.cooldownbypass") || !cooldown.containsKey(p.getUniqueId()) || cooldown.get(p.getUniqueId()) < System.currentTimeMillis()) {
                 cooldown.put(p.getUniqueId(), System.currentTimeMillis() + (long)(1000*20 * (BoxPlugin.instance.getPerksManager().getSelectedMegaPerks(p).contains(PerksManager.MegaPerk.MEGA_COOLDOWN_REDUCTION) ? 0.5 : 1)));
                 go(p);

@@ -37,12 +37,14 @@ public class CurseManager {
             p.getPersistentDataContainer().remove(new NamespacedKey(BoxPlugin.instance, "selected_perks"));
         } else {//let them keep one
             List<PerksManager.Perk> currentPerks = BoxPlugin.instance.getPerksManager().getSelectedPerks(p);
-            for(PerksManager.Perk perk : currentPerks) {
-                if(perk != null && (currentPerks.size() != 1)) {
+            while(currentPerks.size() > 1) {
+                PerksManager.Perk perk = currentPerks.remove(currentPerks.size() - 1);
+                if(perk != null) {
                     perk.instance.onUnequip(p);
-                    currentPerks.remove(currentPerks.size()-1);
                 }
             }
+
+            BoxPlugin.instance.getPerksManager().setSelectedPerks(p, currentPerks);
             BoxPlugin.instance.getPerksManager().setSelectedPerks(p, currentPerks);
             for(PerksManager.MegaPerk megaPerk : BoxPlugin.instance.getPerksManager().getSelectedMegaPerks(p)) {
                 if(megaPerk != null) {
