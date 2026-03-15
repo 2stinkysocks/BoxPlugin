@@ -12,6 +12,7 @@ import me.twostinkysocks.boxplugin.customEnchants.CustomEnchantsMain;
 import me.twostinkysocks.boxplugin.customEnchants.Enchants.*;
 import me.twostinkysocks.boxplugin.customitems.CustomItemsMain;
 import me.twostinkysocks.boxplugin.customitems.items.impl.HealSpear;
+import me.twostinkysocks.boxplugin.customitems.items.impl.TalismanOfEnergy;
 import me.twostinkysocks.boxplugin.event.Listeners;
 import me.twostinkysocks.boxplugin.event.PacketListeners;
 import me.twostinkysocks.boxplugin.event.PlayerBoxXpUpdateEvent;
@@ -294,6 +295,8 @@ public final class BoxPlugin extends JavaPlugin implements CommandExecutor, TabC
         new TerrainRegeneratorMain().onEnable();
         new CustomItemsMain().onEnable();
         new CustomEnchantsMain().onEnable();
+
+        TalismanOfEnergy.TickCounter.start();
 
 
         JobKey jobKeyA = new JobKey("market", "group1");

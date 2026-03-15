@@ -63,7 +63,7 @@ public class Hyperion extends CustomItem {
             }
             if(a == Action.RIGHT_CLICK_BLOCK  || a == Action.RIGHT_CLICK_AIR) {
                 // allow shield blocking to take priority
-                if(p.isSneaking() && p.getInventory().getItemInOffHand().getType() == Material.SHIELD) {
+                if(p.isSneaking() && p.getInventory().getItemInOffHand().getType() == Material.SHIELD && p.getLocation().getPitch() < 45) {
                     return;
                 }
                 if(p.hasPermission("customitems.cooldownbypass") || !tpcooldown.containsKey(p.getUniqueId()) || tpcooldown.get(p.getUniqueId()) < System.currentTimeMillis()) {
@@ -119,7 +119,7 @@ public class Hyperion extends CustomItem {
                 } else if(p.getVelocity().getY() >= -0.1 && p.getVelocity().getY() <= 0.1 && p.isSneaking() && !p.isFlying() && !p.isInWater() && !p.isInsideVehicle() && !p.isClimbing() && !p.isGliding() && p.getPotionEffect(PotionEffectType.SLOW_FALLING) == null) {
                     if(p.hasPermission("customitems.cooldownbypass") || !slamcooldown.containsKey(p.getUniqueId()) || slamcooldown.get(p.getUniqueId()) < System.currentTimeMillis()) {
                         if (p.getInventory().getItemInMainHand() != null && p.getInventory().getItemInMainHand().hasItemMeta() && p.getInventory().getItemInMainHand().getItemMeta().getPersistentDataContainer().has(new NamespacedKey(BoxPlugin.instance, "ITEM_ID"), PersistentDataType.STRING) && p.getInventory().getItemInMainHand().getItemMeta().getPersistentDataContainer().get(new NamespacedKey(BoxPlugin.instance, "ITEM_ID"), PersistentDataType.STRING).equals("HYPERION")) {
-                            int ticks = inAirTime.get(p.getUniqueId());
+                            int ticks = inAirTime.getOrDefault(p.getUniqueId(), 0);
                             float rad = 4;
                             double multiplier = 1.0;
                             if (ticks < 5) return;

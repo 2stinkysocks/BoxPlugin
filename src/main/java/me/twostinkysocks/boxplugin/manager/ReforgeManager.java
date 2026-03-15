@@ -476,7 +476,11 @@ public class ReforgeManager {
             p.sendMessage(ChatColor.GREEN + "Reforging your crossbow!");
             CrossBowReforge(item, p, 0);
 
-        } else {
+        }  else if (item.getType() == Material.MACE) {
+            p.sendMessage(ChatColor.GREEN + "Reforging your mace!");
+            MaceReforge(item, p, 0);
+
+        }else {
             //must be a sword if gotten this far
             p.sendMessage(ChatColor.GREEN + "Reforging your weapon!");
             SwordReforge(item, p, 0);
@@ -2545,39 +2549,29 @@ public class ReforgeManager {
         } else if (rarityChance <= 98) {//epic
             if (reforgeChoiceChance1 <= chancePerEpic) { //choose Aspect of the Gods
                 p.sendMessage(ChatColor.DARK_PURPLE + "Epic reforge: Aspect of the Gods level increased!");
-                if (reforgeChoiceChance2 <= 60) {
+                if (reforgeChoiceChance2 <= 80) {
                     p.sendMessage(ChatColor.DARK_AQUA + "Obtained tier I");
                     ModifyAtribute.modifyCustomEnchant(item, CustomEnchantsMain.Enchant.Zeus, 1);
                     item = ModifyAtribute.ModifyGearScore(item, 8);
                     item = setReforgeList(item, "+ 1 Aspect of the Gods");
-                } else if (reforgeChoiceChance2 <= 90) {
+                } else {
                     p.sendMessage(ChatColor.DARK_AQUA + "Obtained tier II");
                     ModifyAtribute.modifyCustomEnchant(item, CustomEnchantsMain.Enchant.Zeus, 2);
                     item = ModifyAtribute.ModifyGearScore(item, 16);
                     item = setReforgeList(item, "+ 2 Aspect of the Gods");
-                } else {
-                    p.sendMessage(ChatColor.DARK_AQUA + "Obtained tier III");
-                    ModifyAtribute.modifyCustomEnchant(item, CustomEnchantsMain.Enchant.Zeus, 3);
-                    item = ModifyAtribute.ModifyGearScore(item, 24);
-                    item = setReforgeList(item, "+ 3 Aspect of the Gods");
                 }
             } else if (reforgeChoiceChance1 <= chancePerEpic*2) { //choose Void Aspect
                 p.sendMessage(ChatColor.DARK_PURPLE + "Epic reforge: Void Aspect level increased!");
-                if (reforgeChoiceChance2 <= 60) {
+                if (reforgeChoiceChance2 <= 80) {
                     p.sendMessage(ChatColor.DARK_AQUA + "Obtained tier I");
                     ModifyAtribute.modifyCustomEnchant(item, CustomEnchantsMain.Enchant.VoidAspect, 1);
                     item = ModifyAtribute.ModifyGearScore(item, 6);
                     item = setReforgeList(item, "+ 1 Void Aspect");
-                } else if (reforgeChoiceChance2 <= 90) {
+                } else{
                     p.sendMessage(ChatColor.DARK_AQUA + "Obtained tier II");
                     ModifyAtribute.modifyCustomEnchant(item, CustomEnchantsMain.Enchant.VoidAspect, 2);
                     item = ModifyAtribute.ModifyGearScore(item, 12);
                     item = setReforgeList(item, "+ 2 Void Aspect");
-                } else {
-                    p.sendMessage(ChatColor.DARK_AQUA + "Obtained tier III");
-                    ModifyAtribute.modifyCustomEnchant(item, CustomEnchantsMain.Enchant.VoidAspect, 3);
-                    item = ModifyAtribute.ModifyGearScore(item, 18);
-                    item = setReforgeList(item, "+ 3 Void Aspect");
                 }
             }
         } else {
@@ -2797,39 +2791,29 @@ public class ReforgeManager {
         } else if (rarityChance <= 98) {//epic
             if (reforgeChoiceChance1 <= chancePerEpic) { //choose Aspect of the Gods
                 p.sendMessage(ChatColor.DARK_PURPLE + "Epic reforge: Aspect of the Gods level increased!");
-                if (reforgeChoiceChance2 <= 60) {
+                if (reforgeChoiceChance2 <= 80) {
                     p.sendMessage(ChatColor.DARK_AQUA + "Obtained tier I");
                     ModifyAtribute.modifyCustomEnchant(item, CustomEnchantsMain.Enchant.Zeus, 1);
                     item = ModifyAtribute.ModifyGearScore(item, 8);
                     item = setReforgeList(item, "+ 1 Aspect of the Gods");
-                } else if (reforgeChoiceChance2 <= 90) {
+                } else {
                     p.sendMessage(ChatColor.DARK_AQUA + "Obtained tier II");
                     ModifyAtribute.modifyCustomEnchant(item, CustomEnchantsMain.Enchant.Zeus, 2);
                     item = ModifyAtribute.ModifyGearScore(item, 16);
                     item = setReforgeList(item, "+ 2 Aspect of the Gods");
-                } else {
-                    p.sendMessage(ChatColor.DARK_AQUA + "Obtained tier III");
-                    ModifyAtribute.modifyCustomEnchant(item, CustomEnchantsMain.Enchant.Zeus, 3);
-                    item = ModifyAtribute.ModifyGearScore(item, 24);
-                    item = setReforgeList(item, "+ 3 Aspect of the Gods");
                 }
             } else if (reforgeChoiceChance1 <= chancePerEpic*2) { //choose Void Aspect
                 p.sendMessage(ChatColor.DARK_PURPLE + "Epic reforge: Void Aspect level increased!");
-                if (reforgeChoiceChance2 <= 60) {
+                if (reforgeChoiceChance2 <= 80) {
                     p.sendMessage(ChatColor.DARK_AQUA + "Obtained tier I");
                     ModifyAtribute.modifyCustomEnchant(item, CustomEnchantsMain.Enchant.VoidAspect, 1);
                     item = ModifyAtribute.ModifyGearScore(item, 6);
                     item = setReforgeList(item, "+ 1 Void Aspect");
-                } else if (reforgeChoiceChance2 <= 90) {
+                } else{
                     p.sendMessage(ChatColor.DARK_AQUA + "Obtained tier II");
                     ModifyAtribute.modifyCustomEnchant(item, CustomEnchantsMain.Enchant.VoidAspect, 2);
                     item = ModifyAtribute.ModifyGearScore(item, 12);
                     item = setReforgeList(item, "+ 2 Void Aspect");
-                } else {
-                    p.sendMessage(ChatColor.DARK_AQUA + "Obtained tier III");
-                    ModifyAtribute.modifyCustomEnchant(item, CustomEnchantsMain.Enchant.VoidAspect, 3);
-                    item = ModifyAtribute.ModifyGearScore(item, 18);
-                    item = setReforgeList(item, "+ 3 Void Aspect");
                 }
             } else if (reforgeChoiceChance1 <= chancePerEpic*3) { //choose reach
                 p.sendMessage(ChatColor.DARK_PURPLE + "Epic reforge: reach increased!");
@@ -3236,39 +3220,29 @@ public class ReforgeManager {
         } else if (rarityChance <= 98) {//epic
             if (reforgeChoiceChance1 <= chancePerEpic) { //choose Aspect of the Gods
                 p.sendMessage(ChatColor.DARK_PURPLE + "Epic reforge: Aspect of the Gods level increased!");
-                if (reforgeChoiceChance2 <= 60) {
+                if (reforgeChoiceChance2 <= 80) {
                     p.sendMessage(ChatColor.DARK_AQUA + "Obtained tier I");
                     ModifyAtribute.modifyCustomEnchant(item, CustomEnchantsMain.Enchant.Zeus, 1);
                     item = ModifyAtribute.ModifyGearScore(item, 8);
                     item = setReforgeList(item, "+ 1 Aspect of the Gods");
-                } else if (reforgeChoiceChance2 <= 90) {
+                } else {
                     p.sendMessage(ChatColor.DARK_AQUA + "Obtained tier II");
                     ModifyAtribute.modifyCustomEnchant(item, CustomEnchantsMain.Enchant.Zeus, 2);
                     item = ModifyAtribute.ModifyGearScore(item, 16);
                     item = setReforgeList(item, "+ 2 Aspect of the Gods");
-                } else {
-                    p.sendMessage(ChatColor.DARK_AQUA + "Obtained tier III");
-                    ModifyAtribute.modifyCustomEnchant(item, CustomEnchantsMain.Enchant.Zeus, 3);
-                    item = ModifyAtribute.ModifyGearScore(item, 24);
-                    item = setReforgeList(item, "+ 3 Aspect of the Gods");
                 }
             } else if (reforgeChoiceChance1 <= chancePerEpic*2) { //choose Void Aspect
                 p.sendMessage(ChatColor.DARK_PURPLE + "Epic reforge: Void Aspect level increased!");
-                if (reforgeChoiceChance2 <= 60) {
+                if (reforgeChoiceChance2 <= 80) {
                     p.sendMessage(ChatColor.DARK_AQUA + "Obtained tier I");
                     ModifyAtribute.modifyCustomEnchant(item, CustomEnchantsMain.Enchant.VoidAspect, 1);
                     item = ModifyAtribute.ModifyGearScore(item, 6);
                     item = setReforgeList(item, "+ 1 Void Aspect");
-                } else if (reforgeChoiceChance2 <= 90) {
+                } else{
                     p.sendMessage(ChatColor.DARK_AQUA + "Obtained tier II");
                     ModifyAtribute.modifyCustomEnchant(item, CustomEnchantsMain.Enchant.VoidAspect, 2);
                     item = ModifyAtribute.ModifyGearScore(item, 12);
                     item = setReforgeList(item, "+ 2 Void Aspect");
-                } else {
-                    p.sendMessage(ChatColor.DARK_AQUA + "Obtained tier III");
-                    ModifyAtribute.modifyCustomEnchant(item, CustomEnchantsMain.Enchant.VoidAspect, 3);
-                    item = ModifyAtribute.ModifyGearScore(item, 18);
-                    item = setReforgeList(item, "+ 3 Void Aspect");
                 }
             }
         } else {
@@ -3289,6 +3263,254 @@ public class ReforgeManager {
                     ModifyAtribute.ModifyFlatAttackReach(item, 0.6, EquipmentSlotGroup.MAINHAND);
                     item = ModifyAtribute.ModifyGearScore(item, 15);
                     item = setReforgeList(item, "+ .6 reach");
+                }
+            } else if (reforgeChoiceChance1 <= chancePerLegendary*2) {//life steal
+                p.sendMessage(ChatColor.GOLD + "" + ChatColor.BOLD + "Legendary reforge: Life Steal level increased!");
+                if (reforgeChoiceChance2 <= 60) {
+                    p.sendMessage(ChatColor.DARK_AQUA + "Obtained tier I");
+                    ModifyAtribute.modifyCustomEnchant(item, CustomEnchantsMain.Enchant.LifeSteal, 1);
+                    item = ModifyAtribute.ModifyGearScore(item, 9);
+                    item = setReforgeList(item, "+ 1 Life Steal");
+                } else if (reforgeChoiceChance2 <= 90) {
+                    p.sendMessage(ChatColor.DARK_AQUA + "Obtained tier II");
+                    ModifyAtribute.modifyCustomEnchant(item, CustomEnchantsMain.Enchant.LifeSteal, 2);
+                    item = ModifyAtribute.ModifyGearScore(item, 18);
+                    item = setReforgeList(item, "+ 2 Life Steal");
+                } else {
+                    p.sendMessage(ChatColor.DARK_AQUA + "Obtained tier III");
+                    ModifyAtribute.modifyCustomEnchant(item, CustomEnchantsMain.Enchant.LifeSteal, 3);
+                    item = ModifyAtribute.ModifyGearScore(item, 27);
+                    item = setReforgeList(item, "+ 3 Life Steal");
+                }
+            }
+        }
+        return item;
+    }
+
+    public ItemStack MaceReforge(ItemStack item, Player p, int reRollChance){
+        Random random = new Random();
+
+        int chancePerCommon = 100/4;
+        int chancePerRare = 100/4;
+        int chancePerEpic = 100/2;
+        int chancePerLegendary = 100/2;
+
+        int rarityChance = random.nextInt(100) + 1;
+        int reforgeChoiceChance1 = random.nextInt(100) + 1;
+        int reforgeChoiceChance2 = random.nextInt(100) + 1;
+
+        if(reRollChance > 0){
+            rarityChance = reRollChance;
+        }
+
+        if(rarityChance <= 60){//common
+            if(reforgeChoiceChance1 <= chancePerCommon){ //choose looting
+                p.sendMessage(ChatColor.GREEN + "Common reforge: looting increased!");
+                if(reforgeChoiceChance2 <= 50){
+                    p.sendMessage(ChatColor.DARK_AQUA + "Obtained tier I");
+                    ModifyAtribute.modifyEnchant(item, Enchantment.LOOTING, 2);
+                    item = setReforgeList(item, "+ 2 looting");
+                } else if (reforgeChoiceChance2 <= 80) {
+                    p.sendMessage(ChatColor.DARK_AQUA + "Obtained tier II");
+                    ModifyAtribute.modifyEnchant(item, Enchantment.LOOTING, 4);
+                    item = setReforgeList(item, "+ 4 looting");
+                } else {
+                    p.sendMessage(ChatColor.DARK_AQUA + "Obtained tier III");
+                    ModifyAtribute.modifyEnchant(item, Enchantment.LOOTING, 6);
+                    item = setReforgeList(item, "+ 6 looting");
+                }
+            }
+
+            else if (reforgeChoiceChance1 <= chancePerCommon*2) {//choose attack damage
+                p.sendMessage(ChatColor.GREEN + "Common reforge: attack damage increased!");
+                if(reforgeChoiceChance2 <= 60){
+                    p.sendMessage(ChatColor.DARK_AQUA + "Obtained tier I");
+                    ModifyAtribute.ModifyFlatAttackDmg(item, 3, EquipmentSlotGroup.MAINHAND);
+                    item = ModifyAtribute.ModifyGearScore(item, 6);
+                    item = setReforgeList(item, "+ 3 attack damage");
+                } else if (reforgeChoiceChance2 <= 90) {
+                    p.sendMessage(ChatColor.DARK_AQUA + "Obtained tier II");
+                    ModifyAtribute.ModifyFlatAttackDmg(item, 5, EquipmentSlotGroup.MAINHAND);
+                    item = ModifyAtribute.ModifyGearScore(item, 12);
+                    item = setReforgeList(item, "+ 5 attack damage");
+                } else {
+                    p.sendMessage(ChatColor.DARK_AQUA + "Obtained tier III");
+                    ModifyAtribute.ModifyFlatAttackDmg(item, 7, EquipmentSlotGroup.MAINHAND);
+                    item = ModifyAtribute.ModifyGearScore(item, 18);
+                    item = setReforgeList(item, "+ 7 attack damage");
+                }
+            }
+
+            else if (reforgeChoiceChance1 <= chancePerCommon*3) {//choose density
+                p.sendMessage(ChatColor.GREEN + "Common reforge: density increased!");
+                if(reforgeChoiceChance2 <= 60){
+                    p.sendMessage(ChatColor.DARK_AQUA + "Obtained tier I");
+                    ModifyAtribute.modifyEnchant(item, Enchantment.DENSITY, 2);
+                    item = ModifyAtribute.ModifyGearScore(item, 6);
+                    item = setReforgeList(item, "+ 2 density");
+                } else if (reforgeChoiceChance2 <= 90) {
+                    p.sendMessage(ChatColor.DARK_AQUA + "Obtained tier II");
+                    ModifyAtribute.modifyEnchant(item, Enchantment.DENSITY, 3);
+                    item = ModifyAtribute.ModifyGearScore(item, 12);
+                    item = setReforgeList(item, "+ 3 density");
+                } else {
+                    p.sendMessage(ChatColor.DARK_AQUA + "Obtained tier III");
+                    ModifyAtribute.modifyEnchant(item, Enchantment.DENSITY, 5);
+                    item = ModifyAtribute.ModifyGearScore(item, 18);
+                    item = setReforgeList(item, "+ 5 density");
+                }
+            }
+
+            else if (reforgeChoiceChance1 <= chancePerCommon*4) {//choose attack speed
+                p.sendMessage(ChatColor.GREEN + "Common reforge: attack speed increased!");
+                if(reforgeChoiceChance2 <= 60){
+                    p.sendMessage(ChatColor.DARK_AQUA + "Obtained tier I");
+                    ModifyAtribute.ModifyFlatAttackSpeed(item, 0.2, EquipmentSlotGroup.MAINHAND);
+                    item = ModifyAtribute.ModifyGearScore(item, 4);
+                    item = setReforgeList(item, "+ .2 attack speed");
+                } else if (reforgeChoiceChance2 <= 90) {
+                    p.sendMessage(ChatColor.DARK_AQUA + "Obtained tier II");
+                    ModifyAtribute.ModifyFlatAttackSpeed(item, 0.4, EquipmentSlotGroup.MAINHAND);
+                    item = ModifyAtribute.ModifyGearScore(item, 8);
+                    item = setReforgeList(item, "+ .4 attack speed");
+                } else {
+                    p.sendMessage(ChatColor.DARK_AQUA + "Obtained tier III");
+                    ModifyAtribute.ModifyFlatAttackSpeed(item, 0.6, EquipmentSlotGroup.MAINHAND);
+                    item = ModifyAtribute.ModifyGearScore(item, 12);
+                    item = setReforgeList(item, "+ .6 attack speed");
+                }
+            }
+        } else if (rarityChance <= 90) {//rare
+            if (reforgeChoiceChance1 <= chancePerRare) {//chose wind burst
+                p.sendMessage(ChatColor.BLUE + "Rare reforge: windburst increased!");
+                if(reforgeChoiceChance2 <= 60){
+                    p.sendMessage(ChatColor.DARK_AQUA + "Obtained tier I");
+                    ModifyAtribute.modifyEnchant(item, Enchantment.WIND_BURST, 1);
+                    item = ModifyAtribute.ModifyGearScore(item, 4);
+                    item = setReforgeList(item, "+ 1 wind burst");
+                } else if (reforgeChoiceChance2 <= 90) {
+                    p.sendMessage(ChatColor.DARK_AQUA + "Obtained tier II");
+                    ModifyAtribute.modifyEnchant(item, Enchantment.WIND_BURST, 2);
+                    item = ModifyAtribute.ModifyGearScore(item, 8);
+                    item = setReforgeList(item, "+ 2 wind burst");
+                } else {
+                    p.sendMessage(ChatColor.DARK_AQUA + "Obtained tier III");
+                    ModifyAtribute.modifyEnchant(item, Enchantment.WIND_BURST, 3);
+                    item = ModifyAtribute.ModifyGearScore(item, 12);
+                    item = setReforgeList(item, "+ 3 wind burst");
+                }
+            } else if (reforgeChoiceChance1 <= chancePerRare*2) { //choose Ice Aspect
+                p.sendMessage(ChatColor.BLUE + "Rare reforge: Ice Aspect level increased!");
+                if (reforgeChoiceChance2 <= 60) {
+                    p.sendMessage(ChatColor.DARK_AQUA + "Obtained tier I");
+                    ModifyAtribute.modifyCustomEnchant(item, CustomEnchantsMain.Enchant.IceAspect, 2);
+                    item = ModifyAtribute.ModifyGearScore(item, 5);
+                    item = setReforgeList(item, "+ 2 Ice Aspect");
+                } else if (reforgeChoiceChance2 <= 90) {
+                    p.sendMessage(ChatColor.DARK_AQUA + "Obtained tier II");
+                    ModifyAtribute.modifyCustomEnchant(item, CustomEnchantsMain.Enchant.IceAspect, 3);
+                    item = ModifyAtribute.ModifyGearScore(item, 9);
+                    item = setReforgeList(item, "+ 3 Ice Aspect");
+                } else {
+                    p.sendMessage(ChatColor.DARK_AQUA + "Obtained tier III");
+                    ModifyAtribute.modifyCustomEnchant(item, CustomEnchantsMain.Enchant.IceAspect, 4);
+                    item = ModifyAtribute.ModifyGearScore(item, 13);
+                    item = setReforgeList(item, "+ 4 Ice Aspect");
+                }
+            } else if (reforgeChoiceChance1 <= chancePerRare*3) { //choose Asphyxiation
+                p.sendMessage(ChatColor.BLUE + "Rare reforge: Asphyxiation level increased!");
+                if (reforgeChoiceChance2 <= 60) {
+                    p.sendMessage(ChatColor.DARK_AQUA + "Obtained tier I");
+                    ModifyAtribute.modifyCustomEnchant(item, CustomEnchantsMain.Enchant.Asphyxiate, 2);
+                    item = ModifyAtribute.ModifyGearScore(item, 5);
+                    item = setReforgeList(item, "+ 2 Asphyxiation");
+                } else if (reforgeChoiceChance2 <= 90) {
+                    p.sendMessage(ChatColor.DARK_AQUA + "Obtained tier II");
+                    ModifyAtribute.modifyCustomEnchant(item, CustomEnchantsMain.Enchant.Asphyxiate, 3);
+                    item = ModifyAtribute.ModifyGearScore(item, 9);
+                    item = setReforgeList(item, "+ 3 Asphyxiation");
+                } else {
+                    p.sendMessage(ChatColor.DARK_AQUA + "Obtained tier III");
+                    ModifyAtribute.modifyCustomEnchant(item, CustomEnchantsMain.Enchant.Asphyxiate, 4);
+                    item = ModifyAtribute.ModifyGearScore(item, 13);
+                    item = setReforgeList(item, "+ 4 Asphyxiation");
+                }
+            } else if (reforgeChoiceChance1 <= chancePerRare*4) {//chose breach
+                p.sendMessage(ChatColor.BLUE + "Rare reforge: breach increased!");
+                if (reforgeChoiceChance2 <= 60) {
+                    p.sendMessage(ChatColor.DARK_AQUA + "Obtained tier I");
+                    ModifyAtribute.modifyEnchant(item, Enchantment.BREACH, 2);
+                    item = ModifyAtribute.ModifyGearScore(item, 5);
+                    item = setReforgeList(item, "+ 2 breach");
+                } else if (reforgeChoiceChance2 <= 90) {
+                    p.sendMessage(ChatColor.DARK_AQUA + "Obtained tier II");
+                    ModifyAtribute.modifyEnchant(item, Enchantment.BREACH, 3);
+                    item = ModifyAtribute.ModifyGearScore(item, 10);
+                    item = setReforgeList(item, "+ 3 breach");
+                } else {
+                    p.sendMessage(ChatColor.DARK_AQUA + "Obtained tier III");
+                    ModifyAtribute.modifyEnchant(item, Enchantment.BREACH, 4);
+                    item = ModifyAtribute.ModifyGearScore(item, 15);
+                    item = setReforgeList(item, "+ 4 breach");
+                }
+            }
+
+            } else if (rarityChance <= 98) {//epic
+            if (reforgeChoiceChance1 <= chancePerEpic) { //choose Aspect of the Gods
+                p.sendMessage(ChatColor.DARK_PURPLE + "Epic reforge: Aspect of the Gods level increased!");
+                if (reforgeChoiceChance2 <= 60) {
+                    p.sendMessage(ChatColor.DARK_AQUA + "Obtained tier I");
+                    ModifyAtribute.modifyCustomEnchant(item, CustomEnchantsMain.Enchant.Zeus, 1);
+                    item = ModifyAtribute.ModifyGearScore(item, 8);
+                    item = setReforgeList(item, "+ 1 Aspect of the Gods");
+                } else if(reforgeChoiceChance2 <= 90){
+                    p.sendMessage(ChatColor.DARK_AQUA + "Obtained tier II");
+                    ModifyAtribute.modifyCustomEnchant(item, CustomEnchantsMain.Enchant.Zeus, 2);
+                    item = ModifyAtribute.ModifyGearScore(item, 16);
+                    item = setReforgeList(item, "+ 2 Aspect of the Gods");
+                } else {
+                    p.sendMessage(ChatColor.DARK_AQUA + "Obtained tier III");
+                    ModifyAtribute.modifyCustomEnchant(item, CustomEnchantsMain.Enchant.Zeus, 3);
+                    item = ModifyAtribute.ModifyGearScore(item, 24);
+                    item = setReforgeList(item, "+ 3 Aspect of the Gods");
+                }
+            } else if (reforgeChoiceChance1 <= chancePerEpic*2) { //choose Void Aspect
+                p.sendMessage(ChatColor.DARK_PURPLE + "Epic reforge: Void Aspect level increased!");
+                if (reforgeChoiceChance2 <= 60) {
+                    p.sendMessage(ChatColor.DARK_AQUA + "Obtained tier I");
+                    ModifyAtribute.modifyCustomEnchant(item, CustomEnchantsMain.Enchant.VoidAspect, 1);
+                    item = ModifyAtribute.ModifyGearScore(item, 6);
+                    item = setReforgeList(item, "+ 1 Void Aspect");
+                } else if(reforgeChoiceChance2 <= 90){
+                    p.sendMessage(ChatColor.DARK_AQUA + "Obtained tier II");
+                    ModifyAtribute.modifyCustomEnchant(item, CustomEnchantsMain.Enchant.VoidAspect, 2);
+                    item = ModifyAtribute.ModifyGearScore(item, 12);
+                    item = setReforgeList(item, "+ 2 Void Aspect");
+                } else {
+                    p.sendMessage(ChatColor.DARK_AQUA + "Obtained tier III");
+                    ModifyAtribute.modifyCustomEnchant(item, CustomEnchantsMain.Enchant.VoidAspect, 3);
+                    item = ModifyAtribute.ModifyGearScore(item, 18);
+                    item = setReforgeList(item, "+ 3 Void Aspect");
+                }
+            }
+        } else {
+            if (reforgeChoiceChance1 <= chancePerLegendary) { //choose reach (legendary)
+                p.sendMessage(ChatColor.GOLD + "" + ChatColor.BOLD + "Legendary reforge: attack reach increased!");
+                if(reforgeChoiceChance2 <= 60){
+                    p.sendMessage(ChatColor.DARK_AQUA + "Obtained tier I");
+                    ModifyAtribute.ModifyFlatAttackReach(item, 0.2, EquipmentSlotGroup.MAINHAND);
+                    item = ModifyAtribute.ModifyGearScore(item, 7);
+                    item = setReforgeList(item, "+ .4 reach");
+                } else if (reforgeChoiceChance2 <= 90) {
+                    p.sendMessage(ChatColor.DARK_AQUA + "Obtained tier II");
+                    ModifyAtribute.ModifyFlatAttackReach(item, 0.4, EquipmentSlotGroup.MAINHAND);
+                    item = ModifyAtribute.ModifyGearScore(item, 14);
+                    item = setReforgeList(item, "+ .8 reach");
+                } else {
+                    p.sendMessage(ChatColor.DARK_AQUA + "Obtained tier III");
+                    ModifyAtribute.ModifyFlatAttackReach(item, 0.6, EquipmentSlotGroup.MAINHAND);
+                    item = ModifyAtribute.ModifyGearScore(item, 21);
+                    item = setReforgeList(item, "+ 1.2 reach");
                 }
             } else if (reforgeChoiceChance1 <= chancePerLegendary*2) {//life steal
                 p.sendMessage(ChatColor.GOLD + "" + ChatColor.BOLD + "Legendary reforge: Life Steal level increased!");

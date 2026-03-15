@@ -8,6 +8,7 @@ import org.bukkit.NamespacedKey;
 import org.bukkit.entity.Player;
 import org.bukkit.event.entity.PlayerDeathEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
+import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.event.player.PlayerRespawnEvent;
 import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
@@ -58,6 +59,14 @@ public class PerkObsidian extends AbstractPerk {
         Player p = e.getPlayer();
         if(hasObiPerk(p)){
             playersWithObiPerk.add(p.getUniqueId());
+        }
+    }
+
+    @Override
+    public void onQuit(PlayerQuitEvent e) {
+        Player p = e.getPlayer();
+        if(hasObiPerk(p)){
+            playersWithObiPerk.remove(p.getUniqueId());
         }
     }
 
@@ -146,13 +155,16 @@ public class PerkObsidian extends AbstractPerk {
             }
             for(UUID uuid : playersWithObiPerk){
                 Player fella = Bukkit.getPlayer(uuid);
+                if(fella == null){
+                    continue;
+                }
                 int obiCount = getObsidianCountInInventory(fella);
                 obiCount += 1;
                 if(obiCount <= 64){
-                    updateObsidianInInventory(p, obiCount);
+                    updateObsidianInInventory(fella, obiCount);
                 }
                 if(obiCount < 1){
-                    addObsidianToInventory(p, 1);
+                    addObsidianToInventory(fella, 1);
                 }
 
             }

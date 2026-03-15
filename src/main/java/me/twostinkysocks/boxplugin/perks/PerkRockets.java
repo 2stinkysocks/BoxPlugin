@@ -11,6 +11,7 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.entity.PlayerDeathEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
+import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.event.player.PlayerRespawnEvent;
 import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
@@ -34,7 +35,7 @@ public class PerkRockets extends AbstractPerk {
         meta.setLore(List.of(
                 "",
                 ChatColor.GRAY + "Gain 32 Rockets that regenerates",
-                ChatColor.GRAY + "1 back every 15 seconds"
+                ChatColor.GRAY + "1 back every 20 seconds"
         ));
         guiItem.setItemMeta(meta);
 
@@ -66,6 +67,14 @@ public class PerkRockets extends AbstractPerk {
         Player p = e.getPlayer();
         if(hasRocketPerk(p)){
             playersWithRocketPerk.add(p.getUniqueId());
+        }
+    }
+
+    @Override
+    public void onQuit(PlayerQuitEvent e) {
+        Player p = e.getPlayer();
+        if(hasRocketPerk(p)){
+            playersWithRocketPerk.remove(p.getUniqueId());
         }
     }
 
@@ -155,15 +164,18 @@ public class PerkRockets extends AbstractPerk {
             }
             for(UUID uuid : playersWithRocketPerk){
                 Player fella = Bukkit.getPlayer(uuid);
+                if(fella == null){
+                    continue;
+                }
                 int rocketCount = getRocketCountInInventory(fella);
                 rocketCount += 1;
                 if(rocketCount <= 32){
-                    updateRocketsInInventory(p, rocketCount);
+                    updateRocketsInInventory(fella, rocketCount);
                 }
                 if(rocketCount < 1){
-                    addRocketsToInventory(p, 1);
+                    addRocketsToInventory(fella, 1);
                 }
             }
-        }, 5L, 300L);//every 15 seconds
+        }, 5L, 400L);//every 20 seconds
     }
 }

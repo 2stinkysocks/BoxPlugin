@@ -8,6 +8,7 @@ import org.bukkit.NamespacedKey;
 import org.bukkit.entity.Player;
 import org.bukkit.event.entity.PlayerDeathEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
+import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.event.player.PlayerRespawnEvent;
 import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
@@ -27,7 +28,7 @@ public class PerkSteak extends AbstractPerk {
         meta.setLore(List.of(
                 "",
                 ChatColor.GRAY + "Gain 64 Steak that regenerates",
-                ChatColor.GRAY + "1 back every 20 seconds"
+                ChatColor.GRAY + "1 back every 25 seconds"
         ));
         guiItem.setItemMeta(meta);
 
@@ -58,6 +59,14 @@ public class PerkSteak extends AbstractPerk {
         Player p = e.getPlayer();
         if(hasSteakPerk(p)){
             playersWithSteakPerk.add(p.getUniqueId());
+        }
+    }
+
+    @Override
+    public void onQuit(PlayerQuitEvent e) {
+        Player p = e.getPlayer();
+        if(hasSteakPerk(p)){
+            playersWithSteakPerk.remove(p.getUniqueId());
         }
     }
 
@@ -146,16 +155,19 @@ public class PerkSteak extends AbstractPerk {
             }
             for(UUID uuid : playersWithSteakPerk){
                 Player fella = Bukkit.getPlayer(uuid);
+                if(fella == null){
+                    continue;
+                }
                 int steakCount = getSteakCountInInventory(fella);
                 steakCount += 1;
                 if(steakCount <= 64){
-                    updateSteakInInventory(p, steakCount);
+                    updateSteakInInventory(fella, steakCount);
                 }
                 if(steakCount < 1){
-                    addSteakToInventory(p, 1);
+                    addSteakToInventory(fella, 1);
                 }
 
             }
-        }, 5L, 400L);//every 20 seconds
+        }, 5L, 500L);//every 25 seconds
     }
 }

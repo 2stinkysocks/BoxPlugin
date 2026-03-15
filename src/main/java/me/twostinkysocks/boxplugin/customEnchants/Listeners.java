@@ -3,12 +3,22 @@ package me.twostinkysocks.boxplugin.customEnchants;
 import com.google.common.collect.Multimap;
 import io.lumine.mythic.bukkit.utils.events.extra.ArmorEquipEvent;
 import me.twostinkysocks.boxplugin.BoxPlugin;
+import me.twostinkysocks.boxplugin.manager.GearScoreManager;
 import me.twostinkysocks.boxplugin.util.RenderUtil;
 import me.twostinkysocks.boxplugin.util.Util;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.damagesource.CombatRules;
+import net.minecraft.world.effect.MobEffects;
+import net.minecraft.world.entity.ai.attributes.Attributes;
+import net.minecraft.world.item.enchantment.EnchantmentHelper;
 import org.bukkit.*;
 import org.bukkit.attribute.Attribute;
 import org.bukkit.attribute.AttributeModifier;
 import org.bukkit.block.data.BlockData;
+import org.bukkit.craftbukkit.v1_21_R3.damage.CraftDamageSource;
+import org.bukkit.craftbukkit.v1_21_R3.entity.CraftPlayer;
+import org.bukkit.damage.DamageEffect;
 import org.bukkit.damage.DamageSource;
 import org.bukkit.damage.DamageType;
 import org.bukkit.enchantments.Enchantment;
@@ -24,6 +34,7 @@ import org.bukkit.event.entity.ProjectileLaunchEvent;
 import org.bukkit.event.player.PlayerRespawnEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
+import org.bukkit.metadata.FixedMetadataValue;
 import org.bukkit.persistence.PersistentDataContainer;
 import org.bukkit.persistence.PersistentDataType;
 import org.bukkit.potion.PotionEffect;
@@ -32,17 +43,9 @@ import org.bukkit.potion.PotionEffectType;
 import java.util.*;
 
 public class Listeners implements Listener {
-    private final Set<UUID> prickleProcessing = new HashSet<>();
-    private final Set<UUID> brambleProcessing = new HashSet<>();
-    private final Set<UUID> magmaProcessing = new HashSet<>();
-    private final Set<UUID> freezeProcessing = new HashSet<>();
-    private final Set<UUID> drownProcessing = new HashSet<>();
-    private final Set<UUID> lightningProcessing = new HashSet<>();
-    private final Set<UUID> voidProcessing = new HashSet<>();
-    private final Set<UUID> titanProcessing = new HashSet<>();
-    private final Set<UUID> tridentProcessing = new HashSet<>();
+    private final FixedMetadataValue FMDV = new FixedMetadataValue(BoxPlugin.instance, true);
 
-    public void calcDamage(Player target, DamageType damageType, double ammount, Player attacker){
+    public void calcDamage(Player target, DamageType damageType, double ammount, Player attacker, EntityDamageByEntityEvent e){
         float attackStrength = attacker.getAttackCooldown();
         int elementMult = 0;
         int resistMult = 0;
@@ -73,7 +76,7 @@ public class Listeners implements Listener {
             resistMult += BoxPlugin.instance.getCustomEnchantsMain().getNumElement(CustomEnchantsMain.Enchant.VoidResist, target);
         }
         if(elementMult > 0){
-            finalDamage = (ammount * (((double) elementMult / 6) + 1));
+            finalDamage = (ammount * (((double) elementMult / 10) + 1));
         } else {
             finalDamage = ammount;
         }
@@ -84,11 +87,46 @@ public class Listeners implements Listener {
             return;
         }
         finalDamage = finalDamage * attackStrength;
-        target.damage(finalDamage, DamageSource.builder(damageType).withCausingEntity(attacker).withDirectEntity(attacker).build());
         Util.debug(attacker, "dealt " + (finalDamage) + " bonus damage to " + target.getName());
+
+        CraftPlayer cp = (CraftPlayer) target;
+        ServerPlayer nms = cp.getHandle();
+
+        CraftDamageSource source = (CraftDamageSource) DamageSource.builder(damageType).withCausingEntity(attacker).withDirectEntity(attacker).build();
+
+        float damage;
+        // armor + toughness
+        damage = CombatRules.getDamageAfterAbsorb(nms,
+                (float) finalDamage, source.getHandle(), nms.getArmorValue(), (float) nms.getAttributeValue(Attributes.ARMOR_TOUGHNESS));
+
+        // enchantments (Protection etc.)
+        float prot = EnchantmentHelper.getDamageProtection(
+                (ServerLevel) nms.level(),
+                nms,
+                source.getHandle()
+        );
+        if (prot > 0) {
+            damage *= 1.0F - Math.min(20, prot) / 25F;
+        }
+
+        // resistance potion
+        if (nms.hasEffect(MobEffects.DAMAGE_RESISTANCE)) {
+            int lvl = nms.getEffect(MobEffects.DAMAGE_RESISTANCE).getAmplifier();
+            damage *= (1.0F - (lvl + 1) * 0.2F);
+        }
+
+        double oldHp = target.getHealth();
+        double absorbtion = target.getAbsorptionAmount();
+
+        if(damage + e.getFinalDamage() >= oldHp + absorbtion){
+            e.setDamage(100);
+            Util.debug(attacker, "Preventing double death, executing " + target.getName());
+            return;
+        }
+        target.damage(finalDamage, DamageSource.builder(damageType).withCausingEntity(attacker).withDirectEntity(attacker).build());
     }
 
-    public void calcAttacklessDamage(Player target, DamageType damageType, double ammount, Player attacker){//same as above but no attack strength
+    public void calcAttacklessDamage(Player target, DamageType damageType, double ammount, Player attacker, EntityDamageByEntityEvent e){//same as above but no attack strength
         int elementMult = 0;
         int resistMult = 0;
         double finalDamage;
@@ -115,7 +153,7 @@ public class Listeners implements Listener {
             resistMult += BoxPlugin.instance.getCustomEnchantsMain().getNumElement(CustomEnchantsMain.Enchant.WaterBorn, target);
         }
         if(elementMult > 0){
-            finalDamage = (ammount * ((double) elementMult /6) + 1);
+            finalDamage = (ammount * ((double) elementMult /10) + 1);
         } else {
             finalDamage = ammount;
         }
@@ -125,8 +163,43 @@ public class Listeners implements Listener {
         if(target.isBlocking()){
             return;
         }
-        target.damage(finalDamage, DamageSource.builder(damageType).withCausingEntity(attacker).withDirectEntity(attacker).build());
         Util.debug(attacker, "dealt " + (finalDamage) + " bonus damage to " + target.getName());
+
+        CraftPlayer cp = (CraftPlayer) target;
+        ServerPlayer nms = cp.getHandle();
+
+        CraftDamageSource source = (CraftDamageSource) DamageSource.builder(damageType).withCausingEntity(attacker).withDirectEntity(attacker).build();
+
+        float damage;
+        // armor + toughness
+        damage = CombatRules.getDamageAfterAbsorb(nms,
+                (float) finalDamage, source.getHandle(), nms.getArmorValue(), (float) nms.getAttributeValue(Attributes.ARMOR_TOUGHNESS));
+
+        // enchantments (Protection etc.)
+        float prot = EnchantmentHelper.getDamageProtection(
+                (ServerLevel) nms.level(),
+                nms,
+                source.getHandle()
+        );
+        if (prot > 0) {
+            damage *= 1.0F - Math.min(20, prot) / 25F;
+        }
+
+        // resistance potion
+        if (nms.hasEffect(MobEffects.DAMAGE_RESISTANCE)) {
+            int lvl = nms.getEffect(MobEffects.DAMAGE_RESISTANCE).getAmplifier();
+            damage *= (1.0F - (lvl + 1) * 0.2F);
+        }
+
+        double oldHp = target.getHealth();
+        double absorbtion = target.getAbsorptionAmount();
+
+        if(damage + e.getFinalDamage() >= oldHp + absorbtion){
+            e.setDamage(100);
+            Util.debug(attacker, "Preventing double death, executing " + target.getName());
+            return;
+        }
+        target.damage(finalDamage, DamageSource.builder(damageType).withCausingEntity(attacker).withDirectEntity(attacker).build());
     }
 
     public void updateSpeed(Player p){
@@ -153,7 +226,8 @@ public class Listeners implements Listener {
     }
     @EventHandler
     public void entityDamageLeaf(EntityDamageByEntityEvent e){
-        if(e.getDamager() instanceof Player && e.getEntity() instanceof LivingEntity && (e.getCause() == EntityDamageEvent.DamageCause.ENTITY_ATTACK || e.getCause() == EntityDamageEvent.DamageCause.ENTITY_SWEEP_ATTACK)) {
+        if(e.getDamager() instanceof Player && e.getEntity() instanceof LivingEntity &&
+                (e.getCause() == EntityDamageEvent.DamageCause.ENTITY_ATTACK || e.getCause() == EntityDamageEvent.DamageCause.ENTITY_SWEEP_ATTACK)) {
             Player p = (Player) e.getDamager();
 
             if(BoxPlugin.instance.getCurseManager().hasCurse(p)){
@@ -163,25 +237,26 @@ public class Listeners implements Listener {
             //P is the main player with the cactus gear
             LivingEntity target = (LivingEntity) e.getEntity();
             ItemStack mainHandItem = p.getItemInHand();
-            if(p.getLocation().distance(e.getEntity().getLocation()) > 6){
+            if(p.getLocation().distance(e.getEntity().getLocation()) > 7){
                 return;
             }
             if(mainHandItem != null && mainHandItem.getItemMeta() != null && CustomEnchantsMain.Enchant.Prickle.instance.hasEnchant(mainHandItem)){//prickle enchant on weapon
-                if(prickleProcessing.contains(target.getUniqueId())){// prevent recussion
+                if(target.hasMetadata("Prickle_Hit")){// prevent recussion
                     return;
                 }
-                prickleProcessing.add(target.getUniqueId());
+                target.setMetadata("Prickle_Hit", FMDV);
                 int cacterLvl = CustomEnchantsMain.Enchant.Prickle.instance.getLevel(mainHandItem);
                 double cacterDmg = BoxPlugin.instance.getEnchantPrickle().getDamageFromTotalLevel(cacterLvl);
                 if(target instanceof Player pTarget){
-                    calcDamage(pTarget, DamageType.CACTUS, cacterDmg, p);
+                    calcDamage(pTarget, DamageType.CACTUS, cacterDmg, p, e);
                 } else {
                     float attackStrength = p.getAttackCooldown();
                     cacterDmg *= attackStrength;
                     target.damage(cacterDmg, DamageSource.builder(DamageType.CACTUS).withCausingEntity(p).withDirectEntity(p).build());
                     Util.debug(p, "dealt " + (cacterDmg) + " bonus damage to " + target.getName());
                 }
-                prickleProcessing.remove(target.getUniqueId());
+                Bukkit.getScheduler().runTask(BoxPlugin.instance, () ->
+                        target.removeMetadata("Prickle_Hit", BoxPlugin.instance));
             }
         }
         if(e.getEntity() instanceof Player){
@@ -228,20 +303,20 @@ public class Listeners implements Listener {
                 double brambleChance = BoxPlugin.instance.getEnchantBramble().getChanceFromTotalLevel(totalBrambleLvl);
                 if(brambleChanceRolled <= brambleChance){
                     LivingEntity attacker = (LivingEntity) e.getDamager();
-                    if(brambleProcessing.contains(attacker.getUniqueId())){//prevent recussion
+                    if(attacker.hasMetadata("Bramble_Hit")){// prevent recussion
                         return;
                     }
-                    brambleProcessing.add(attacker.getUniqueId());
+                    attacker.setMetadata("Bramble_Hit", FMDV);
                     double cacterDmg = BoxPlugin.instance.getEnchantBramble().getDamageFromTotalLevel(totalBrambleLvl);
                     attacker.setNoDamageTicks(0);
                     if(attacker instanceof Player pTarget){
-                        calcAttacklessDamage(pTarget, DamageType.CACTUS, cacterDmg, p);
+                        calcAttacklessDamage(pTarget, DamageType.CACTUS, cacterDmg, p, e);
                     } else {
                         attacker.damage(cacterDmg, DamageSource.builder(DamageType.CACTUS).withCausingEntity(p).withDirectEntity(p).build());
                         Util.debug(p, "dealt " + (cacterDmg) + " bonus damage to " + attacker.getName());
                     }
                     attacker.setNoDamageTicks(0);
-                    brambleProcessing.remove(attacker.getUniqueId());
+                    Bukkit.getScheduler().runTask(BoxPlugin.instance, () -> attacker.removeMetadata("Bramble_Hit", BoxPlugin.instance));
                 }
             }
         }
@@ -249,24 +324,26 @@ public class Listeners implements Listener {
 
     @EventHandler
     public void entityDamageLava(EntityDamageByEntityEvent e){
-        if(e.getDamager() instanceof Player && e.getEntity() instanceof LivingEntity && (e.getCause() == EntityDamageEvent.DamageCause.ENTITY_ATTACK || e.getCause() == EntityDamageEvent.DamageCause.ENTITY_SWEEP_ATTACK)) {
+        if(e.getDamager() instanceof Player && e.getEntity() instanceof LivingEntity &&
+                (e.getCause() == EntityDamageEvent.DamageCause.ENTITY_ATTACK || e.getCause() == EntityDamageEvent.DamageCause.ENTITY_SWEEP_ATTACK)) {
             Player p = (Player) e.getDamager();
+            System.out.println("Calling damage for cactus by " + e.getDamageSource().getDamageType());
             //P is the main player with the lava gear
             if(BoxPlugin.instance.getCurseManager().hasCurse(p)){
                 return;
             }
 
-            if(p.getLocation().distance(e.getEntity().getLocation()) > 6){
+            if(p.getLocation().distance(e.getEntity().getLocation()) > 7){
                 return;
             }
 
             LivingEntity target = (LivingEntity) e.getEntity();
             ItemStack mainHandItem = p.getItemInHand();
             if(mainHandItem != null && mainHandItem.getItemMeta() != null && CustomEnchantsMain.Enchant.Magma.instance.hasEnchant(mainHandItem)){//magma enchant on weapon
-                if(magmaProcessing.contains(target.getUniqueId())){// prevent recussion
+                if(target.hasMetadata("Magma_Hit")){// prevent recussion
                     return;
                 }
-                magmaProcessing.add(target.getUniqueId());
+                target.setMetadata("Magma_Hit", FMDV);
                 int magmaLvl = CustomEnchantsMain.Enchant.Magma.instance.getLevel(mainHandItem);
                 int totalFireBornLvl = BoxPlugin.instance.getCustomEnchantsMain().getCombinedEnchLevel(p, CustomEnchantsMain.Enchant.FireBorn);
                 double magmaDmg = CustomEnchantsMain.Enchant.Magma.instance.getDamageFromTotalLevel(magmaLvl);
@@ -274,7 +351,7 @@ public class Listeners implements Listener {
                     magmaDmg *= BoxPlugin.instance.getFireBornEnchant().getDamageAmpFromTotalLevel(totalFireBornLvl);
                 }
                 if(target instanceof Player pTarget){
-                    calcDamage(pTarget, DamageType.LAVA, magmaDmg, p);
+                    calcDamage(pTarget, DamageType.LAVA, magmaDmg, p, e);
                 } else {
                     float attackStrength = p.getAttackCooldown();
                     magmaDmg *= attackStrength;
@@ -283,32 +360,34 @@ public class Listeners implements Listener {
                 }
                 Location origin = target.getLocation().clone();
                 origin.add(0, (target.getHeight()), 0);//at head
-                RenderUtil.renderParticleOrb(origin, 10, 0.2, Particle.FLAME, 0.05);
-                magmaProcessing.remove(target.getUniqueId());
+                RenderUtil.renderParticleOrb(origin, (int) magmaDmg, 0.2, Particle.FLAME, 0.05);
+                Bukkit.getScheduler().runTask(BoxPlugin.instance, () -> target.removeMetadata("Magma_Hit", BoxPlugin.instance));
             }
         }
     }
 
     @EventHandler
     public void entityDamageIce(EntityDamageByEntityEvent e){
-        if(e.getDamager() instanceof Player && e.getEntity() instanceof LivingEntity && (e.getCause() == EntityDamageEvent.DamageCause.ENTITY_ATTACK || e.getCause() == EntityDamageEvent.DamageCause.ENTITY_SWEEP_ATTACK)) {
+        if(e.getDamager() instanceof Player && e.getEntity() instanceof LivingEntity &&
+                (e.getCause() == EntityDamageEvent.DamageCause.ENTITY_ATTACK || e.getCause() == EntityDamageEvent.DamageCause.ENTITY_SWEEP_ATTACK)) {
             Player p = (Player) e.getDamager();
+            System.out.println("Calling damage for cactus by " + e.getDamageSource().getDamageType());
             //P is the main player with the ice gear
             if(BoxPlugin.instance.getCurseManager().hasCurse(p)){
                 return;
             }
 
-            if(p.getLocation().distance(e.getEntity().getLocation()) > 6){
+            if(p.getLocation().distance(e.getEntity().getLocation()) > 7){
                 return;
             }
 
             LivingEntity target = (LivingEntity) e.getEntity();
             ItemStack mainHandItem = p.getItemInHand();
             if(mainHandItem != null && mainHandItem.getItemMeta() != null && CustomEnchantsMain.Enchant.IceAspect.instance.hasEnchant(mainHandItem)){//ice enchant on weapon
-                if(freezeProcessing.contains(target.getUniqueId())){// prevent recussion
+                if(target.hasMetadata("Ice_Hit")){// prevent recussion
                     return;
                 }
-                freezeProcessing.add(target.getUniqueId());
+                target.setMetadata("Ice_Hit", FMDV);
                 int iceLvl = CustomEnchantsMain.Enchant.IceAspect.instance.getLevel(mainHandItem);
                 int totalIceBornLvl = BoxPlugin.instance.getCustomEnchantsMain().getCombinedEnchLevel(p, CustomEnchantsMain.Enchant.IceBorn);
                 double freezeDmg = BoxPlugin.instance.getIceAspectEnchant().getDamageFromTotalLevel(iceLvl);
@@ -339,38 +418,40 @@ public class Listeners implements Listener {
                             iceData); //block type
                 }
                 if(target instanceof Player pTarget){
-                    calcDamage(pTarget, DamageType.FREEZE, freezeDmg, p);
+                    calcDamage(pTarget, DamageType.FREEZE, freezeDmg, p, e);
                 } else {
                     float attackStrength = p.getAttackCooldown();
                     freezeDmg *= attackStrength;
                     target.damage(freezeDmg, DamageSource.builder(DamageType.FREEZE).withCausingEntity(p).withDirectEntity(p).build());
                     Util.debug(p, "dealt " + (freezeDmg) + " bonus damage to " + target.getName());
                 }
-                freezeProcessing.remove(target.getUniqueId());
+                Bukkit.getScheduler().runTask(BoxPlugin.instance, () -> target.removeMetadata("Ice_Hit", BoxPlugin.instance));
             }
         }
     }
 
     @EventHandler
     public void entityDamageDrown(EntityDamageByEntityEvent e){
-        if(e.getDamager() instanceof Player && e.getEntity() instanceof LivingEntity && (e.getCause() == EntityDamageEvent.DamageCause.ENTITY_ATTACK || e.getCause() == EntityDamageEvent.DamageCause.ENTITY_SWEEP_ATTACK)) {
+        if(e.getDamager() instanceof Player && e.getEntity() instanceof LivingEntity &&
+                (e.getCause() == EntityDamageEvent.DamageCause.ENTITY_ATTACK || e.getCause() == EntityDamageEvent.DamageCause.ENTITY_SWEEP_ATTACK)) {
             Player p = (Player) e.getDamager();
+            System.out.println("Calling damage for cactus by " + e.getDamageSource().getDamageType());
             //P is the main player with the water gear
             if(BoxPlugin.instance.getCurseManager().hasCurse(p)){
                 return;
             }
 
-            if(p.getLocation().distance(e.getEntity().getLocation()) > 6){
+            if(p.getLocation().distance(e.getEntity().getLocation()) > 7){
                 return;
             }
 
             LivingEntity target = (LivingEntity) e.getEntity();
             ItemStack mainHandItem = p.getItemInHand();
             if(mainHandItem != null && mainHandItem.getItemMeta() != null && CustomEnchantsMain.Enchant.Asphyxiate.instance.hasEnchant(mainHandItem)){//asphixiate enchant on weapon
-                if(drownProcessing.contains(target.getUniqueId())){// prevent recussion
+                if(target.hasMetadata("Drown_Hit")){// prevent recussion
                     return;
                 }
-                drownProcessing.add(target.getUniqueId());
+                target.setMetadata("Drown_Hit", FMDV);
                 int drownLvl = CustomEnchantsMain.Enchant.Asphyxiate.instance.getLevel(mainHandItem);
                 int totalWaterBornLvl = BoxPlugin.instance.getCustomEnchantsMain().getCombinedEnchLevel(p, CustomEnchantsMain.Enchant.WaterBorn);
                 double drownDmg = BoxPlugin.instance.getAsphyxiateEnchant().getDamageFromTotalLevel(drownLvl);
@@ -399,38 +480,40 @@ public class Listeners implements Listener {
                     drownDmg *= 1.7;
                 }
                 if(target instanceof Player pTarget){
-                    calcDamage(pTarget, DamageType.DROWN, drownDmg, p);
+                    calcDamage(pTarget, DamageType.DROWN, drownDmg, p, e);
                 } else {
                     float attackStrength = p.getAttackCooldown();
                     drownDmg *= attackStrength;
                     target.damage(drownDmg, DamageSource.builder(DamageType.DROWN).withCausingEntity(p).withDirectEntity(p).build());
                     Util.debug(p, "dealt " + (drownDmg) + " bonus damage to " + target.getName());
                 }
-                drownProcessing.remove(target.getUniqueId());
+                Bukkit.getScheduler().runTask(BoxPlugin.instance, () -> target.removeMetadata("Drown_Hit", BoxPlugin.instance));
             }
         }
     }
 
     @EventHandler
     public void entityDamageLightning(EntityDamageByEntityEvent e){
-        if(e.getDamager() instanceof Player && e.getEntity() instanceof LivingEntity && (e.getCause() == EntityDamageEvent.DamageCause.ENTITY_ATTACK)) {
+        if(e.getDamager() instanceof Player && e.getEntity() instanceof LivingEntity &&
+                (e.getCause() == EntityDamageEvent.DamageCause.ENTITY_ATTACK || e.getCause() == EntityDamageEvent.DamageCause.ENTITY_SWEEP_ATTACK)) {
             Player p = (Player) e.getDamager();
+            System.out.println("Calling damage for cactus by " + e.getDamageSource().getDamageType());
             //P is the main player with the god gear
             if(BoxPlugin.instance.getCurseManager().hasCurse(p)){
                 return;
             }
 
-            if(p.getLocation().distance(e.getEntity().getLocation()) > 6){
+            if(p.getLocation().distance(e.getEntity().getLocation()) > 7){
                 return;
             }
 
             LivingEntity target = (LivingEntity) e.getEntity();
             ItemStack mainHandItem = p.getItemInHand();
             if(mainHandItem != null && mainHandItem.getItemMeta() != null && CustomEnchantsMain.Enchant.Zeus.instance.hasEnchant(mainHandItem)){//zeus enchant on weapon
-                if(lightningProcessing.contains(target.getUniqueId())){// prevent recussion
+                if(target.hasMetadata("Electric_Hit")){// prevent recussion
                     return;
                 }
-                lightningProcessing.add(target.getUniqueId());
+                target.setMetadata("Electric_Hit", FMDV);
                 int zeusLvl = CustomEnchantsMain.Enchant.Zeus.instance.getLevel(mainHandItem);
                 int totalGodBornLvl = BoxPlugin.instance.getCustomEnchantsMain().getCombinedEnchLevel(p, CustomEnchantsMain.Enchant.GodBorn);
                 double defualtChance = BoxPlugin.instance.getZeusEnchant().getChanceFromTotalLevel(zeusLvl);
@@ -444,7 +527,7 @@ public class Listeners implements Listener {
                     target.setNoDamageTicks(0);
                     double lightningDmg = target.getMaxHealth() * CustomEnchantsMain.Enchant.Zeus.instance.getDamageFromTotalLevel(zeusLvl);
                     if(target instanceof Player pTarget){
-                        calcDamage(pTarget, DamageType.MAGIC, lightningDmg, p);
+                        calcDamage(pTarget, DamageType.MAGIC, lightningDmg, p, e);
                     } else {
                         float attackStrength = p.getAttackCooldown();
                         lightningDmg *= attackStrength;
@@ -457,30 +540,32 @@ public class Listeners implements Listener {
                     }, 1);
                     target.setNoDamageTicks(0);
                 }
-                lightningProcessing.remove(target.getUniqueId());
+                Bukkit.getScheduler().runTask(BoxPlugin.instance, () -> target.removeMetadata("Electric_Hit", BoxPlugin.instance));
             }
         }
     }
 
     @EventHandler
     public void entityDamageVoid(EntityDamageByEntityEvent e){
-        if(e.getDamager() instanceof Player p && e.getEntity() instanceof LivingEntity && (e.getCause() == EntityDamageEvent.DamageCause.ENTITY_ATTACK || e.getCause() == EntityDamageEvent.DamageCause.ENTITY_SWEEP_ATTACK)) {
+        if(e.getDamager() instanceof Player p && e.getEntity() instanceof LivingEntity &&
+                (e.getCause() == EntityDamageEvent.DamageCause.ENTITY_ATTACK || e.getCause() == EntityDamageEvent.DamageCause.ENTITY_SWEEP_ATTACK)) {
+            System.out.println("Calling damage for cactus by " + e.getDamageSource().getDamageType());
             //P is the main player with the void gear
             if(BoxPlugin.instance.getCurseManager().hasCurse(p)){
                 return;
             }
 
-            if(p.getLocation().distance(e.getEntity().getLocation()) > 6){
+            if(p.getLocation().distance(e.getEntity().getLocation()) > 7){
                 return;
             }
 
             LivingEntity target = (LivingEntity) e.getEntity();
             ItemStack mainHandItem = p.getItemInHand();
             if(mainHandItem != null && mainHandItem.getItemMeta() != null && CustomEnchantsMain.Enchant.VoidAspect.instance.hasEnchant(mainHandItem)){//ice enchant on weapon
-                if(voidProcessing.contains(target.getUniqueId())){// prevent recussion
+                if(target.hasMetadata("Void_Hit")){// prevent recussion
                     return;
                 }
-                voidProcessing.add(target.getUniqueId());
+                target.setMetadata("Void_Hit", FMDV);
                 int voidLvl = CustomEnchantsMain.Enchant.VoidAspect.instance.getLevel(mainHandItem);
                 int totalVoidBornLvl = BoxPlugin.instance.getCustomEnchantsMain().getCombinedEnchLevel(p, CustomEnchantsMain.Enchant.VoidBorn);
                 double voidDmg = BoxPlugin.instance.getVoidAspectEnchant().getDamageFromTotalLevel(voidLvl);
@@ -488,14 +573,15 @@ public class Listeners implements Listener {
                     voidDmg *= BoxPlugin.instance.getIceBornEnchant().getDamageAmpFromTotalLevel(totalVoidBornLvl);
                 }
                 if(target instanceof Player pTarget){
-                    calcDamage(pTarget, DamageType.OUT_OF_WORLD, voidDmg, p);
+                    calcDamage(pTarget, DamageType.OUT_OF_WORLD, voidDmg, p, e);
                 } else {
                     float attackStrength = p.getAttackCooldown();
                     voidDmg *= attackStrength;
+                    voidDmg = voidDmg * 1.1;//10% more to mobs
                     target.damage(voidDmg, DamageSource.builder(DamageType.OUT_OF_WORLD).withCausingEntity(p).withDirectEntity(p).build());
                     Util.debug(p, "dealt " + (voidDmg) + " bonus damage to " + target.getName());
                 }
-                voidProcessing.remove(target.getUniqueId());
+                Bukkit.getScheduler().runTask(BoxPlugin.instance, () -> target.removeMetadata("Void_Hit", BoxPlugin.instance));
             }
         }
     }
@@ -507,7 +593,7 @@ public class Listeners implements Listener {
             if(BoxPlugin.instance.getCurseManager().hasCurse(p)){
                 return;
             }
-            if(p.getLocation().distance(e.getEntity().getLocation()) > 6){
+            if(p.getLocation().distance(e.getEntity().getLocation()) > 7){
                 return;
             }
 
@@ -532,25 +618,20 @@ public class Listeners implements Listener {
                 return;
             }
 
-            if(p.getLocation().distance(e.getEntity().getLocation()) > 6){
+            if(p.getLocation().distance(e.getEntity().getLocation()) > 7){
                 return;
             }
 
             LivingEntity target = (LivingEntity) e.getEntity();
             int totalTitanLvl = BoxPlugin.instance.getCustomEnchantsMain().getCombinedEnchLevel(p, CustomEnchantsMain.Enchant.Titan);
             if(totalTitanLvl > 0){//has titan ehcnant armor
-                if(titanProcessing.contains(target.getUniqueId())){// prevent recussion
-                    return;
-                }
-                titanProcessing.add(target.getUniqueId());
                 double titanDmgMult = CustomEnchantsMain.Enchant.Titan.instance.getDamageAmpFromTotalLevel(totalTitanLvl);
                 double titanDmg = titanDmgMult * p.getAttribute(Attribute.MAX_HEALTH).getValue();
 
                 float attackStrength = p.getAttackCooldown();
                 titanDmg *= attackStrength;
-                target.damage(titanDmg);
+                e.setDamage(e.getDamage() + titanDmg);
                 Util.debug(p, "dealt " + (titanDmg) + " bonus damage to " + target.getName());
-                titanProcessing.remove(target.getUniqueId());
             }
         }
     }
@@ -561,13 +642,13 @@ public class Listeners implements Listener {
             if (!(trident.getShooter() instanceof Player p)){
                 return;
             }
-            if(tridentProcessing.contains(target.getUniqueId())){// prevent recussion
-                return;
-            }
             if(BoxPlugin.instance.getCurseManager().hasCurse(p)){
                 return;
             }
-            tridentProcessing.add(target.getUniqueId());
+            if(target.hasMetadata("Trident_Hit")){// prevent recussion
+                return;
+            }
+            target.setMetadata("Trident_Hit", FMDV);
             ItemStack tridentItem = trident.getItem();
             ItemMeta tridentMeta = tridentItem.getItemMeta();
             double tridantBonusDmg = 1;
@@ -602,11 +683,15 @@ public class Listeners implements Listener {
                     drownDmg *= 2;
                 }
                 if(target instanceof Player pTarget){
-                    calcAttacklessDamage(pTarget, DamageType.DROWN, drownDmg, p);
+                    calcAttacklessDamage(pTarget, DamageType.DROWN, drownDmg, p, e);
                 } else {
-                    target.damage(drownDmg, DamageSource.builder(DamageType.DROWN).withCausingEntity(p).withDirectEntity(trident).build());
+                    target.damage(drownDmg, DamageSource.builder(DamageType.DROWN).withCausingEntity(p).withDirectEntity(p).build());
                     Util.debug(p, "dealt " + (drownDmg) + " bonus damage to " + target.getName());
                 }
+                Location origin = target.getLocation().clone();
+                origin.add(0, (target.getHeight()), 0);//at head
+                RenderUtil.renderParticleOrb(origin, 10, 0.4, Particle.BUBBLE, 0.05);
+                RenderUtil.renderParticleOrb(origin, 30, 0.4, Particle.DOLPHIN, 0.2);
             }
             if(CustomEnchantsMain.Enchant.Magma.instance.hasEnchant(tridentItem)) {
                 int magmaLvl = CustomEnchantsMain.Enchant.Magma.instance.getLevel(tridentItem);
@@ -616,13 +701,14 @@ public class Listeners implements Listener {
                     magmaDmg *= BoxPlugin.instance.getFireBornEnchant().getDamageAmpFromTotalLevel(totalFireBornLvl);
                 }
                 if(target instanceof Player pTarget){
-                    calcDamage(pTarget, DamageType.LAVA, magmaDmg, p);
+                    calcDamage(pTarget, DamageType.LAVA, magmaDmg, p, e);
                 } else {
-                    float attackStrength = p.getAttackCooldown();
-                    magmaDmg *= attackStrength;
                     target.damage(magmaDmg, DamageSource.builder(DamageType.LAVA).withCausingEntity(p).withDirectEntity(p).build());
                     Util.debug(p, "dealt " + (magmaDmg) + " bonus damage to " + target.getName());
                 }
+                Location origin = target.getLocation().clone();
+                origin.add(0, (target.getHeight()), 0);//at head
+                RenderUtil.renderParticleOrb(origin, (int) magmaDmg, 0.2, Particle.FLAME, 0.05);
             }
             if(CustomEnchantsMain.Enchant.IceAspect.instance.hasEnchant(tridentItem)) {
                 int iceLvl = CustomEnchantsMain.Enchant.IceAspect.instance.getLevel(tridentItem);
@@ -655,10 +741,8 @@ public class Listeners implements Listener {
                             iceData); //block type
                 }
                 if(target instanceof Player pTarget){
-                    calcDamage(pTarget, DamageType.FREEZE, freezeDmg, p);
+                    calcDamage(pTarget, DamageType.FREEZE, freezeDmg, p, e);
                 } else {
-                    float attackStrength = p.getAttackCooldown();
-                    freezeDmg *= attackStrength;
                     target.damage(freezeDmg, DamageSource.builder(DamageType.FREEZE).withCausingEntity(p).withDirectEntity(p).build());
                     Util.debug(p, "dealt " + (freezeDmg) + " bonus damage to " + target.getName());
                 }
@@ -667,10 +751,8 @@ public class Listeners implements Listener {
                 int cacterLvl = CustomEnchantsMain.Enchant.Prickle.instance.getLevel(tridentItem);
                 double cacterDmg = BoxPlugin.instance.getEnchantPrickle().getDamageFromTotalLevel(cacterLvl);
                 if(target instanceof Player pTarget){
-                    calcDamage(pTarget, DamageType.CACTUS, cacterDmg, p);
+                    calcDamage(pTarget, DamageType.CACTUS, cacterDmg, p, e);
                 } else {
-                    float attackStrength = p.getAttackCooldown();
-                    cacterDmg *= attackStrength;
                     target.damage(cacterDmg, DamageSource.builder(DamageType.CACTUS).withCausingEntity(p).withDirectEntity(p).build());
                     Util.debug(p, "dealt " + (cacterDmg) + " bonus damage to " + target.getName());
                 }
@@ -689,10 +771,8 @@ public class Listeners implements Listener {
                     target.setNoDamageTicks(0);
                     double lightningDmg = target.getMaxHealth() * CustomEnchantsMain.Enchant.Zeus.instance.getDamageFromTotalLevel(zeusLvl);
                     if(target instanceof Player pTarget){
-                        calcDamage(pTarget, DamageType.MAGIC, lightningDmg, p);
+                        calcDamage(pTarget, DamageType.MAGIC, lightningDmg, p, e);
                     } else {
-                        float attackStrength = p.getAttackCooldown();
-                        lightningDmg *= attackStrength;
                         lightningDmg = lightningDmg/4;//25% against non players
                         target.damage(lightningDmg, DamageSource.builder(DamageType.MAGIC).withCausingEntity(p).withDirectEntity(p).build());
                         Util.debug(p, "dealt " + (lightningDmg) + " bonus damage to " + target.getName());
@@ -711,15 +791,13 @@ public class Listeners implements Listener {
                     voidDmg *= BoxPlugin.instance.getIceBornEnchant().getDamageAmpFromTotalLevel(totalVoidBornLvl);
                 }
                 if(target instanceof Player pTarget){
-                    calcDamage(pTarget, DamageType.OUT_OF_WORLD, voidDmg, p);
+                    calcDamage(pTarget, DamageType.OUT_OF_WORLD, voidDmg, p, e);
                 } else {
-                    float attackStrength = p.getAttackCooldown();
-                    voidDmg *= attackStrength;
                     target.damage(voidDmg, DamageSource.builder(DamageType.OUT_OF_WORLD).withCausingEntity(p).withDirectEntity(p).build());
                     Util.debug(p, "dealt " + (voidDmg) + " bonus damage to " + target.getName());
                 }
             }
-            tridentProcessing.remove(target.getUniqueId());
+            Bukkit.getScheduler().runTask(BoxPlugin.instance, () -> target.removeMetadata("Trident_Hit", BoxPlugin.instance));
         }
     }
 

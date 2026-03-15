@@ -1,5 +1,6 @@
 package me.twostinkysocks.boxplugin.customitems.items.impl;
 
+import me.twostinkysocks.boxplugin.customEnchants.CustomEnchantsMain;
 import me.twostinkysocks.boxplugin.util.Laser;
 import me.twostinkysocks.boxplugin.BoxPlugin;
 import me.twostinkysocks.boxplugin.customitems.CustomItemsMain;
@@ -8,8 +9,15 @@ import me.twostinkysocks.boxplugin.manager.PerksManager;
 import me.twostinkysocks.boxplugin.util.RenderUtil;
 import me.twostinkysocks.boxplugin.util.RayTrace;
 import me.twostinkysocks.boxplugin.util.Util;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.damagesource.DamageSources;
 import org.bukkit.*;
 import org.bukkit.block.Block;
+import org.bukkit.craftbukkit.v1_21_R3.damage.CraftDamageSource;
+import org.bukkit.craftbukkit.v1_21_R3.entity.CraftLivingEntity;
+import org.bukkit.craftbukkit.v1_21_R3.entity.CraftPlayer;
+import org.bukkit.damage.DamageSource;
+import org.bukkit.damage.DamageType;
 import org.bukkit.entity.*;
 import org.bukkit.event.block.Action;
 import org.bukkit.potion.PotionEffect;
@@ -21,7 +29,7 @@ import java.math.MathContext;
 import java.util.*;
 import java.util.stream.Collectors;
 
-public class AugmentedRailgun extends CustomItem {
+public class VoidRailgun extends CustomItem {
 
     private HashMap<UUID, Long> cooldown;
     private HashMap<UUID, Integer> particleTimers;
@@ -30,11 +38,11 @@ public class AugmentedRailgun extends CustomItem {
     private HashMap<UUID, Integer> ring3Timer;
     private HashMap<UUID, Integer> finalRingTimer;
 
-    public AugmentedRailgun(CustomItemsMain plugin) {
+    public VoidRailgun(CustomItemsMain plugin) {
         super(
                 ChatColor.WHITE + "Augmented Railgun",
-                "AUGMENTED_RAILGUN",
-                Material.DIAMOND_HOE,
+                "VOID_RAILGUN",
+                Material.NETHERITE_HOE,
                 plugin,
                 false
         );
@@ -70,13 +78,6 @@ public class AugmentedRailgun extends CustomItem {
     }
 
     private void spawnEffects(Player p, UUID instanceUUID, Vector direction) throws ReflectiveOperationException {
-        //old 1.19 version idk
-//        Location startLoc = p.getLocation().clone().add(0, 1, 0);
-//
-//        Location endLoc = p.getTargetBlock(Set.of(Material.values()), 50).getLocation();
-//
-//        Location middle = new Location(startLoc.getWorld(), (startLoc.getX()+endLoc.getX())/2, (startLoc.getY()+endLoc.getY())/2, (startLoc.getZ()+endLoc.getZ())/2);
-
         //new clanker given 1.21 version
         Location startLoc = p.getLocation().clone().add(0, 1, 0);
         Vector dir = startLoc.getDirection().normalize();
@@ -98,7 +99,7 @@ public class AugmentedRailgun extends CustomItem {
         Bukkit.getScheduler().runTaskTimer(BoxPlugin.instance, task -> {
             if(task.isCancelled()) return; // just in case
             p.getWorld().spawnParticle(Particle.GLOW, startLoc.clone().add(0, -.1, 0), 10, 0.1, 0.1, 0.1, 0);
-            p.getWorld().spawnParticle(Particle.SCULK_SOUL, startLoc, 10, 0.15, 0.15, 0.15, 0);
+            p.getWorld().spawnParticle(Particle.SCULK_SOUL, startLoc, 15, 0.05, 0.05, 0.05, 0);
             if(particleTimers.containsKey(instanceUUID)) {
                 particleTimers.put(instanceUUID, particleTimers.get(instanceUUID)+1);
             } else {
@@ -178,7 +179,7 @@ public class AugmentedRailgun extends CustomItem {
             translation = direction.clone().normalize().multiply(3);
             spawnCircle(p, locationidk, translation, 0.5, 50, 0);
 
-            p.getWorld().spawnParticle(Particle.LAVA, locationidk, 50, 0.3, 0.3, 0.3);
+            p.getWorld().spawnParticle(Particle.SCULK_SOUL, locationidk, 50, 0.3, 0.3, 0.3);
 
             startLocClone.add(direction.clone().normalize().multiply(3));
             if(finalRingTimer.containsKey(instanceUUID)) {
@@ -255,28 +256,26 @@ public class AugmentedRailgun extends CustomItem {
                 if(d instanceof LivingEntity) {
                     if(d.getUniqueId().equals(p.getUniqueId())) continue;
                     ((LivingEntity) d).addPotionEffect(new PotionEffect(PotionEffectType.SLOWNESS, 30, 2, true, false));
+                    ((LivingEntity) d).addPotionEffect(new PotionEffect(PotionEffectType.BLINDNESS, 60, 2, true, false));
                 }
                 if(d instanceof Player && ((Player) d).isBlocking()) {
                     Util.hitThroughShield(p, (HumanEntity) d, 100, 30);
                 } else {
-                    d.damage(100, p);
-                }
-            }
-        }, 15);
-    }
-
-    private List<Damageable> raycastEntities(List<Block> lineOfSight, List<Entity> nearbyEntities) {
-        ArrayList<Damageable> entities = new ArrayList<>();
-        for(Entity entity : nearbyEntities) {
-            for(Block block : lineOfSight) {
-                if(entity instanceof Damageable) {
-                    if(entity.getLocation().distance(block.getLocation()) < 2) {
-                        entities.add((Damageable) entity);
+                    double voidDmg = 10;
+                    int totalVoidBornLvl = BoxPlugin.instance.getCustomEnchantsMain().getCombinedEnchLevel(p, CustomEnchantsMain.Enchant.VoidBorn);
+                    if(totalVoidBornLvl > 0){
+                        voidDmg *= (BoxPlugin.instance.getIceBornEnchant().getDamageAmpFromTotalLevel(totalVoidBornLvl));
+                    }
+                    d.damage(40, p);
+                    LivingEntity e = null;
+                    if (d instanceof LivingEntity) {
+                        e = (LivingEntity) d;
+                        CraftDamageSource source = (CraftDamageSource) DamageSource.builder(DamageType.OUT_OF_WORLD).withCausingEntity(p).withDirectEntity(p).build();
+                        e.damage(voidDmg, source);
                     }
                 }
             }
-        }
-        return entities;
+        }, 15);
     }
 
     private List<Damageable> raycastEntitiesAccurate(Location location, List<Entity> nearbyEntities) {
@@ -293,26 +292,8 @@ public class AugmentedRailgun extends CustomItem {
             double z = 0;
             Vector v = new Vector(x,y,z);
             v = RenderUtil.rotateFunction(v, new Location(p.getWorld(), 0,0,0).setDirection(direction));
-            p.getWorld().spawnParticle(Particle.ELECTRIC_SPARK, new Location(p.getWorld(), circleLocation.getX() + v.getX(), circleLocation.getY() + v.getY(), circleLocation.getZ() + v.getZ()), 1, 0, 0, 0, speed);
+            p.getWorld().spawnParticle(Particle.SOUL_FIRE_FLAME, new Location(p.getWorld(), circleLocation.getX() + v.getX(), circleLocation.getY() + v.getY(), circleLocation.getZ() + v.getZ()), 1, 0, 0, 0, speed);
         }
-
-
-        //
-//        // this works
-//        int points = 50;
-//        double radius = 0.5;
-//        double interval = 2*Math.PI/points;
-//        Location circleLocation = startLoc.clone();
-//        for(int i = 0; i < points; i++) {
-//            double t = i*interval;
-//            double x = radius * Math.cos(t);
-//            double y = radius * Math.sin(t);
-//            double z = 0;
-//            Vector v = new Vector(x,y,z);
-//            v = RenderUtil.rotateFunction(v, new Location(p.getWorld(), 0,0,0).setDirection(direction));
-//            p.getWorld().spawnParticle(Particle.DRIP_LAVA, new Location(p.getWorld(), circleLocation.getX() + v.getX(), circleLocation.getY() + v.getY(), circleLocation.getZ() + v.getZ()), 0, 0, 0, 0);
-//        }
-        //
     }
 
     private void spawnCircle(Player p, Location circleLocation, Vector direction, double radius, int points) {
@@ -324,25 +305,10 @@ public class AugmentedRailgun extends CustomItem {
             double z = 0;
             Vector v = new Vector(x,y,z);
             v = RenderUtil.rotateFunction(v, new Location(p.getWorld(), 0,0,0).setDirection(direction));
-            p.getWorld().spawnParticle(Particle.ELECTRIC_SPARK, new Location(p.getWorld(), circleLocation.getX() + v.getX(), circleLocation.getY() + v.getY(), circleLocation.getZ() + v.getZ()), 1, 0, 0, 0);
+            p.getWorld().spawnParticle(Particle.SOUL_FIRE_FLAME, new Location(p.getWorld(), circleLocation.getX() + v.getX(), circleLocation.getY() + v.getY(), circleLocation.getZ() + v.getZ()), 1, 0, 0, 0);
         }
 
 
-        //
-//        // this works
-//        int points = 50;
-//        double radius = 0.5;
-//        double interval = 2*Math.PI/points;
-//        Location circleLocation = startLoc.clone();
-//        for(int i = 0; i < points; i++) {
-//            double t = i*interval;
-//            double x = radius * Math.cos(t);
-//            double y = radius * Math.sin(t);
-//            double z = 0;
-//            Vector v = new Vector(x,y,z);
-//            v = RenderUtil.rotateFunction(v, new Location(p.getWorld(), 0,0,0).setDirection(direction));
-//            p.getWorld().spawnParticle(Particle.DRIP_LAVA, new Location(p.getWorld(), circleLocation.getX() + v.getX(), circleLocation.getY() + v.getY(), circleLocation.getZ() + v.getZ()), 0, 0, 0, 0);
-//        }
-        //
     }
 }
+

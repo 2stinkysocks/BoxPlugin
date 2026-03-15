@@ -3,6 +3,7 @@ package me.twostinkysocks.boxplugin.perks;
 import org.bukkit.entity.Player;
 import org.bukkit.event.entity.PlayerDeathEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
+import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.event.player.PlayerRespawnEvent;
 import org.bukkit.inventory.ItemStack;
 
@@ -49,6 +50,7 @@ public abstract class AbstractPerk {
     public void onDeath(PlayerDeathEvent e) {}
 
     public void onJoin(PlayerJoinEvent e){}
+    public void onQuit(PlayerQuitEvent e){}
 
     public void onEquip(Player p) {}
 

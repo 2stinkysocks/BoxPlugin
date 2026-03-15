@@ -29,6 +29,8 @@ public class TalismanOfEnergy extends CustomItem {
     // uuid: map of hits (Damage, Timestamp)
     private HashMap<UUID, ArrayList<Hit>> hits;
 
+    private HashMap<UUID, Long> lastTick = new HashMap<>();
+
     class Hit {
         private Double damage;
         private Long timestamp;
@@ -38,9 +40,28 @@ public class TalismanOfEnergy extends CustomItem {
             this.timestamp = timestamp;
         }
 
+        public void addDamage(Double damage){
+            this.damage += damage;
+        }
+
         public Double getDamage() {return damage;}
 
         public Long getTimestamp() {return timestamp;}
+    }
+
+    public class TickCounter {
+
+        private static long currentTick = 0;
+
+        public static void start() {
+            Bukkit.getScheduler().runTaskTimer(BoxPlugin.instance, () -> {
+                currentTick++;
+            }, 0L, 1L);
+        }
+
+        public static long getTick() {
+            return currentTick;
+        }
     }
 
     public TalismanOfEnergy(CustomItemsMain plugin) {
@@ -127,8 +148,20 @@ public class TalismanOfEnergy extends CustomItem {
         }
         // get the hits array
         ArrayList<Hit> pHits = hits.get(p.getUniqueId());
-        // hits +1
-        pHits.add(new Hit(e.getDamage(), System.currentTimeMillis()));
+        //make sure only 1 count of damage per tick
+        long currenttick = TickCounter.getTick();
+
+        Long oldTick = lastTick.get(p.getUniqueId());
+
+        if(oldTick != null && oldTick == currenttick && !pHits.isEmpty()) {
+            // same tick → merge damage
+            Hit lastHit = pHits.get(pHits.size() - 1);
+            lastHit.addDamage(e.getDamage());
+        } else {
+            // new tick → new hit
+            pHits.add(new Hit(e.getDamage(), System.currentTimeMillis()));
+            lastTick.put(p.getUniqueId(), currenttick);
+        }
         // if there are 3+ hits (this time is the third hit)
         if(pHits.size() >= 3) {
             // min starts as very big and max is very small
