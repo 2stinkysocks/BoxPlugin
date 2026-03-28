@@ -126,6 +126,34 @@ public class Util {
         return soulItem;
     }
 
+    public static ItemStack goldenBerry(){
+        ItemStack berryItem = Util.getSkull("http://textures.minecraft.net/texture/6335c39bd6b5492942ceed6cb9c890f2b386f6e42cc430e387e571ee3d675cbe");
+        ItemMeta berryItemItemMeta = berryItem.getItemMeta();
+        berryItemItemMeta.setDisplayName("§x§F§D§D§8§7§5Golden Berry");
+        berryItemItemMeta.setLore(List.of(
+                "§bRight click to instant consume and heal for 16hp,",
+                "§bregeneration II for 5 seconds and absorption 3",
+                "§bfor 4 seconds."
+        ));
+        berryItemItemMeta.getPersistentDataContainer().set(new NamespacedKey(BoxPlugin.instance, "noplace"), PersistentDataType.INTEGER, 1);
+        berryItem.setItemMeta(berryItemItemMeta);
+        return berryItem;
+    }
+
+    public static ItemStack diamondBerry(){
+        ItemStack berryItem = Util.getSkull("http://textures.minecraft.net/texture/ae12f6df893cc7ed1151267f1ac3f805b9a9e2dccb060cff7051d9ceba4d2c9f");
+        ItemMeta berryItemItemMeta = berryItem.getItemMeta();
+        berryItemItemMeta.setDisplayName("§x§7§5§E§C§F§DDiamond Berry");
+        berryItemItemMeta.setLore(List.of(
+                "§bRight click to instant consume and heal for 32hp,",
+                "§bregeneration III for 6 seconds, absorption 5",
+                "§bfor 5 seconds and resistance 1 for 10 seconds."
+        ));
+        berryItemItemMeta.getPersistentDataContainer().set(new NamespacedKey(BoxPlugin.instance, "noplace"), PersistentDataType.INTEGER, 1);
+        berryItem.setItemMeta(berryItemItemMeta);
+        return berryItem;
+    }
+
     public static ItemStack soulItem(){
         ItemStack soulItem = Util.getSkull("http://textures.minecraft.net/texture/9d3d250e25bbca3a62be5b3ef02cfcab6dcdc424884c9a7d5cc95c9d0");
         return soulItem;

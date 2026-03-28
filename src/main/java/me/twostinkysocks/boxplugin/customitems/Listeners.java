@@ -92,6 +92,30 @@ public class Listeners implements Listener {
     }
 
     @EventHandler
+    public void totemPop(EntityResurrectEvent e){
+        LivingEntity moger = e.getEntity();
+        if(moger instanceof Player){
+            Player p = (Player) moger;
+            ItemStack item = p.getInventory().getItemInOffHand();
+            ItemStack otherItem = p.getInventory().getItemInMainHand();
+            NamespacedKey itemIdKey = new NamespacedKey(BoxPlugin.instance, "ITEM_ID");
+            if((item != null && item.getItemMeta() != null && item.getItemMeta().getPersistentDataContainer().has(itemIdKey, PersistentDataType.STRING)) ||
+                    (otherItem != null && otherItem.getItemMeta() != null && otherItem.getItemMeta().getPersistentDataContainer().has(itemIdKey, PersistentDataType.STRING))) {
+                String itemId = item.getItemMeta().getPersistentDataContainer().get(itemIdKey, PersistentDataType.STRING);
+                for(CustomItem i : items) {
+                    if(itemId.equals(i.getItemId())) {
+                        if(BoxPlugin.instance.getCurseManager().hasCurse(p) && !i.getCurseOveride()){//ignore for curses and non overide items
+                            p.sendMessage(ChatColor.RED + "You cannot use magic items without a soul!");
+                            continue;
+                        }
+                        i.getTotemUse().accept(e);;
+                    }
+                }
+            }
+        }
+    }
+
+    @EventHandler
     public void entityDamage(EntityDamageByEntityEvent e) {
         if(e.getDamager() instanceof Player p) {
             if(BoxPlugin.instance.getCurseManager().hasCurse(p)){

@@ -35,7 +35,7 @@ public class PerkSpeed extends AbstractPerk implements Upgradable {
         meta.addItemFlags(ItemFlag.HIDE_ENCHANTS, ItemFlag.HIDE_ATTRIBUTES, ItemFlag.HIDE_ADDITIONAL_TOOLTIP);
         meta.setLore(List.of(
                 "",
-                ChatColor.GRAY + "Gain permanent Speed " + (getLevel(p) + 2) //defualt speed 3
+                ChatColor.GRAY + "Gain permanent Speed " + (getLevel(p) + 1) //defualt speed 2
         ));
         guiItem.setItemMeta(meta);
 
@@ -45,7 +45,7 @@ public class PerkSpeed extends AbstractPerk implements Upgradable {
     @Override
     public void onRespawn(PlayerRespawnEvent e) {
         Player p = e.getPlayer();
-        p.addPotionEffect(new PotionEffect(PotionEffectType.SPEED, Integer.MAX_VALUE, (1 + getLevel(p)), true, false));
+        p.addPotionEffect(new PotionEffect(PotionEffectType.SPEED, Integer.MAX_VALUE, (getLevel(p)), true, false));
     }
 
     @Override
@@ -55,7 +55,7 @@ public class PerkSpeed extends AbstractPerk implements Upgradable {
 
     @Override
     public void onEquip(Player p) {
-        p.addPotionEffect(new PotionEffect(PotionEffectType.SPEED, Integer.MAX_VALUE, (1 + getLevel(p)), true, false));
+        p.addPotionEffect(new PotionEffect(PotionEffectType.SPEED, Integer.MAX_VALUE, (getLevel(p)), true, false));
     }
 
     @Override

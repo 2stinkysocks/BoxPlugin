@@ -186,6 +186,7 @@ public class MarketManager {
         GuiItem guiBalance = new GuiItem(balance, e -> e.setCancelled(true));
         GuiItem guiRubies = new GuiItem(rubies, e -> {
             e.setCancelled(true);
+            p.playSound(p.getLocation(), Sound.BLOCK_NOTE_BLOCK_PLING, 0.5f, 2f);
             openRubyGui(p);
         });
         GuiItem guiLottery = new GuiItem(lottery, e -> {
@@ -740,6 +741,7 @@ public class MarketManager {
                 }
             }
             addRubies(p, count);
+            p.playSound(p.getLocation(), Sound.BLOCK_NOTE_BLOCK_PLING, 0.5f, 2f);
             BoxPlugin.instance.getScoreboardManager().queueUpdate(p);
             p.sendMessage(ChatColor.GREEN + "Added " + count + " rubies to you account!");
             openGui(p);

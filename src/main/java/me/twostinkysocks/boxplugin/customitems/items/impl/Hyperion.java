@@ -96,7 +96,8 @@ public class Hyperion extends CustomItem {
             }
             Bukkit.getScheduler().runTaskTimer(BoxPlugin.instance, task -> {
                 if(task.isCancelled()) return; // just in case
-                if(p.isSneaking() && !p.isFlying() && p.getVelocity().getY() < -0.1 && !p.isInWater() && !p.isInsideVehicle() && !p.isClimbing() && !p.isGliding() && p.getPotionEffect(PotionEffectType.SLOW_FALLING) == null) {
+                if(p.isSneaking() && !p.isFlying() && p.getVelocity().getY() < -0.1 && !p.isInWater() && !p.isInsideVehicle() &&
+                        !p.isClimbing() && !p.isGliding() && p.getPotionEffect(PotionEffectType.SLOW_FALLING) == null) {
                     if(p.hasPermission("customitems.cooldownbypass") || !slamcooldown.containsKey(p.getUniqueId()) || slamcooldown.get(p.getUniqueId()) < System.currentTimeMillis()) {
                         if(p.getInventory().getItemInMainHand() != null && p.getInventory().getItemInMainHand().hasItemMeta() && p.getInventory().getItemInMainHand().getItemMeta().getPersistentDataContainer().has(new NamespacedKey(BoxPlugin.instance, "ITEM_ID"), PersistentDataType.STRING) && p.getInventory().getItemInMainHand().getItemMeta().getPersistentDataContainer().get(new NamespacedKey(BoxPlugin.instance, "ITEM_ID"), PersistentDataType.STRING).equals("HYPERION")) {
                             if(!inAirTime.containsKey(p.getUniqueId())) {
@@ -116,7 +117,9 @@ public class Hyperion extends CustomItem {
                     } else {
                         inAirTime.put(p.getUniqueId(), 0);
                     }
-                } else if(p.getVelocity().getY() >= -0.1 && p.getVelocity().getY() <= 0.1 && p.isSneaking() && !p.isFlying() && !p.isInWater() && !p.isInsideVehicle() && !p.isClimbing() && !p.isGliding() && p.getPotionEffect(PotionEffectType.SLOW_FALLING) == null) {
+                } else if(p.getVelocity().getY() >= -0.1 && p.getVelocity().getY() <= 0.1 && p.getVelocity().getY() != 0 &&
+                        p.isSneaking() && !p.isFlying() && !p.isInWater() && !p.isInsideVehicle() && !p.isClimbing() && !p.isGliding() &&
+                        p.getPotionEffect(PotionEffectType.SLOW_FALLING) == null) {
                     if(p.hasPermission("customitems.cooldownbypass") || !slamcooldown.containsKey(p.getUniqueId()) || slamcooldown.get(p.getUniqueId()) < System.currentTimeMillis()) {
                         if (p.getInventory().getItemInMainHand() != null && p.getInventory().getItemInMainHand().hasItemMeta() && p.getInventory().getItemInMainHand().getItemMeta().getPersistentDataContainer().has(new NamespacedKey(BoxPlugin.instance, "ITEM_ID"), PersistentDataType.STRING) && p.getInventory().getItemInMainHand().getItemMeta().getPersistentDataContainer().get(new NamespacedKey(BoxPlugin.instance, "ITEM_ID"), PersistentDataType.STRING).equals("HYPERION")) {
                             int ticks = inAirTime.getOrDefault(p.getUniqueId(), 0);
@@ -160,6 +163,7 @@ public class Hyperion extends CustomItem {
 //                          tnt.setFuseTicks(0);
 //                          fireball.getPersistentDataContainer().set(new NamespacedKey(BoxPlugin.instance, "HYPERION_BOOM_MULTIPLIER"), PersistentDataType.DOUBLE, multiplier);
                             slamcooldown.put(p.getUniqueId(), System.currentTimeMillis() + (long) (45000 * (BoxPlugin.instance.getPerksManager().getSelectedMegaPerks(p).contains(PerksManager.MegaPerk.MEGA_COOLDOWN_REDUCTION) ? 0.5 : 1)));
+                            inAirTime.remove(p.getUniqueId());
                             task.cancel();
                         } else {
                             inAirTime.remove(p.getUniqueId());

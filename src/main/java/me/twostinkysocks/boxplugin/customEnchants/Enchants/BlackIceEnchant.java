@@ -1,26 +1,23 @@
 package me.twostinkysocks.boxplugin.customEnchants.Enchants;
 
-import com.github.sirblobman.api.shaded.adventure.text.Component;
-import com.github.sirblobman.api.shaded.adventure.text.minimessage.MiniMessage;
 import me.twostinkysocks.boxplugin.BoxPlugin;
 import org.bukkit.NamespacedKey;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.persistence.PersistentDataType;
 
-public class BrambleEnchant extends AbstractEnchant {
+public class BlackIceEnchant extends AbstractEnchant{
     private String enchantName;
     private NamespacedKey enchantKey;
-    private final double DAMAGE_PER_LEVEL = 0.75;
-    private final int CHANCE_PER_LVL = 6;
-    public BrambleEnchant() {
-        setEnchantName("Bramble");
-        setEnchantKey(new NamespacedKey(BoxPlugin.instance, "Bramble_Enchant"));
+    private final double DAMAGE_AMP_PERLVL = 0.04;
+    public BlackIceEnchant() {
+        setEnchantName("Black Ice");
+        setEnchantKey(new NamespacedKey(BoxPlugin.instance, "BlackIce_Enchant"));
     }
 
     @Override
     public String getEnchantRGB(int lvl){
-        return "§x§2§1§9§8§1§A" + getEnchantName() + " " + getlvlToRoman(lvl);
+        return "§x§0§D§2§4§3§CB§x§1§5§3§4§5§2l§x§1§C§4§5§6§8a§x§2§4§5§5§7§Ec§x§2§B§6§5§9§4k §x§2§B§4§C§9§4I§x§2§B§3§F§9§4c§x§2§B§3§2§9§4e " + getlvlToRoman(lvl);//titan with RGB
     }
     @Override
     public NamespacedKey getEnchantKey() {
@@ -76,12 +73,7 @@ public class BrambleEnchant extends AbstractEnchant {
         return false;
     }
     @Override
-    public double getDamageFromTotalLevel(int totalLvl){
-        return (totalLvl * DAMAGE_PER_LEVEL);
-    }
-    @Override
-    public double getChanceFromTotalLevel(int totalLvl){
-        return (totalLvl * CHANCE_PER_LVL);
+    public double getDamageAmpFromTotalLevel(int totalLvl){
+        return (totalLvl * DAMAGE_AMP_PERLVL);
     }
 }
-

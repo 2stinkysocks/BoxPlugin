@@ -104,8 +104,6 @@ public class WaterTower extends CustomItem {
                         dmg.damage(damage*2, p);
                     }
                 }
-
-
                 i++;
             }
 

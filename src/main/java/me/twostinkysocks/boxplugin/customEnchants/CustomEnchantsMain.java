@@ -1,13 +1,11 @@
 package me.twostinkysocks.boxplugin.customEnchants;
 
-import com.github.sirblobman.api.shaded.adventure.text.serializer.legacy.LegacyComponentSerializer;
 import com.google.common.collect.Maps;
 import me.twostinkysocks.boxplugin.BoxPlugin;
 import me.twostinkysocks.boxplugin.customEnchants.Enchants.*;
 import org.bukkit.ChatColor;
 import org.bukkit.NamespacedKey;
 import org.bukkit.entity.Player;
-import org.bukkit.event.Listener;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.persistence.PersistentDataType;
@@ -42,7 +40,24 @@ public class CustomEnchantsMain {
         NatureResist(new ResistPlantEnchant()),
         WaterResist(new ResistWaterEnchant()),
         LightningResist(new ResistLightningEnchant()),
-        VoidResist(new ResistVoidEnchant());
+        VoidResist(new ResistVoidEnchant()),
+        IceThorns(new IceThornsEnchant()),
+        LavaThorns(new LavaThornsEnchant()),
+        GodThorns(new GodThornsEnchant()),
+        Brittle(new BrittleEnchant()),
+        Sublimation(new SublimationEnchant()),
+        FeatherWeight(new FeatherWeightEnchant()),
+        CloudBurst(new CloudBurstEnchant()),
+        StormBorn(new StormBornEnchant()),
+        Shocking(new ShockingEnchant()),
+        Divine(new DivineEnchant()),
+        BlackLight(new BlackLightEnchant()),
+        DarkFlame(new DarkFlameEnchant()),
+        EventHorizon(new EventHorizonEnchant()),
+        Arctic(new ArcticEnchant()),
+        Slippery(new SlipperyEnchant()),
+        BlackIce(new BlackIceEnchant()),
+        SaturnEgg(new SaturnsFuckAssEnchant());
 
 
         private static final Map<String, CustomEnchantsMain.Enchant> BY_NAME = Maps.newHashMap();

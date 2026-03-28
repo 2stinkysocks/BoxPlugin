@@ -2,30 +2,31 @@ package me.twostinkysocks.boxplugin.customEnchants.Enchants;
 
 import me.twostinkysocks.boxplugin.BoxPlugin;
 import org.bukkit.NamespacedKey;
-import org.bukkit.entity.Trident;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.persistence.PersistentDataType;
 
-public class ZeusEnchant extends AbstractEnchant{
+public class BlackLightEnchant extends AbstractEnchant{
     private String enchantName;
     private NamespacedKey enchantKey;
-    private final double MAXHP_DMG_PERLVL = 0.2;
-    private final double CHANCE_PER_LVL = 0.04;
-
-    public ZeusEnchant() {
-        setEnchantName("Aspect of the Gods");
-        setEnchantKey(new NamespacedKey(BoxPlugin.instance, "Zeus_Enchant"));
+    public BlackLightEnchant() {
+        setEnchantName("Black Light");
+        setEnchantKey(new NamespacedKey(BoxPlugin.instance, "BlackLight_Enchant"));
     }
 
     @Override
-    public String getEnchantRGB(int lvl) {
-        return "§x§E§2§D§8§8§7" + getEnchantName() + " " + getlvlToRoman(lvl);
+    public String getEnchantRGB(int lvl){
+        return "§x§5§A§1§1§A§2B§x§6§D§2§7§8§Cl§x§7§F§3§C§7§5a§x§9§2§5§2§5§Fc§x§A§4§6§7§4§8k §x§A§4§6§7§4§8L§x§9§2§5§2§5§Fi§x§7§F§3§C§7§5g§x§6§D§2§7§8§Ch§x§5§A§1§1§A§2t " + getlvlToRoman(lvl);
     }
-
     @Override
-    public NamespacedKey getEnchantKey() {
-        return enchantKey;
+    public ItemStack removeEnchant(ItemStack item) {
+        ItemMeta itemMeta = item.getItemMeta();
+        assert itemMeta != null;
+        if (hasEnchant(item)) {
+            itemMeta.getPersistentDataContainer().remove(getEnchantKey());
+        }
+        item.setItemMeta(itemMeta);
+        return item;
     }
 
     @Override
@@ -33,15 +34,17 @@ public class ZeusEnchant extends AbstractEnchant{
         this.enchantKey = key;
     }
     @Override
+    public NamespacedKey getEnchantKey() {
+        return enchantKey;
+    }
+    @Override
     public void setEnchantName(String name) {
         this.enchantName = name;
     }
-
     @Override
     public String getEnchantName() {
         return enchantName;
     }
-
     @Override
     public boolean hasEnchant(ItemStack item) {
         ItemMeta itemMeta = item.getItemMeta();
@@ -51,7 +54,6 @@ public class ZeusEnchant extends AbstractEnchant{
         }
         return false;
     }
-
     @Override
     public ItemStack setLevel(ItemStack item, int lvl) {
         ItemMeta itemMeta = item.getItemMeta();
@@ -68,14 +70,5 @@ public class ZeusEnchant extends AbstractEnchant{
             return itemMeta.getPersistentDataContainer().get(getEnchantKey(), PersistentDataType.INTEGER);
         }
         return 0;
-    }
-
-    @Override
-    public double getDamageFromTotalLevel(int totalLvl) {
-        return (totalLvl * MAXHP_DMG_PERLVL);
-    }
-    @Override
-    public double getChanceFromTotalLevel(int totalLvl) {
-        return (totalLvl * CHANCE_PER_LVL);
     }
 }

@@ -1,10 +1,7 @@
 package me.twostinkysocks.boxplugin.util;
 
 import me.twostinkysocks.boxplugin.BoxPlugin;
-import org.bukkit.Bukkit;
-import org.bukkit.Color;
-import org.bukkit.Location;
-import org.bukkit.Particle;
+import org.bukkit.*;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.util.Vector;
 
@@ -94,6 +91,39 @@ public class RenderUtil {
             originClone.getWorld().spawnParticle(particle, originClone, 1, 0, 0, 0, speed);
             originClone.add(directionShort);
         }
+    }
+
+    public static void renderParticleBox(Location corner, double x, double y, double z, Particle particle, double speed) {
+
+        //X Y AND Z are how much to move box in each direction
+        // 8 corners of the box
+        Location p000 = corner.clone();
+        Location p100 = corner.clone().add(x, 0, 0);
+        Location p010 = corner.clone().add(0, y, 0);
+        Location p110 = corner.clone().add(x, y, 0);
+
+        Location p001 = corner.clone().add(0, 0, z);
+        Location p101 = corner.clone().add(x, 0, z);
+        Location p011 = corner.clone().add(0, y, z);
+        Location p111 = corner.clone().add(x, y, z);
+
+        // bottom square
+        renderParticleLine(p000, p100.clone().subtract(p000).toVector(), particle, speed);
+        renderParticleLine(p100, p110.clone().subtract(p100).toVector(), particle, speed);
+        renderParticleLine(p110, p010.clone().subtract(p110).toVector(), particle, speed);
+        renderParticleLine(p010, p000.clone().subtract(p010).toVector(), particle, speed);
+
+        // top square
+        renderParticleLine(p001, p101.clone().subtract(p001).toVector(), particle, speed);
+        renderParticleLine(p101, p111.clone().subtract(p101).toVector(), particle, speed);
+        renderParticleLine(p111, p011.clone().subtract(p111).toVector(), particle, speed);
+        renderParticleLine(p011, p001.clone().subtract(p011).toVector(), particle, speed);
+
+        // vertical edges
+        renderParticleLine(p000, p001.clone().subtract(p000).toVector(), particle, speed);
+        renderParticleLine(p100, p101.clone().subtract(p100).toVector(), particle, speed);
+        renderParticleLine(p110, p111.clone().subtract(p110).toVector(), particle, speed);
+        renderParticleLine(p010, p011.clone().subtract(p010).toVector(), particle, speed);
     }
 
     public static void renderParticleTube(Location origin, Vector direction, int circlePoints, double radius, Particle particle, double speed) {

@@ -8,6 +8,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.block.Action;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.EntityInteractEvent;
+import org.bukkit.event.entity.EntityResurrectEvent;
 import org.bukkit.event.entity.EntityTargetEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerToggleSneakEvent;
@@ -34,6 +35,7 @@ public abstract class CustomItem {
     private Consumer<PlayerToggleSneakEvent> sneak;
     private Consumer<EntityTargetEvent> entityTarget;
     private Consumer<EntityDamageByEntityEvent> entityDamageByEntity;
+    private Consumer<EntityResurrectEvent> totemUse;
     private boolean canOveride;
 
     public CustomItem(String name, String itemId, Material material, CustomItemsMain plugin, boolean overideCurse, String...lore) {
@@ -49,6 +51,7 @@ public abstract class CustomItem {
         this.entityTarget = e -> {};
         this.entityInteract = e -> {};
         this.entityDamageByEntity = e -> {};
+        this.totemUse = e -> {};
         this.item = new ItemStack(material);
         this.canOveride = overideCurse;
 
@@ -91,6 +94,12 @@ public abstract class CustomItem {
 
     public void setEntityInteract(Consumer<EntityInteractEvent> e) {
         this.entityInteract = e;
+    }
+    public void setTotemUse(Consumer<EntityResurrectEvent> e) {
+        this.totemUse = e;
+    }
+    public Consumer<EntityResurrectEvent> getTotemUse() {
+        return totemUse;
     }
 
     public void setEntityDamageByEntity(Consumer<EntityDamageByEntityEvent> e) {

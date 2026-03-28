@@ -20,6 +20,7 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Objects;
 
 public class XanatosMenuManager {
     public void openGui(Player p) {
@@ -144,6 +145,10 @@ public class XanatosMenuManager {
         GuiItem cancelGui = new GuiItem(cancel.clone(), e -> {
             e.setCancelled(true);
             p.playSound(p.getLocation(), Sound.BLOCK_NOTE_BLOCK_PLING, 0.5f, 2f);
+            if(e.getView().getTopInventory().getItem(13) != null) {
+                Item itemEntity = (Item) p.getWorld().spawnEntity(p.getLocation(), EntityType.ITEM);
+                itemEntity.setItemStack(Objects.requireNonNull(e.getView().getTopInventory().getItem(13)));
+            }
             BoxPlugin.instance.getXanatosMenuManager().openGui(p);
         });
 
