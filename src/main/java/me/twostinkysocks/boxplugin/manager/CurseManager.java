@@ -59,6 +59,7 @@ public class CurseManager {
         int gearScore = GearScoreManager.GetPlayerGearscore(p);
         String UUID = p.getUniqueId().toString();
         int soulValue = (int) (gearScore * (gearScore * 0.07));
+        soulValue = Math.min(soulValue, (BoxPlugin.instance.getXpManager().getLevel(p) * 50));//cap soul value at 50x player lvl
         ItemStack soul = Util.soulOfPlayer(p.getName());
         ItemMeta soulMeta = soul.getItemMeta();
         p.getPersistentDataContainer().set(soulValueKey, PersistentDataType.INTEGER, soulValue); //store cost to remove curse on player
@@ -230,6 +231,7 @@ public class CurseManager {
                         itm.setItemStack(moneyItem);
                     }
                     p.playSound(p.getLocation(), Sound.BLOCK_NOTE_BLOCK_PLING, 0.5f, 2f);
+                    amount = Math.min(amount, 128000);
                     if (amount == 0){
                         p.sendMessage(ChatColor.RED + "This soul was worthless.");
                     }
@@ -269,6 +271,7 @@ public class CurseManager {
         sellOtherSoulMeta.setLore(List.of(
                 ChatColor.LIGHT_PURPLE + "Sell the soul of another for",
                 ChatColor.LIGHT_PURPLE + "75% of its value",
+                ChatColor.LIGHT_PURPLE + "(max of 128000)",
                 ""
         ));
         sellOthersSoul.setItemMeta(sellOtherSoulMeta);

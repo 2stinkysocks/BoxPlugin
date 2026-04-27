@@ -77,10 +77,7 @@ public class IceAspectEnchant extends AbstractEnchant {
     public boolean hasEnchant(ItemStack item) {
         ItemMeta itemMeta = item.getItemMeta();
         assert itemMeta != null;
-        if (itemMeta.getPersistentDataContainer().has(getEnchantKey())) {
-            return true;
-        }
-        return false;
+        return itemMeta.getPersistentDataContainer().has(getEnchantKey());
     }
     @Override
     public double getDamageFromTotalLevel(int totalLvl) {

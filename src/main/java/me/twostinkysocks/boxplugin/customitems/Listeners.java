@@ -99,8 +99,8 @@ public class Listeners implements Listener {
             ItemStack item = p.getInventory().getItemInOffHand();
             ItemStack otherItem = p.getInventory().getItemInMainHand();
             NamespacedKey itemIdKey = new NamespacedKey(BoxPlugin.instance, "ITEM_ID");
-            if((item != null && item.getItemMeta() != null && item.getItemMeta().getPersistentDataContainer().has(itemIdKey, PersistentDataType.STRING)) ||
-                    (otherItem != null && otherItem.getItemMeta() != null && otherItem.getItemMeta().getPersistentDataContainer().has(itemIdKey, PersistentDataType.STRING))) {
+            if((item.getItemMeta() != null && item.getItemMeta() != null && item.getItemMeta().getPersistentDataContainer().has(itemIdKey, PersistentDataType.STRING)) ||
+                    (otherItem.getItemMeta() != null && otherItem.getItemMeta() != null && otherItem.getItemMeta().getPersistentDataContainer().has(itemIdKey, PersistentDataType.STRING))) {
                 String itemId = item.getItemMeta().getPersistentDataContainer().get(itemIdKey, PersistentDataType.STRING);
                 for(CustomItem i : items) {
                     if(itemId.equals(i.getItemId())) {

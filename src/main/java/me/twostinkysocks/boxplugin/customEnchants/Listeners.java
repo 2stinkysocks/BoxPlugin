@@ -57,7 +57,7 @@ public class Listeners implements Listener {
         elementHashmap.keySet().removeIf(key -> key.target().equals(e.getEntity().getUniqueId()));
     }
 
-    private class DamageMap{
+    private static class DamageMap{
         //this is a queue based system of storing damage types and their damage, last in first out, always input
         //the damage type and the ammount at the same time and read at the same time, remove both after
         ArrayList<DamageType> damageType = new ArrayList<>();
@@ -88,6 +88,19 @@ public class Listeners implements Listener {
             return damageType.size();
         }
     }
+
+//    private static class DamageTracker {
+//        private static final Map<UUID, Double> lastDamage = new HashMap<>();
+//
+//        public static void storeDamage(Player p, double amount) {
+//            lastDamage.put(p.getUniqueId(), amount);
+//        }
+//
+//        public static double getLastDamage(Player p) {
+//            Bukkit.getScheduler().runTask(BoxPlugin.instance, () -> lastDamage.remove(p.getUniqueId()));
+//            return lastDamage.getOrDefault(p.getUniqueId(), 0.0);
+//        }
+//    }
 
     public float findCombinedDamageRecursive(Pair playerPair, int numElementals){
         if(numElementals == 0){
@@ -135,6 +148,10 @@ public class Listeners implements Listener {
         float attackStrength = attacker.getAttackCooldown();
         int elementMult = 0;
         int resistMult = 0;
+
+        if (target.hasMetadata("NPC")) {
+            return; // NPC (Citizens and most NPC plugins)
+        }
 
         Pair playerPair = new Pair(attacker.getUniqueId(), target.getUniqueId());
 
@@ -209,6 +226,10 @@ public class Listeners implements Listener {
     public void calcAttacklessDamage(Player target, DamageType damageType, double ammount, Player attacker, EntityDamageByEntityEvent e){//same as above but no attack strength
         int elementMult = 0;
         int resistMult = 0;
+
+        if (target.hasMetadata("NPC")) {
+            return; // NPC (Citizens and most NPC plugins)
+        }
 
         Pair playerPair = new Pair(attacker.getUniqueId(), target.getUniqueId());
 
@@ -360,52 +381,49 @@ public class Listeners implements Listener {
                         target.removeMetadata("Prickle_Hit", BoxPlugin.instance));
             }
         }
-        if(e.getEntity() instanceof Player){
+      if(e.getEntity() instanceof Player){
             Player p = (Player) e.getEntity();
-            int totalOvergrowthLvl = BoxPlugin.instance.getCustomEnchantsMain().getCombinedEnchLevel(p, CustomEnchantsMain.Enchant.Overgrowth);
+//            int totalOvergrowthLvl = BoxPlugin.instance.getCustomEnchantsMain().getCombinedEnchLevel(p, CustomEnchantsMain.Enchant.Overgrowth);
             int totalBrambleLvl = BoxPlugin.instance.getCustomEnchantsMain().getCombinedEnchLevel(p, CustomEnchantsMain.Enchant.Bramble);
-
+//
             Random random = new Random();
-
-            if(totalOvergrowthLvl > 0){//overgrowth logic
-                int overGrowChanceRolled = random.nextInt(100) + 1;
-                double overGrowChance = BoxPlugin.instance.getEnchantOvergrowth().getChanceFromTotalLevel(totalOvergrowthLvl);
-                AtomicReference<Double> hpDiff = new AtomicReference<>(0.0);
-                double curHp = p.getHealth();
-
-                Bukkit.getScheduler().runTaskLater(BoxPlugin.instance, () -> {
-                    hpDiff.set(curHp - p.getHealth());
-                }, 1L);
-
-                Bukkit.getScheduler().runTaskLater(BoxPlugin.instance, () -> { // no async bugs
-                    if(hpDiff.get() >= p.getHealth() || hpDiff.get() == 0){//cancel if this hit kills you
-                        return;
-                    }
-                    if(overGrowChanceRolled <= overGrowChance){
-                        double ammountToHeal = (hpDiff.get() * BoxPlugin.instance.getEnchantOvergrowth().getHealFromTotalLevel(totalOvergrowthLvl));
-                        Util.debug(p, "took " + hpDiff + " dammage, starting heal for: " + ammountToHeal);
-                        int i[] = {0};
-                        if(overGrowChanceRolled <= overGrowChance){// heals for a percent ofer 5 seconds
-                            Bukkit.getScheduler().runTaskTimer(BoxPlugin.instance, task -> {
-                                if(task.isCancelled()) return; // just in case
-                                if (!p.isOnline() || p.isDead()) {
-                                    task.cancel();
-                                    return;
-                                }
-                                if(i[0] >= 5){
-                                    task.cancel();
-                                }
-                                if((p.getHealth() + (ammountToHeal/5)) < p.getMaxHealth()){
-                                    p.setHealth(p.getHealth() + (ammountToHeal/5));
-                                } else {
-                                    p.setHealth(p.getMaxHealth());
-                                }
-                                i[0]++;
-                            }, 1, 20);
-                        }
-                    }
-                }, 2L);
-            }
+//
+//            if(totalOvergrowthLvl > 0){//overgrowth logic
+//                int overGrowChanceRolled = random.nextInt(100) + 1;
+//                double overGrowChance = BoxPlugin.instance.getEnchantOvergrowth().getChanceFromTotalLevel(totalOvergrowthLvl);
+//
+//                double hpDiff = e.getFinalDamage();
+//
+//                Bukkit.getScheduler().runTaskLater(BoxPlugin.instance, () -> { // no async bugs
+//                    double totalDamage = DamageTracker.getLastDamage(p) + hpDiff;
+//                    if(totalDamage >= p.getHealth() || totalDamage == 0){//cancel if this hit kills you
+//                        return;
+//                    }
+//                    if(overGrowChanceRolled <= overGrowChance){
+//                        double ammountToHeal = (totalDamage * BoxPlugin.instance.getEnchantOvergrowth().getHealFromTotalLevel(totalOvergrowthLvl));
+//                        Util.debug(p, "took " + totalDamage + " dammage, starting heal for: " + ammountToHeal);
+//                        int i[] = {0};
+//                        if(overGrowChanceRolled <= overGrowChance){// heals for a percent ofer 5 seconds
+//                            Bukkit.getScheduler().runTaskTimer(BoxPlugin.instance, task -> {
+//                                if(task.isCancelled()) return; // just in case
+//                                if (!p.isOnline() || p.isDead()) {
+//                                    task.cancel();
+//                                    return;
+//                                }
+//                                if(i[0] >= 5){
+//                                    task.cancel();
+//                                }
+//                                if((p.getHealth() + (ammountToHeal/5)) < p.getAttribute(Attribute.MAX_HEALTH).getValue()){
+//                                    p.setHealth(p.getHealth() + (ammountToHeal/5));
+//                                } else {
+//                                    p.setHealth(p.getMaxHealth());
+//                                }
+//                                i[0]++;
+//                            }, 1, 20);
+//                        }
+//                    }
+//                }, 2L);
+//            }
             if(totalBrambleLvl > 0){//bramble logic
 
                 int brambleChanceRolled = random.nextInt(100) + 1;
@@ -426,6 +444,48 @@ public class Listeners implements Listener {
                     }
                     attacker.setNoDamageTicks(0);
                     Bukkit.getScheduler().runTask(BoxPlugin.instance, () -> attacker.removeMetadata("Bramble_Hit", BoxPlugin.instance));
+                }
+            }
+        }
+    }
+
+    @EventHandler
+    public void overGrowth(EntityDamageByEntityEvent e){
+        if(e.getEntity() instanceof Player){
+            Player p = (Player) e.getEntity();
+            int totalOvergrowthLvl = BoxPlugin.instance.getCustomEnchantsMain().getCombinedEnchLevel(p, CustomEnchantsMain.Enchant.Overgrowth);
+
+            Random random = new Random();
+
+            if(totalOvergrowthLvl > 0){//overgrowth logic
+                int overGrowChanceRolled = random.nextInt(100) + 1;
+                double overGrowChance = BoxPlugin.instance.getEnchantOvergrowth().getChanceFromTotalLevel(totalOvergrowthLvl);
+                double hpDiff = (e.getFinalDamage());
+                if(hpDiff >= p.getHealth()){//cancel if this hit kills you
+                    return;
+                }
+                if(overGrowChanceRolled <= overGrowChance){
+                    double ammountToHeal = (hpDiff * BoxPlugin.instance.getEnchantOvergrowth().getHealFromTotalLevel(totalOvergrowthLvl));
+                    Util.debug(p, "took " + hpDiff + " dammage, starting heal for: " + ammountToHeal);
+                    int i[] = {0};
+                    if(overGrowChanceRolled <= overGrowChance){// heals for a percent ofer 5 seconds
+                        Bukkit.getScheduler().runTaskTimer(BoxPlugin.instance, task -> {
+                            if(task.isCancelled()) return; // just in case
+                            if (!p.isOnline() || p.isDead()) {
+                                task.cancel();
+                                return;
+                            }
+                            if(i[0] >= 5){
+                                task.cancel();
+                            }
+                            if((p.getHealth() + (ammountToHeal/5)) < p.getMaxHealth()){
+                                p.setHealth(p.getHealth() + (ammountToHeal/5));
+                            } else {
+                                p.setHealth(p.getMaxHealth());
+                            }
+                            i[0]++;
+                        }, 1, 20);
+                    }
                 }
             }
         }
@@ -630,12 +690,12 @@ public class Listeners implements Listener {
                 if(defualtChance >= strikeRoll){
                     target.setNoDamageTicks(0);
                     double lightningDmg = target.getMaxHealth() * CustomEnchantsMain.Enchant.Zeus.instance.getDamageFromTotalLevel(zeusLvl);
+                    lightningDmg = Math.min(lightningDmg, 150);
                     if(target instanceof Player pTarget){
                         calcDamage(pTarget, DamageType.MAGIC, lightningDmg, p, e);
                     } else {
                         float attackStrength = p.getAttackCooldown();
                         lightningDmg *= attackStrength;
-                        lightningDmg = lightningDmg/4;//25% against non players
                         target.damage(lightningDmg, DamageSource.builder(DamageType.MAGIC).withCausingEntity(p).withDirectEntity(p).build());
                         Util.debug(p, "dealt " + (lightningDmg) + " bonus damage to " + target.getName());
                     }
@@ -728,7 +788,8 @@ public class Listeners implements Listener {
 
     @EventHandler
     public void LifeSteal(EntityDamageByEntityEvent e){
-        if(e.getDamager() instanceof Player p && e.getEntity() instanceof LivingEntity && (e.getCause() == EntityDamageEvent.DamageCause.ENTITY_ATTACK || e.getCause() == EntityDamageEvent.DamageCause.ENTITY_SWEEP_ATTACK)) {
+        if(e.getDamager() instanceof Player p && e.getEntity() instanceof LivingEntity &&
+                (e.getCause() == EntityDamageEvent.DamageCause.ENTITY_ATTACK || e.getCause() == EntityDamageEvent.DamageCause.ENTITY_SWEEP_ATTACK)) {
             //P is the main player with the lifesteal weapon
             if(BoxPlugin.instance.getCurseManager().hasCurse(p)){
                 return;
@@ -751,18 +812,24 @@ public class Listeners implements Listener {
 
     @EventHandler
     public void entityDamageTitan(EntityDamageByEntityEvent e){
-        if(e.getDamager() instanceof Player && e.getEntity() instanceof LivingEntity && (e.getCause() == EntityDamageEvent.DamageCause.ENTITY_ATTACK || e.getCause() == EntityDamageEvent.DamageCause.ENTITY_SWEEP_ATTACK)) {
+        if(e.getDamager() instanceof Player && e.getEntity() instanceof LivingEntity &&
+                (e.getCause() == EntityDamageEvent.DamageCause.ENTITY_ATTACK || e.getCause() == EntityDamageEvent.DamageCause.ENTITY_SWEEP_ATTACK)) {
             Player p = (Player) e.getDamager();
             //P is the main player with the titan gear
             if(BoxPlugin.instance.getCurseManager().hasCurse(p)){
                 return;
             }
+            LivingEntity target = (LivingEntity) e.getEntity();
+
+            if(target.hasMetadata("Titan_Hit")){// prevent recussion
+                return;
+            }
+            target.setMetadata("Titan_Hit", FMDV);
 
             if(p.getLocation().distance(e.getEntity().getLocation()) > 7){
                 return;
             }
 
-            LivingEntity target = (LivingEntity) e.getEntity();
             int totalTitanLvl = BoxPlugin.instance.getCustomEnchantsMain().getCombinedEnchLevel(p, CustomEnchantsMain.Enchant.Titan);
             if(totalTitanLvl > 0){//has titan ehcnant armor
                 double titanDmgMult = CustomEnchantsMain.Enchant.Titan.instance.getDamageAmpFromTotalLevel(totalTitanLvl);
@@ -773,6 +840,7 @@ public class Listeners implements Listener {
                 e.setDamage(e.getDamage() + titanDmg);
                 Util.debug(p, "dealt " + (titanDmg) + " bonus damage to " + target.getName());
             }
+            Bukkit.getScheduler().runTask(BoxPlugin.instance, () -> target.removeMetadata("Magma_Hit", BoxPlugin.instance));
         }
     }
 
@@ -910,10 +978,10 @@ public class Listeners implements Listener {
                 if(defualtChance >= strikeRoll){
                     target.setNoDamageTicks(0);
                     double lightningDmg = target.getMaxHealth() * CustomEnchantsMain.Enchant.Zeus.instance.getDamageFromTotalLevel(zeusLvl);
+                    lightningDmg = Math.min(lightningDmg, 150);
                     if(target instanceof Player pTarget){
                         calcDamage(pTarget, DamageType.MAGIC, lightningDmg, p, e);
                     } else {
-                        lightningDmg = lightningDmg/4;//25% against non players
                         target.damage(lightningDmg, DamageSource.builder(DamageType.MAGIC).withCausingEntity(p).withDirectEntity(p).build());
                         Util.debug(p, "dealt " + (lightningDmg) + " bonus damage to " + target.getName());
                     }
@@ -1336,12 +1404,17 @@ public class Listeners implements Listener {
                 (e.getCause() == EntityDamageEvent.DamageCause.ENTITY_ATTACK || e.getCause() == EntityDamageEvent.DamageCause.ENTITY_SWEEP_ATTACK)){
             Player p = (Player) e.getDamager();
             LivingEntity target = (LivingEntity) e.getEntity();
-            //P is the main player with the ice gear
+            //P is the main player with the feather weight gear
             if(BoxPlugin.instance.getCurseManager().hasCurse(p)){
                 return;
             }
+            if(p.hasMetadata("launching")){// prevent recussion
+                return;
+            }
+            p.setMetadata("launching", FMDV);
 
             if(p.getLocation().distanceSquared(target.getLocation()) > 49){
+                Bukkit.getScheduler().runTask(BoxPlugin.instance, () -> p.removeMetadata("launching", BoxPlugin.instance));
                 return;
             }
             boolean crit =
@@ -1352,6 +1425,11 @@ public class Listeners implements Listener {
                             !p.hasPotionEffect(PotionEffectType.BLINDNESS) &&
                             p.getAttackCooldown() > 0.9;
             if(!crit){
+                Bukkit.getScheduler().runTask(BoxPlugin.instance, () -> p.removeMetadata("launching", BoxPlugin.instance));
+                return;
+            }
+            if(target.getHeight() + target.getLocation().getY() + 1.0 < p.getLocation().getY()){//dont do it if already bouncing
+                Bukkit.getScheduler().runTask(BoxPlugin.instance, () -> p.removeMetadata("launching", BoxPlugin.instance));
                 return;
             }
             ItemStack mainHandItem = p.getInventory().getItemInMainHand();
@@ -1362,8 +1440,12 @@ public class Listeners implements Listener {
                 Location origin = p.getLocation().clone();
                 origin.subtract(0, (1), 0);
                 RenderUtil.renderParticleOrb(origin, 70, 1, Particle.CAMPFIRE_COSY_SMOKE, 0.2);
-                p.setVelocity(p.getVelocity().add(new Vector(0, ((double) CustomEnchantsMain.Enchant.CloudBurst.instance.getLevel(mainHandItem) * 0.6), 0)));
+                Vector v = p.getVelocity();
+                double base = Math.max(0, v.getY()); // ignore downward motion
+                Util.debug(p, "Launching up");
+                p.setVelocity(p.getVelocity().add(new Vector(0, ((double) CustomEnchantsMain.Enchant.CloudBurst.instance.getLevel(mainHandItem) * 1.2 + base), 0)));
             }
+            Bukkit.getScheduler().runTask(BoxPlugin.instance, () -> p.removeMetadata("launching", BoxPlugin.instance));
         }
     }
 
@@ -1563,6 +1645,10 @@ public class Listeners implements Listener {
             LivingEntity target = (LivingEntity) e.getEntity();
             int totalBlackIceLvl = BoxPlugin.instance.getCustomEnchantsMain().getCombinedEnchLevel(p, CustomEnchantsMain.Enchant.BlackIce);
             ItemStack mainHandItem = p.getInventory().getItemInMainHand();
+            if(mainHandItem.getItemMeta() == null){
+                Bukkit.getScheduler().runTask(BoxPlugin.instance, () -> p.removeMetadata("BlackIce_hit", BoxPlugin.instance));
+                return;
+            }
             if(totalBlackIceLvl > 0 && CustomEnchantsMain.Enchant.IceAspect.instance.hasEnchant(mainHandItem)){//has black ice armor
                 double blackIceDmgMult = CustomEnchantsMain.Enchant.BlackIce.instance.getDamageAmpFromTotalLevel(totalBlackIceLvl);
                 double blackIcedmg = blackIceDmgMult * (p.getAttribute(Attribute.MAX_HEALTH).getValue() - p.getHealth());

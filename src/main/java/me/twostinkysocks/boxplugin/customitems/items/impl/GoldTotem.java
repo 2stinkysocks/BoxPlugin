@@ -9,6 +9,7 @@ import org.bukkit.attribute.Attribute;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.persistence.PersistentDataType;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
@@ -35,14 +36,16 @@ public class GoldTotem extends CustomItem {
             // allow shield blocking to take priority
             if(p.hasPermission("customitems.cooldownbypass") || !cooldown.containsKey(p.getUniqueId()) || cooldown.get(p.getUniqueId()) < System.currentTimeMillis()) {
                 cooldown.put(p.getUniqueId(), System.currentTimeMillis() + (long)(1000*240 * (BoxPlugin.instance.getPerksManager().getSelectedMegaPerks(p).contains(PerksManager.MegaPerk.MEGA_COOLDOWN_REDUCTION) ? 0.5 : 1)));
-                totemPop(p);
+                Bukkit.getScheduler().runTask(BoxPlugin.instance, () -> totemPop(p));
                 NamespacedKey itemIdKey = new NamespacedKey(BoxPlugin.instance, "ITEM_ID");
                 ItemStack totem = p.getInventory().getItemInOffHand();
-                if(totem != null && totem.getType() == Material.TOTEM_OF_UNDYING && totem.getItemMeta().getPersistentDataContainer().has(itemIdKey, PersistentDataType.STRING) && totem.getItemMeta().getPersistentDataContainer().get(itemIdKey, PersistentDataType.STRING).equals(this.getItemId())){
+                ItemMeta totemMeta = totem.getItemMeta();
+                if(totemMeta != null && totem.getType() == Material.TOTEM_OF_UNDYING && totemMeta.getPersistentDataContainer().has(itemIdKey, PersistentDataType.STRING) && totemMeta.getPersistentDataContainer().get(itemIdKey, PersistentDataType.STRING).equals(this.getItemId())){
                     p.getInventory().setItemInOffHand(totem);
                 } else {
                     totem = p.getInventory().getItemInMainHand();
-                    if(totem != null && totem.getType() == Material.TOTEM_OF_UNDYING && totem.getItemMeta().getPersistentDataContainer().has(itemIdKey, PersistentDataType.STRING) && totem.getItemMeta().getPersistentDataContainer().get(itemIdKey, PersistentDataType.STRING).equals(this.getItemId())){
+                    totemMeta = totem.getItemMeta();
+                    if(totemMeta != null && totem.getType() == Material.TOTEM_OF_UNDYING && totemMeta.getPersistentDataContainer().has(itemIdKey, PersistentDataType.STRING) && totemMeta.getPersistentDataContainer().get(itemIdKey, PersistentDataType.STRING).equals(this.getItemId())){
                         p.getInventory().setItemInMainHand(totem);
                     }
                 }

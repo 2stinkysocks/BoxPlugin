@@ -79,6 +79,10 @@ public class CustomItemsMain implements CommandExecutor, TabCompleter {
         registerItem(new DiamondTotem(this));
         registerItem(new DragonTotem(this));
         registerItem(new SupremeTotem(this));
+        registerItem(new RainbowHelmet(this));
+        registerItem(new RainbowChestplate(this));
+        registerItem(new RainbowLeggings(this));
+        registerItem(new RainbowBoots(this));
 
         BoxPlugin.instance.getLogger().info("Loaded custom items!");
         instance = this;
