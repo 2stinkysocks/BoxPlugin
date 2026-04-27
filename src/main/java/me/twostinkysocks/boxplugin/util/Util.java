@@ -4,7 +4,7 @@ import me.twostinkysocks.boxplugin.BoxPlugin;
 import net.md_5.bungee.api.ChatColor;
 import net.minecraft.world.entity.LivingEntity;
 import org.bukkit.*;
-import org.bukkit.craftbukkit.v1_21_R3.entity.CraftHumanEntity;
+import org.bukkit.craftbukkit.entity.CraftHumanEntity;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.*;
 import org.bukkit.event.entity.PlayerDeathEvent;

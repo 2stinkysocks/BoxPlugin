@@ -16,8 +16,8 @@ import org.bukkit.*;
 import org.bukkit.attribute.Attribute;
 import org.bukkit.attribute.AttributeModifier;
 import org.bukkit.block.data.BlockData;
-import org.bukkit.craftbukkit.v1_21_R3.damage.CraftDamageSource;
-import org.bukkit.craftbukkit.v1_21_R3.entity.CraftPlayer;
+import org.bukkit.craftbukkit.damage.CraftDamageSource;
+import org.bukkit.craftbukkit.entity.CraftPlayer;
 import org.bukkit.damage.DamageSource;
 import org.bukkit.damage.DamageType;
 import org.bukkit.enchantments.Enchantment;
@@ -857,7 +857,7 @@ public class Listeners implements Listener {
                 return;
             }
             target.setMetadata("Trident_Hit", FMDV);
-            ItemStack tridentItem = trident.getItem();
+            ItemStack tridentItem = trident.getItemStack();
             ItemMeta tridentMeta = tridentItem.getItemMeta();
             double tridantBonusDmg = 1;
             Multimap<Attribute, AttributeModifier> itemAttributes= tridentMeta.getAttributeModifiers();//gets the tridents attributes to set new attack dmg

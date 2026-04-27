@@ -1,5 +1,5 @@
 name: BoxPlugin
-version: '${project.version}'
+version: '3.0'
 main: me.twostinkysocks.boxplugin.BoxPlugin
 api-version: 1.21.4
 prefix: BoxPlugin

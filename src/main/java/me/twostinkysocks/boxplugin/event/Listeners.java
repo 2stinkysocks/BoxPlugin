@@ -20,8 +20,8 @@ import me.twostinkysocks.boxplugin.util.Util;
 import org.bukkit.*;
 import org.bukkit.attribute.Attribute;
 import org.bukkit.block.Block;
-import org.bukkit.craftbukkit.v1_21_R3.inventory.CraftInventoryCrafting;
-import org.bukkit.craftbukkit.v1_21_R3.inventory.CraftInventoryPlayer;
+import org.bukkit.craftbukkit.inventory.CraftInventoryCrafting;
+import org.bukkit.craftbukkit.inventory.CraftInventoryPlayer;
 import org.bukkit.damage.DamageSource;
 import org.bukkit.damage.DamageType;
 import org.bukkit.entity.*;
@@ -527,7 +527,7 @@ public class Listeners implements Listener {
         }
 
         // hotkey from hotbar into inventory
-        else if((event.getAction() == InventoryAction.HOTBAR_SWAP || event.getAction() == InventoryAction.HOTBAR_MOVE_AND_READD) && !(player.getOpenInventory().getTopInventory() instanceof CraftInventoryCrafting)) {
+        else if((event.getAction() == InventoryAction.HOTBAR_SWAP) && !(player.getOpenInventory().getTopInventory() instanceof CraftInventoryCrafting)) {
             shouldCancel = true;
         }
 
