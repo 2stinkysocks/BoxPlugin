@@ -45,7 +45,7 @@ public class RainbowChestplate extends CustomItem {
 
                             armortMeta.setColor(bukkitColor);
                             chestplate.setItemMeta(armortMeta);
-                            fella.getEquipment().setChestplate(chestplate);
+                            fella.getEquipment().setChestplate(chestplate, true);
                         }
                     } else if (entity.getType() == EntityType.ARMOR_STAND) {
 
@@ -63,7 +63,7 @@ public class RainbowChestplate extends CustomItem {
 
                             armortMeta.setColor(bukkitColor);
                             chestplate.setItemMeta(armortMeta);
-                            stand.getEquipment().setChestplate(chestplate);
+                            stand.getEquipment().setChestplate(chestplate, true);
                         }
                     }
                 }

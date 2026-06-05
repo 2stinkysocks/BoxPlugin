@@ -99,7 +99,7 @@ public class GodBornEnchant extends AbstractEnchant{
         return numeral;
     }
 
-    public double getAddedChanceFromTotalLevel(int totalLvl){
+    public double getChanceFromTotalLevel(int totalLvl){
         return (totalLvl * CHANCE_ADDED_PERLVL);
     }
 }

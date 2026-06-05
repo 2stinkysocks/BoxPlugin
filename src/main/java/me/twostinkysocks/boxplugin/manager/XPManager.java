@@ -90,7 +90,10 @@ public class XPManager {
 
     public int getLevelUpReward(int level) {
         int coins = level/2;
-        if(coins > 192) coins = 192;
+        int lvlMult = level/100;
+        if(coins > 192){
+            coins = 64 * lvlMult;
+        }
         return coins;
     }
 
@@ -121,11 +124,11 @@ public class XPManager {
     public void handleGroupUpdate(Player p, int beforelevel, int afterlevel) {
         User user = BoxPlugin.instance.getLuckPerms().getUserManager().getUser(p.getUniqueId());
         // add xp
-        if(beforelevel < 15 && afterlevel >= 15) {
+        if(beforelevel < 10 && afterlevel >= 10) {
             InheritanceNode node = InheritanceNode.builder("lvl20").value(true).build();
             user.data().add(node);
         }
-        if(beforelevel < 35 && afterlevel >= 35) {
+        if(beforelevel < 30 && afterlevel >= 30) {
             InheritanceNode node = InheritanceNode.builder("lvl35").value(true).build();
             user.data().add(node);
         }
@@ -133,22 +136,22 @@ public class XPManager {
             InheritanceNode node = InheritanceNode.builder("lvl50").value(true).build();
             user.data().add(node);
         }
-        if(beforelevel < 70 && afterlevel >= 70) {
+        if(beforelevel < 80 && afterlevel >= 80) {
             InheritanceNode node = InheritanceNode.builder("lvl70").value(true).build();
             user.data().add(node);
-            p.sendMessage(ChatColor.GREEN + "You've reached level 70! You can claim your free 3-day trial of MVP+ at any time with /redeemtrialrank!");
+            p.sendMessage(ChatColor.GREEN + "You've reached level 80! You can claim your free 3-day trial of MVP+ at any time with /redeemtrialrank!");
         }
-        if(beforelevel < 100 && afterlevel >= 100) {
+        if(beforelevel < 115 && afterlevel >= 115) {
             InheritanceNode node = InheritanceNode.builder("lvl100").value(true).build();
             user.data().add(node);
         }
 
         // remove xp
-        if(afterlevel < 100 && beforelevel >= 100) {
+        if(afterlevel < 115 && beforelevel >= 115) {
             InheritanceNode node = InheritanceNode.builder("lvl100").value(false).build();
             user.data().add(node);
         }
-        if(afterlevel < 70 && beforelevel >= 70) {
+        if(afterlevel < 80 && beforelevel >= 80) {
             InheritanceNode node = InheritanceNode.builder("lvl70").value(false).build();
             user.data().add(node);
         }
@@ -156,11 +159,11 @@ public class XPManager {
             InheritanceNode node = InheritanceNode.builder("lvl50").value(false).build();
             user.data().add(node);
         }
-        if(afterlevel < 35 && beforelevel >= 35) {
+        if(afterlevel < 30 && beforelevel >= 30) {
             InheritanceNode node = InheritanceNode.builder("lvl35").value(false).build();
             user.data().add(node);
         }
-        if(afterlevel < 15 && beforelevel >= 15) {
+        if(afterlevel < 10 && beforelevel >= 10) {
             InheritanceNode node = InheritanceNode.builder("lvl20").value(false).build();
             user.data().add(node);
         }

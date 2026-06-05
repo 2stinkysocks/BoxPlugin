@@ -51,7 +51,7 @@ public class RainbowHelmet extends CustomItem {
 
                             armortMeta.setColor(bukkitColor);
                             helm.setItemMeta(armortMeta);
-                            fella.getEquipment().setHelmet(helm);
+                            fella.getEquipment().setHelmet(helm, true);
                         }
                     } else if (entity.getType() == EntityType.ARMOR_STAND) {
 
@@ -69,7 +69,7 @@ public class RainbowHelmet extends CustomItem {
 
                             armortMeta.setColor(bukkitColor);
                             helm.setItemMeta(armortMeta);
-                            stand.getEquipment().setHelmet(helm);
+                            stand.getEquipment().setHelmet(helm, true);
                         }
                     }
                 }

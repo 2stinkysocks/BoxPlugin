@@ -24,6 +24,8 @@ commands:
     usage: /<command>
   openauroragui:
     usage: /<command>
+  openelementgui:
+    usage: /<command>
   getselectedperks:
     usage: /<command>
   getownedperks:

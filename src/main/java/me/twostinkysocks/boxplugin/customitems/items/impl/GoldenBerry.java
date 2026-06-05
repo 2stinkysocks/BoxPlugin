@@ -19,7 +19,7 @@ import java.math.MathContext;
 import java.util.HashMap;
 import java.util.UUID;
 
-public class GoldenBerry extends CustomItem{
+public class  GoldenBerry extends CustomItem{
     private HashMap<UUID, Long> cooldown;
 
     public GoldenBerry(CustomItemsMain plugin) {

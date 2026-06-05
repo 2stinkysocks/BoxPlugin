@@ -848,7 +848,12 @@ public class Listeners implements Listener {
 
         if((afterlevel/5) > (beforelevel/5) || (afterlevel/6) > (beforelevel/5)) {
             int toGive = BoxPlugin.instance.getXpManager().getLevelUpRewardLevelToLevel(BoxPlugin.instance.getXpManager().convertXPToLevel(e.getBeforeXP()), BoxPlugin.instance.getXpManager().getLevel(p));
-            HashMap<Integer, ItemStack> toDrop = p.getInventory().addItem(Util.itemArray(toGive, Util::gigaCoin));
+//            HashMap<Integer, ItemStack> toDrop = p.getInventory().addItem(Util.itemArray(toGive, Util::gigaCoin));
+//            toDrop.forEach((index, item) -> {
+//                Item entity = (Item) p.getWorld().spawnEntity(p.getLocation(), EntityType.ITEM);
+//                entity.setItemStack(item);
+//            });
+            HashMap<Integer, ItemStack> toDrop = p.getInventory().addItem(Util.reducedCurrencyArray(toGive * 64));
             toDrop.forEach((index, item) -> {
                 Item entity = (Item) p.getWorld().spawnEntity(p.getLocation(), EntityType.ITEM);
                 entity.setItemStack(item);

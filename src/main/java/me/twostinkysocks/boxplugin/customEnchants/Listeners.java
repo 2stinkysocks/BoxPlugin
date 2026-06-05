@@ -375,7 +375,7 @@ public class Listeners implements Listener {
                     float attackStrength = p.getAttackCooldown();
                     cacterDmg *= attackStrength;
                     target.damage(cacterDmg, DamageSource.builder(DamageType.CACTUS).withCausingEntity(p).withDirectEntity(p).build());
-                    Util.debug(p, "dealt " + (cacterDmg) + " bonus damage to " + target.getName());
+                    Util.debug(p, "dealt " + (cacterDmg) + " bonus plant damage to " + target.getName());
                 }
                 Bukkit.getScheduler().runTask(BoxPlugin.instance, () ->
                         target.removeMetadata("Prickle_Hit", BoxPlugin.instance));
@@ -440,7 +440,7 @@ public class Listeners implements Listener {
                         calcAttacklessDamage(pTarget, DamageType.CACTUS, cacterDmg, p, e);
                     } else {
                         attacker.damage(cacterDmg, DamageSource.builder(DamageType.CACTUS).withCausingEntity(p).withDirectEntity(p).build());
-                        Util.debug(p, "dealt " + (cacterDmg) + " bonus damage to " + attacker.getName());
+                        Util.debug(p, "dealt " + (cacterDmg) + " bonus plant damage to " + attacker.getName());
                     }
                     attacker.setNoDamageTicks(0);
                     Bukkit.getScheduler().runTask(BoxPlugin.instance, () -> attacker.removeMetadata("Bramble_Hit", BoxPlugin.instance));
@@ -524,7 +524,7 @@ public class Listeners implements Listener {
                     float attackStrength = p.getAttackCooldown();
                     magmaDmg *= attackStrength;
                     target.damage(magmaDmg, DamageSource.builder(DamageType.LAVA).withCausingEntity(p).withDirectEntity(p).build());
-                    Util.debug(p, "dealt " + (magmaDmg) + " bonus damage to " + target.getName());
+                    Util.debug(p, "dealt " + (magmaDmg) + " bonus lava damage to " + target.getName());
                 }
                 Location origin = target.getLocation().clone();
                 origin.add(0, (target.getHeight()), 0);//at head
@@ -590,7 +590,7 @@ public class Listeners implements Listener {
                 } else {
                     freezeDmg *= attackStrength;
                     target.damage(freezeDmg, DamageSource.builder(DamageType.FREEZE).withCausingEntity(p).withDirectEntity(p).build());
-                    Util.debug(p, "dealt " + (freezeDmg) + " bonus damage to " + target.getName());
+                    Util.debug(p, "dealt " + (freezeDmg) + " bonus ice damage to " + target.getName());
                 }
                 Bukkit.getScheduler().runTask(BoxPlugin.instance, () -> target.removeMetadata("Ice_Hit", BoxPlugin.instance));
             }
@@ -650,7 +650,7 @@ public class Listeners implements Listener {
                 } else {
                     drownDmg *= attackStrength;
                     target.damage(drownDmg, DamageSource.builder(DamageType.DROWN).withCausingEntity(p).withDirectEntity(p).build());
-                    Util.debug(p, "dealt " + (drownDmg) + " bonus damage to " + target.getName());
+                    Util.debug(p, "dealt " + (drownDmg) + " bonus drown damage to " + target.getName());
                 }
                 Bukkit.getScheduler().runTask(BoxPlugin.instance, () -> target.removeMetadata("Drown_Hit", BoxPlugin.instance));
             }
@@ -682,7 +682,7 @@ public class Listeners implements Listener {
                 int totalGodBornLvl = BoxPlugin.instance.getCustomEnchantsMain().getCombinedEnchLevel(p, CustomEnchantsMain.Enchant.GodBorn);
                 double defualtChance = BoxPlugin.instance.getZeusEnchant().getChanceFromTotalLevel(zeusLvl);
                 if(totalGodBornLvl > 0){
-                    defualtChance += BoxPlugin.instance.getGodBornEnchant().getAddedChanceFromTotalLevel(totalGodBornLvl);
+                    defualtChance += BoxPlugin.instance.getGodBornEnchant().getChanceFromTotalLevel(totalGodBornLvl);
                 }
                 Random random = new Random();
 
@@ -690,14 +690,14 @@ public class Listeners implements Listener {
                 if(defualtChance >= strikeRoll){
                     target.setNoDamageTicks(0);
                     double lightningDmg = target.getMaxHealth() * CustomEnchantsMain.Enchant.Zeus.instance.getDamageFromTotalLevel(zeusLvl);
-                    lightningDmg = Math.min(lightningDmg, 150);
+                    lightningDmg = Math.min(lightningDmg, 175);
                     if(target instanceof Player pTarget){
                         calcDamage(pTarget, DamageType.MAGIC, lightningDmg, p, e);
                     } else {
                         float attackStrength = p.getAttackCooldown();
                         lightningDmg *= attackStrength;
                         target.damage(lightningDmg, DamageSource.builder(DamageType.MAGIC).withCausingEntity(p).withDirectEntity(p).build());
-                        Util.debug(p, "dealt " + (lightningDmg) + " bonus damage to " + target.getName());
+                        Util.debug(p, "dealt " + (lightningDmg) + " bonus lightning damage to " + target.getName());
                     }
                     Bukkit.getScheduler().runTaskLater(BoxPlugin.instance, () -> {
                         p.getWorld().strikeLightningEffect(target.getLocation()); // visual only
@@ -729,13 +729,17 @@ public class Listeners implements Listener {
                                 p.getWorld().playSound(ent.getLocation(), Sound.ENTITY_BEE_STING, 1F, 0.5F);
                                 p.getWorld().playSound(ent.getLocation(), Sound.ITEM_WOLF_ARMOR_BREAK, 0.8F, 2F);
 
-                                double shockDamage = lightningDmg / (Math.min(10, nearby.size()) + 0.5);
+                                lightningDmg = target.getMaxHealth() * CustomEnchantsMain.Enchant.Zeus.instance.getDamageFromTotalLevel(zeusLvl);
+                                lightningDmg = Math.min(lightningDmg, 350);
+                                float attackStrength = p.getAttackCooldown();
+                                lightningDmg *= attackStrength;
+                                double shockDamage = lightningDmg / (Math.min(10, nearby.size()));
                                 if(ent instanceof Player pTarget){
-                                    calcDamage(pTarget, DamageType.MAGIC, shockDamage, p, e);
+                                    calcAttacklessDamage(pTarget, DamageType.MAGIC, shockDamage, p, e);
                                 } else {
                                     LivingEntity newTarget = (LivingEntity) ent;
                                     newTarget.damage(shockDamage, DamageSource.builder(DamageType.MAGIC).withCausingEntity(p).withDirectEntity(p).build());
-                                    Util.debug(p, "dealt " + (shockDamage) + " bonus damage to " + newTarget.getName());
+                                    Util.debug(p, "dealt " + (shockDamage) + " bonus lightning damage to " + newTarget.getName());
                                 }
                             }
                             i++;
@@ -779,7 +783,7 @@ public class Listeners implements Listener {
                     voidDmg *= attackStrength;
                     voidDmg = voidDmg * 1.1;//10% more to mobs
                     target.damage(voidDmg, DamageSource.builder(DamageType.OUT_OF_WORLD).withCausingEntity(p).withDirectEntity(p).build());
-                    Util.debug(p, "dealt " + (voidDmg) + " bonus damage to " + target.getName());
+                    Util.debug(p, "dealt " + (voidDmg) + " bonus void damage to " + target.getName());
                 }
                 Bukkit.getScheduler().runTask(BoxPlugin.instance, () -> target.removeMetadata("Void_Hit", BoxPlugin.instance));
             }
@@ -838,7 +842,7 @@ public class Listeners implements Listener {
                 float attackStrength = p.getAttackCooldown();
                 titanDmg *= attackStrength;
                 e.setDamage(e.getDamage() + titanDmg);
-                Util.debug(p, "dealt " + (titanDmg) + " bonus damage to " + target.getName());
+                Util.debug(p, "dealt " + (titanDmg) + " bonus basic damage to " + target.getName());
             }
             Bukkit.getScheduler().runTask(BoxPlugin.instance, () -> target.removeMetadata("Magma_Hit", BoxPlugin.instance));
         }
@@ -970,7 +974,7 @@ public class Listeners implements Listener {
                 int totalGodBornLvl = BoxPlugin.instance.getCustomEnchantsMain().getCombinedEnchLevel(p, CustomEnchantsMain.Enchant.GodBorn);
                 double defualtChance = BoxPlugin.instance.getZeusEnchant().getChanceFromTotalLevel(zeusLvl);
                 if(totalGodBornLvl > 0){
-                    defualtChance += BoxPlugin.instance.getGodBornEnchant().getAddedChanceFromTotalLevel(totalGodBornLvl);
+                    defualtChance += BoxPlugin.instance.getGodBornEnchant().getChanceFromTotalLevel(totalGodBornLvl);
                 }
                 Random random = new Random();
 
@@ -978,7 +982,7 @@ public class Listeners implements Listener {
                 if(defualtChance >= strikeRoll){
                     target.setNoDamageTicks(0);
                     double lightningDmg = target.getMaxHealth() * CustomEnchantsMain.Enchant.Zeus.instance.getDamageFromTotalLevel(zeusLvl);
-                    lightningDmg = Math.min(lightningDmg, 150);
+                    lightningDmg = Math.min(lightningDmg, 175);
                     if(target instanceof Player pTarget){
                         calcDamage(pTarget, DamageType.MAGIC, lightningDmg, p, e);
                     } else {
@@ -1015,9 +1019,13 @@ public class Listeners implements Listener {
                                 p.getWorld().playSound(ent.getLocation(), Sound.ENTITY_BEE_STING, 1F, 0.5F);
                                 p.getWorld().playSound(ent.getLocation(), Sound.ITEM_WOLF_ARMOR_BREAK, 0.8F, 2F);
 
+                                lightningDmg = target.getMaxHealth() * CustomEnchantsMain.Enchant.Zeus.instance.getDamageFromTotalLevel(zeusLvl);
+                                lightningDmg = Math.min(lightningDmg, 350);
+                                float attackStrength = p.getAttackCooldown();
+                                lightningDmg *= attackStrength;
                                 double shockDamage = lightningDmg / (Math.min(10, nearby.size()) + 0.5);
                                 if(ent instanceof Player pTarget){
-                                    calcDamage(pTarget, DamageType.MAGIC, shockDamage, p, e);
+                                    calcAttacklessDamage(pTarget, DamageType.MAGIC, shockDamage, p, e);
                                 } else {
                                     LivingEntity newTarget = (LivingEntity) ent;
                                     newTarget.damage(shockDamage, DamageSource.builder(DamageType.MAGIC).withCausingEntity(p).withDirectEntity(p).build());
@@ -1231,7 +1239,7 @@ public class Listeners implements Listener {
 
     @EventHandler
     public void entityDamageGodThorns(EntityDamageByEntityEvent e){
-        if(e.getEntity() instanceof Player){
+        if(e.getEntity() instanceof Player && e.getDamager() != e.getEntity()){
             Player p = (Player) e.getEntity();
             if(BoxPlugin.instance.getCurseManager().hasCurse(p)){
                 return;
@@ -1248,10 +1256,10 @@ public class Listeners implements Listener {
                 //final damage must be more than 10% max hp && (p.getAttribute(Attribute.MAX_HEALTH).getValue() * 0.1) <= e.getFinalDamage()
                 if(godThornChanceRolled <= godThornChance){
                     LivingEntity attacker = (LivingEntity) e.getDamager();
-                    if(attacker.hasMetadata("GodThorn_hit")){// prevent recussion
-                        return;
-                    }
-                    attacker.setMetadata("GodThorn_hit", FMDV);
+//                    if(attacker.hasMetadata("GodThorn_hit")){// prevent recussion, we want it to actually get all sources of damage
+//                        return;
+//                    }
+//                    attacker.setMetadata("GodThorn_hit", FMDV);
                     AtomicReference<Double> hpDiff = new AtomicReference<>(0.0);
                     double curHp = p.getHealth();
                     Bukkit.getScheduler().runTask(BoxPlugin.instance, () -> hpDiff.set(curHp - p.getHealth()));
@@ -1273,7 +1281,7 @@ public class Listeners implements Listener {
                         RenderUtil.renderParticleLine(origin, dir, Particle.ELECTRIC_SPARK, 0.2);
                         p.getWorld().playSound(attacker.getLocation(), Sound.ENTITY_BEE_STING, 1F, 0.5F);
                         attacker.setNoDamageTicks(0);
-                        Bukkit.getScheduler().runTask(BoxPlugin.instance, () -> attacker.removeMetadata("GodThorn_hit", BoxPlugin.instance));
+//                        Bukkit.getScheduler().runTask(BoxPlugin.instance, () -> attacker.removeMetadata("GodThorn_hit", BoxPlugin.instance));
                     }, 2L);
                 }
             }
@@ -1523,6 +1531,11 @@ public class Listeners implements Listener {
 
                     int ticksToStun = 20 * (CustomEnchantsMain.Enchant.Magma.instance.getLevel(mainHandItem) +
                             CustomEnchantsMain.Enchant.VoidAspect.instance.getLevel(mainHandItem)) / 8;
+                    Vector v = new Vector();
+                    v.setX(0);
+                    v.setY(0);
+                    v.setZ(0);
+                    target.setVelocity(v);
                     target.addPotionEffect(new PotionEffect(PotionEffectType.WEAKNESS, ticksToStun, 10, true, false));
                     target.addPotionEffect(new PotionEffect(PotionEffectType.SLOWNESS, ticksToStun, 10, true, false));
                     target.addPotionEffect(new PotionEffect(PotionEffectType.BLINDNESS, ticksToStun, 1, true, false));
@@ -1577,7 +1590,7 @@ public class Listeners implements Listener {
                     double hit1 = (double) hitTimes.get(hitTimes.size() - 1) / 1000;
                     double hit3 = (double) hitTimes.get(hitTimes.size() - 3) / 1000;
 
-                    if (hit1 - hit3 <= 4) {//all 3 crits happened in the last 4 seconds
+                    if (hit1 - hit3 <= 4) {//all 3 hits happened in the last 4 seconds
 
                         double targetMXHP = target.getAttribute(Attribute.MAX_HEALTH).getValue();
                         double playerMXHP = p.getAttribute(Attribute.MAX_HEALTH).getValue();

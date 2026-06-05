@@ -9,7 +9,7 @@ import org.bukkit.persistence.PersistentDataType;
 public class BlackIceEnchant extends AbstractEnchant{
     private String enchantName;
     private NamespacedKey enchantKey;
-    private final double DAMAGE_AMP_PERLVL = 0.04;
+    private final double DAMAGE_AMP_PERLVL = 0.03;
     public BlackIceEnchant() {
         setEnchantName("Black Ice");
         setEnchantKey(new NamespacedKey(BoxPlugin.instance, "BlackIce_Enchant"));

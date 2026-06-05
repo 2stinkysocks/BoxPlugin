@@ -45,7 +45,7 @@ public class RainbowLeggings extends CustomItem {
 
                             armortMeta.setColor(bukkitColor);
                             leggings.setItemMeta(armortMeta);
-                            fella.getEquipment().setLeggings(leggings);
+                            fella.getEquipment().setLeggings(leggings, true);
                         }
                     } else if (entity.getType() == EntityType.ARMOR_STAND) {
 
@@ -63,7 +63,7 @@ public class RainbowLeggings extends CustomItem {
 
                             armortMeta.setColor(bukkitColor);
                             leggings.setItemMeta(armortMeta);
-                            stand.getEquipment().setLeggings(leggings);
+                            stand.getEquipment().setLeggings(leggings, true);
                         }
                     }
                 }

@@ -22,18 +22,13 @@ public class PacketListeners {
             public void onPacketSending(PacketEvent event) {
                 if (event.getPacketType() != PacketType.Play.Server.NAMED_SOUND_EFFECT) return;
 
-                if (event.getPlayer().getWorld().getEnvironment() != World.Environment.NORMAL) return;
+                String sound = event.getPacket().getSoundEffects().readSafely(0).toString();
 
-                PacketContainer packet = event.getPacket();
+                if (!sound.contains("entity.ender_dragon.death")) return;
+                System.out.println("Found a dragon sound!");
 
-                for (Object obj : packet.getModifier().getValues()) {
-                    if (obj == null) continue;
-
-                    String str = obj.toString();
-                    if (str.contains("ender_dragon") && str.contains("death")) {
-                        event.setCancelled(true);
-                        return;
-                    }
+                if (event.getPlayer().getWorld().getEnvironment() != World.Environment.THE_END) {
+                    event.setCancelled(true);
                 }
             }
         });

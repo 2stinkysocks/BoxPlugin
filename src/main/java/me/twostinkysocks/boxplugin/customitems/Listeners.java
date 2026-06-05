@@ -99,9 +99,20 @@ public class Listeners implements Listener {
             ItemStack item = p.getInventory().getItemInOffHand();
             ItemStack otherItem = p.getInventory().getItemInMainHand();
             NamespacedKey itemIdKey = new NamespacedKey(BoxPlugin.instance, "ITEM_ID");
-            if((item.getItemMeta() != null && item.getItemMeta() != null && item.getItemMeta().getPersistentDataContainer().has(itemIdKey, PersistentDataType.STRING)) ||
-                    (otherItem.getItemMeta() != null && otherItem.getItemMeta() != null && otherItem.getItemMeta().getPersistentDataContainer().has(itemIdKey, PersistentDataType.STRING))) {
+            if(item.getItemMeta() != null && item.getItemMeta() != null && item.getItemMeta().getPersistentDataContainer().has(itemIdKey, PersistentDataType.STRING)) {
                 String itemId = item.getItemMeta().getPersistentDataContainer().get(itemIdKey, PersistentDataType.STRING);
+                for(CustomItem i : items) {
+                    if(itemId.equals(i.getItemId())) {
+                        if(BoxPlugin.instance.getCurseManager().hasCurse(p) && !i.getCurseOveride()){//ignore for curses and non overide items
+                            p.sendMessage(ChatColor.RED + "You cannot use magic items without a soul!");
+                            continue;
+                        }
+                        i.getTotemUse().accept(e);;
+                    }
+                }
+            }
+            if(otherItem.getItemMeta() != null && otherItem.getItemMeta() != null && otherItem.getItemMeta().getPersistentDataContainer().has(itemIdKey, PersistentDataType.STRING)){
+                String itemId = otherItem.getItemMeta().getPersistentDataContainer().get(itemIdKey, PersistentDataType.STRING);
                 for(CustomItem i : items) {
                     if(itemId.equals(i.getItemId())) {
                         if(BoxPlugin.instance.getCurseManager().hasCurse(p) && !i.getCurseOveride()){//ignore for curses and non overide items

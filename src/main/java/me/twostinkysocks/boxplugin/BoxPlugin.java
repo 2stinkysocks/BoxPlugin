@@ -107,6 +107,7 @@ public final class BoxPlugin extends JavaPlugin implements CommandExecutor, TabC
     private VoidBornEnchant voidBornEnchant;
     private ItemPopper itemPopperManager;
     private CurseManager curseManager;
+    private ElementalUIManager elementManager;
 
     private Economy econ = null;
 
@@ -209,6 +210,7 @@ public final class BoxPlugin extends JavaPlugin implements CommandExecutor, TabC
         customEnchantsMain = new CustomEnchantsMain();
         itemPopperManager = new ItemPopper();
         curseManager = new CurseManager();
+        elementManager = new ElementalUIManager();
 
         excellentCrates = (CratesPlugin) getServer().getPluginManager().getPlugin("ExcellentCrates");
         keyManager = excellentCrates.getKeyManager();
@@ -246,6 +248,7 @@ public final class BoxPlugin extends JavaPlugin implements CommandExecutor, TabC
         getCommand("setmarketmultipier").setExecutor(this);
         getCommand("openxanatosgui").setExecutor(this);
         getCommand("openauroragui").setExecutor(this);
+        getCommand("openelementgui").setExecutor(this);
         getCommand("redeemtrialrank").setExecutor(this);
         getCommand("registeritem").setExecutor(this);
         getCommand("registeritemupdate").setExecutor(this);
@@ -424,6 +427,9 @@ public final class BoxPlugin extends JavaPlugin implements CommandExecutor, TabC
     }
     public CurseManager getCurseManager(){
         return curseManager;
+    }
+    public ElementalUIManager getElementManager(){
+        return elementManager;
     }
     public MegaPerkHeartSteal getMegaPerkHeartSteal() {
         return megaperkHeartSteal;
@@ -620,7 +626,9 @@ public final class BoxPlugin extends JavaPlugin implements CommandExecutor, TabC
                 getPerksManager().openMainGui(p);
             } else if(label.equals("openauroragui")) {
                 getCurseManager().openSoulGui(p);
-            } else if(label.equals("getownedperks")) {
+            } else if(label.equals("openelementgui")) {
+                getElementManager().openMainGui(p);
+            }else if(label.equals("getownedperks")) {
                 p.sendMessage(String.join("\n", getPerksManager().getPurchasedPerks(p).stream().map(pe -> pe.instance.getKey()).collect(Collectors.toList())));
             } else if(label.equals("getselectedperks")) {
                 p.sendMessage(String.join("\n", getPerksManager().getSelectedPerks(p).stream().map(pe -> pe.instance.getKey()).collect(Collectors.toList())));            } else if(label.equals("boxgivecommonkey")) {

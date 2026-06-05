@@ -162,8 +162,8 @@ public class CustomEnchantsMain {
         return item;
     }
 
-    public ItemStack setCustomEnchantByEnchant(ItemStack item, Enchant enchant, int lvl){
-        if(enchant == null) return item;
+    public void setCustomEnchantByEnchant(ItemStack item, Enchant enchant, int lvl){
+        if(enchant == null) return;
 
         if(lvl > 0){
             item = enchant.instance.setLevel(item, lvl);
@@ -177,14 +177,15 @@ public class CustomEnchantsMain {
 //        }
         //lore part
         ItemMeta itemMeta = item.getItemMeta();
-        if(itemMeta == null) return item;
+        if(itemMeta == null) return;
         List<String> lore = itemMeta.hasLore() ? new ArrayList<>(itemMeta.getLore()) : new ArrayList<>();
 
         // Remove old lore lines matching any custom enchant
         List<String> keys = Enchant.getKeys();
         lore.removeIf(line -> {
-            for(String key : keys){
-                if(line.contains(ChatColor.stripColor(key))) return true;
+            String stripped = ChatColor.stripColor(line);
+            for (String key : keys) {
+                if (stripped.startsWith(key)) return true;
             }
             return false;
         });
@@ -200,7 +201,6 @@ public class CustomEnchantsMain {
         }
         itemMeta.setLore(lore);
         item.setItemMeta(itemMeta);
-        return item;
     }
 
     public int getCombinedEnchLevel(Player p, Enchant enchant ){
