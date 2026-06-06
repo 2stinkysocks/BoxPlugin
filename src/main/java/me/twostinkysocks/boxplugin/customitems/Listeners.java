@@ -175,7 +175,7 @@ public class Listeners implements Listener {
     public void projectileLand(ProjectileHitEvent e) {
         if(e.getEntity() instanceof Trident && e.getEntity().getPersistentDataContainer().has(new NamespacedKey(BoxPlugin.instance, "HEAL_SPEAR"), PersistentDataType.INTEGER)) {
             Location location = e.getEntity().getLocation().clone();
-            List<LivingEntity> near20 = e.getEntity().getNearbyEntities(15, 3, 15).stream().filter(entity -> entity instanceof Damageable && entity.getLocation().distanceSquared(location) <= 15 * 15).map(entity -> (LivingEntity) entity).collect(Collectors.toList());
+            List<LivingEntity> near20 = e.getEntity().getNearbyEntities(15, 3, 15).stream().filter(entity -> entity instanceof LivingEntity && entity.getLocation().distanceSquared(location) <= 15 * 15).map(entity -> (LivingEntity) entity).collect(Collectors.toList());
             List<UUID> damaged = new ArrayList<>();
             AtomicDouble i = new AtomicDouble();
             e.getEntity().getWorld().playSound(e.getEntity().getLocation(), Sound.BLOCK_ANVIL_LAND, 0.2f, 0.5f);

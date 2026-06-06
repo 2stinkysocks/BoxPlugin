@@ -293,7 +293,9 @@ public class Listeners implements Listener {
             Bukkit.getScheduler().runTask(BoxPlugin.instance, () -> elementHashmap.remove(playerPair));
             return;
         }
+        target.setMetadata("AttacklessDamage", FMDV);
         target.damage(finalDamage, DamageSource.builder(damageType).withCausingEntity(attacker).withDirectEntity(attacker).build());
+        Bukkit.getScheduler().runTask(BoxPlugin.instance, () -> target.removeMetadata("AttacklessDamage", BoxPlugin.instance));
         Bukkit.getScheduler().runTask(BoxPlugin.instance, () -> elementHashmap.remove(playerPair));
     }
 
@@ -363,7 +365,7 @@ public class Listeners implements Listener {
                 return;
             }
             if(mainHandItem != null && mainHandItem.getItemMeta() != null && CustomEnchantsMain.Enchant.Prickle.instance.hasEnchant(mainHandItem)){//prickle enchant on weapon
-                if(target.hasMetadata("Prickle_Hit")){// prevent recussion
+                if(target.hasMetadata("Prickle_Hit") || target.hasMetadata("AttacklessDamage")){// prevent recussion
                     return;
                 }
                 target.setMetadata("Prickle_Hit", FMDV);
@@ -439,7 +441,9 @@ public class Listeners implements Listener {
                     if(attacker instanceof Player pTarget){
                         calcAttacklessDamage(pTarget, DamageType.CACTUS, cacterDmg, p, e);
                     } else {
+                        attacker.setMetadata("AttacklessDamage", FMDV);
                         attacker.damage(cacterDmg, DamageSource.builder(DamageType.CACTUS).withCausingEntity(p).withDirectEntity(p).build());
+                        Bukkit.getScheduler().runTask(BoxPlugin.instance, () -> attacker.removeMetadata("AttacklessDamage", BoxPlugin.instance));
                         Util.debug(p, "dealt " + (cacterDmg) + " bonus plant damage to " + attacker.getName());
                     }
                     attacker.setNoDamageTicks(0);
@@ -508,7 +512,7 @@ public class Listeners implements Listener {
 
             ItemStack mainHandItem = p.getItemInHand();
             if(mainHandItem != null && mainHandItem.getItemMeta() != null && CustomEnchantsMain.Enchant.Magma.instance.hasEnchant(mainHandItem)){//magma enchant on weapon
-                if(target.hasMetadata("Magma_Hit")){// prevent recussion
+                if(target.hasMetadata("Magma_Hit") || target.hasMetadata("AttacklessDamage")){// prevent recussion
                     return;
                 }
                 target.setMetadata("Magma_Hit", FMDV);
@@ -552,7 +556,7 @@ public class Listeners implements Listener {
             ItemStack mainHandItem = p.getItemInHand();
             float attackStrength = p.getAttackCooldown();
             if(mainHandItem != null && mainHandItem.getItemMeta() != null && CustomEnchantsMain.Enchant.IceAspect.instance.hasEnchant(mainHandItem)){//ice enchant on weapon
-                if(target.hasMetadata("Ice_Hit")){// prevent recussion
+                if(target.hasMetadata("Ice_Hit") || target.hasMetadata("AttacklessDamage")){// prevent recussion
                     return;
                 }
                 target.setMetadata("Ice_Hit", FMDV);
@@ -614,7 +618,7 @@ public class Listeners implements Listener {
             ItemStack mainHandItem = p.getItemInHand();
             float attackStrength = p.getAttackCooldown();
             if(mainHandItem != null && mainHandItem.getItemMeta() != null && CustomEnchantsMain.Enchant.Asphyxiate.instance.hasEnchant(mainHandItem)){//asphixiate enchant on weapon
-                if(target.hasMetadata("Drown_Hit")){// prevent recussion
+                if(target.hasMetadata("Drown_Hit") || target.hasMetadata("AttacklessDamage")){// prevent recussion
                     return;
                 }
                 target.setMetadata("Drown_Hit", FMDV);
@@ -674,7 +678,7 @@ public class Listeners implements Listener {
             LivingEntity target = (LivingEntity) e.getEntity();
             ItemStack mainHandItem = p.getInventory().getItemInMainHand();
             if(mainHandItem.getItemMeta() != null && CustomEnchantsMain.Enchant.Zeus.instance.hasEnchant(mainHandItem)){//zeus enchant on weapon
-                if(target.hasMetadata("Electric_Hit")){// prevent recussion
+                if(target.hasMetadata("Electric_Hit") || target.hasMetadata("AttacklessDamage")){// prevent recussion
                     return;
                 }
                 target.setMetadata("Electric_Hit", FMDV);
@@ -731,14 +735,14 @@ public class Listeners implements Listener {
 
                                 lightningDmg = target.getMaxHealth() * CustomEnchantsMain.Enchant.Zeus.instance.getDamageFromTotalLevel(zeusLvl);
                                 lightningDmg = Math.min(lightningDmg, 350);
-                                float attackStrength = p.getAttackCooldown();
-                                lightningDmg *= attackStrength;
                                 double shockDamage = lightningDmg / (Math.min(10, nearby.size()));
                                 if(ent instanceof Player pTarget){
                                     calcAttacklessDamage(pTarget, DamageType.MAGIC, shockDamage, p, e);
                                 } else {
                                     LivingEntity newTarget = (LivingEntity) ent;
+                                    newTarget.setMetadata("AttacklessDamage", FMDV);
                                     newTarget.damage(shockDamage, DamageSource.builder(DamageType.MAGIC).withCausingEntity(p).withDirectEntity(p).build());
+                                    Bukkit.getScheduler().runTask(BoxPlugin.instance, () -> newTarget.removeMetadata("AttacklessDamage", BoxPlugin.instance));
                                     Util.debug(p, "dealt " + (shockDamage) + " bonus lightning damage to " + newTarget.getName());
                                 }
                             }
@@ -766,7 +770,7 @@ public class Listeners implements Listener {
             }
             ItemStack mainHandItem = p.getItemInHand();
             if(mainHandItem != null && mainHandItem.getItemMeta() != null && CustomEnchantsMain.Enchant.VoidAspect.instance.hasEnchant(mainHandItem)){//ice enchant on weapon
-                if(target.hasMetadata("Void_Hit")){// prevent recussion
+                if(target.hasMetadata("Void_Hit") || target.hasMetadata("AttacklessDamage")){// prevent recussion
                     return;
                 }
                 target.setMetadata("Void_Hit", FMDV);
@@ -825,7 +829,7 @@ public class Listeners implements Listener {
             }
             LivingEntity target = (LivingEntity) e.getEntity();
 
-            if(target.hasMetadata("Titan_Hit")){// prevent recussion
+            if(target.hasMetadata("Titan_Hit") || target.hasMetadata("AttacklessDamage")){// prevent recussion
                 return;
             }
             target.setMetadata("Titan_Hit", FMDV);
@@ -897,7 +901,9 @@ public class Listeners implements Listener {
                 if(target instanceof Player pTarget){
                     calcAttacklessDamage(pTarget, DamageType.DROWN, drownDmg, p, e);
                 } else {
+                    target.setMetadata("AttacklessDamage", FMDV);
                     target.damage(drownDmg, DamageSource.builder(DamageType.DROWN).withCausingEntity(p).withDirectEntity(p).build());
+                    Bukkit.getScheduler().runTask(BoxPlugin.instance, () -> target.removeMetadata("AttacklessDamage", BoxPlugin.instance));
                     Util.debug(p, "dealt " + (drownDmg) + " bonus damage to " + target.getName());
                 }
                 Location origin = target.getLocation().clone();
@@ -913,9 +919,11 @@ public class Listeners implements Listener {
                     magmaDmg *= BoxPlugin.instance.getFireBornEnchant().getDamageAmpFromTotalLevel(totalFireBornLvl);
                 }
                 if(target instanceof Player pTarget){
-                    calcDamage(pTarget, DamageType.LAVA, magmaDmg, p, e);
+                    calcAttacklessDamage(pTarget, DamageType.LAVA, magmaDmg, p, e);
                 } else {
+                    target.setMetadata("AttacklessDamage", FMDV);
                     target.damage(magmaDmg, DamageSource.builder(DamageType.LAVA).withCausingEntity(p).withDirectEntity(p).build());
+                    Bukkit.getScheduler().runTask(BoxPlugin.instance, () -> target.removeMetadata("AttacklessDamage", BoxPlugin.instance));
                     Util.debug(p, "dealt " + (magmaDmg) + " bonus damage to " + target.getName());
                 }
                 Location origin = target.getLocation().clone();
@@ -953,9 +961,11 @@ public class Listeners implements Listener {
                             iceData); //block type
                 }
                 if(target instanceof Player pTarget){
-                    calcDamage(pTarget, DamageType.FREEZE, freezeDmg, p, e);
+                    calcAttacklessDamage(pTarget, DamageType.FREEZE, freezeDmg, p, e);
                 } else {
+                    target.setMetadata("AttacklessDamage", FMDV);
                     target.damage(freezeDmg, DamageSource.builder(DamageType.FREEZE).withCausingEntity(p).withDirectEntity(p).build());
+                    Bukkit.getScheduler().runTask(BoxPlugin.instance, () -> target.removeMetadata("AttacklessDamage", BoxPlugin.instance));
                     Util.debug(p, "dealt " + (freezeDmg) + " bonus damage to " + target.getName());
                 }
             }
@@ -984,9 +994,11 @@ public class Listeners implements Listener {
                     double lightningDmg = target.getMaxHealth() * CustomEnchantsMain.Enchant.Zeus.instance.getDamageFromTotalLevel(zeusLvl);
                     lightningDmg = Math.min(lightningDmg, 175);
                     if(target instanceof Player pTarget){
-                        calcDamage(pTarget, DamageType.MAGIC, lightningDmg, p, e);
+                        calcAttacklessDamage(pTarget, DamageType.MAGIC, lightningDmg, p, e);
                     } else {
+                        target.setMetadata("AttacklessDamage", FMDV);
                         target.damage(lightningDmg, DamageSource.builder(DamageType.MAGIC).withCausingEntity(p).withDirectEntity(p).build());
+                        Bukkit.getScheduler().runTask(BoxPlugin.instance, () -> target.removeMetadata("AttacklessDamage", BoxPlugin.instance));
                         Util.debug(p, "dealt " + (lightningDmg) + " bonus damage to " + target.getName());
                     }
                     Bukkit.getScheduler().runTaskLater(BoxPlugin.instance, () -> {
@@ -1021,14 +1033,14 @@ public class Listeners implements Listener {
 
                                 lightningDmg = target.getMaxHealth() * CustomEnchantsMain.Enchant.Zeus.instance.getDamageFromTotalLevel(zeusLvl);
                                 lightningDmg = Math.min(lightningDmg, 350);
-                                float attackStrength = p.getAttackCooldown();
-                                lightningDmg *= attackStrength;
                                 double shockDamage = lightningDmg / (Math.min(10, nearby.size()) + 0.5);
                                 if(ent instanceof Player pTarget){
                                     calcAttacklessDamage(pTarget, DamageType.MAGIC, shockDamage, p, e);
                                 } else {
                                     LivingEntity newTarget = (LivingEntity) ent;
+                                    newTarget.setMetadata("AttacklessDamage", FMDV);
                                     newTarget.damage(shockDamage, DamageSource.builder(DamageType.MAGIC).withCausingEntity(p).withDirectEntity(p).build());
+                                    Bukkit.getScheduler().runTask(BoxPlugin.instance, () -> newTarget.removeMetadata("AttacklessDamage", BoxPlugin.instance));
                                     Util.debug(p, "dealt " + (shockDamage) + " bonus damage to " + newTarget.getName());
                                 }
                             }
@@ -1045,9 +1057,11 @@ public class Listeners implements Listener {
                     voidDmg *= BoxPlugin.instance.getIceBornEnchant().getDamageAmpFromTotalLevel(totalVoidBornLvl);
                 }
                 if(target instanceof Player pTarget){
-                    calcDamage(pTarget, DamageType.OUT_OF_WORLD, voidDmg, p, e);
+                    calcAttacklessDamage(pTarget, DamageType.OUT_OF_WORLD, voidDmg, p, e);
                 } else {
+                    target.setMetadata("AttacklessDamage", FMDV);
                     target.damage(voidDmg, DamageSource.builder(DamageType.OUT_OF_WORLD).withCausingEntity(p).withDirectEntity(p).build());
+                    Bukkit.getScheduler().runTask(BoxPlugin.instance, () -> target.removeMetadata("AttacklessDamage", BoxPlugin.instance));
                     Util.debug(p, "dealt " + (voidDmg) + " bonus damage to " + target.getName());
                 }
             }
@@ -1180,10 +1194,13 @@ public class Listeners implements Listener {
                                 0.01,      // speed
                                 iceData); //block type
                     }
+
                     if(attacker instanceof Player pTarget){
                         calcAttacklessDamage(pTarget, DamageType.FREEZE, iceDmg, p, e);
                     } else {
+                        attacker.setMetadata("AttacklessDamage", FMDV);
                         attacker.damage(iceDmg, DamageSource.builder(DamageType.FREEZE).withCausingEntity(p).withDirectEntity(p).build());
+                        Bukkit.getScheduler().runTask(BoxPlugin.instance, () -> attacker.removeMetadata("AttacklessDamage", BoxPlugin.instance));
                         Util.debug(p, "dealt " + (iceDmg) + " bonus damage to " + attacker.getName());
                     }
                     attacker.setNoDamageTicks(0);
@@ -1224,7 +1241,9 @@ public class Listeners implements Listener {
                     if(attacker instanceof Player pTarget){
                         calcAttacklessDamage(pTarget, DamageType.LAVA, lavaDmg, p, e);
                     } else {
+                        attacker.setMetadata("AttacklessDamage", FMDV);
                         attacker.damage(lavaDmg, DamageSource.builder(DamageType.LAVA).withCausingEntity(p).withDirectEntity(p).build());
+                        Bukkit.getScheduler().runTask(BoxPlugin.instance, () -> attacker.removeMetadata("AttacklessDamage", BoxPlugin.instance));
                         Util.debug(p, "dealt " + (lavaDmg) + " bonus damage to " + attacker.getName());
                     }
                     Location origin = attacker.getLocation().clone();
@@ -1270,7 +1289,9 @@ public class Listeners implements Listener {
                         if(attacker instanceof Player pTarget){
                             calcAttacklessDamage(pTarget, DamageType.MAGIC, lightningDamage, p, e);
                         } else {
+                            attacker.setMetadata("AttacklessDamage", FMDV);
                             attacker.damage(lightningDamage, DamageSource.builder(DamageType.MAGIC).withCausingEntity(p).withDirectEntity(p).build());
+                            Bukkit.getScheduler().runTask(BoxPlugin.instance, () -> attacker.removeMetadata("AttacklessDamage", BoxPlugin.instance));
                             Util.debug(p, "dealt " + (lightningDamage) + " bonus damage to " + attacker.getName());
                         }
                         Location origin = attacker.getLocation().clone();
@@ -1312,7 +1333,7 @@ public class Listeners implements Listener {
             if(!crit){
                 return;
             }
-            if(p.hasMetadata("Sublimate_hit")){// prevent recussion
+            if(p.hasMetadata("Sublimate_hit") || target.hasMetadata("AttacklessDamage")){// prevent recussion
                 return;
             }
             p.setMetadata("Sublimate_hit", FMDV);
@@ -1493,7 +1514,7 @@ public class Listeners implements Listener {
             if(p.getLocation().distanceSquared(target.getLocation()) > 49){
                 return;
             }
-            if(p.hasMetadata("darkFlameHit")){// prevent recussion
+            if(p.hasMetadata("darkFlameHit") || target.hasMetadata("AttacklessDamage")){// prevent recussion
                 return;
             }
             p.setMetadata("darkFlameHit", FMDV);
@@ -1563,7 +1584,7 @@ public class Listeners implements Listener {
             if(!goodHit){
                 return;
             }
-            if(p.hasMetadata("BlackLight_hit")){// prevent recussion
+            if(p.hasMetadata("BlackLight_hit") || target.hasMetadata("AttacklessDamage")){// prevent recussion
                 return;
             }
             p.setMetadata("BlackLight_hit", FMDV);
@@ -1650,7 +1671,7 @@ public class Listeners implements Listener {
                 return;
             }
 
-            if(p.hasMetadata("BlackIce_hit")){// prevent recussion
+            if(p.hasMetadata("BlackIce_hit") || e.getEntity().hasMetadata("AttacklessDamage")){// prevent recussion
                 return;
             }
             p.setMetadata("BlackIce_hit", FMDV);

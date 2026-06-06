@@ -37,6 +37,15 @@ public class LotteryManager {
         }
     }
 
+    public int getFinalTicketPrice() {
+        int players = purchasedTickets.size() - 1;
+        if(purchasedTickets.size() == 0) {
+            return 8000;
+        } else {
+            return (int) (8000.0/((0.5*players)+1));
+        }
+    }
+
     public boolean hasTickets(Player p) {
         return purchasedTickets.containsKey(p.getUniqueId());
     }
@@ -51,7 +60,7 @@ public class LotteryManager {
                 }
             });
             purchasedTickets = onlineTicketHolders;
-            int finalPrice = getTicketPrice();
+            int finalPrice = getFinalTicketPrice();
             for(UUID uuid : purchasedTickets.keySet()) {
                 Player p = Bukkit.getPlayer(uuid);
                 BoxPlugin.instance.getMarketManager().removeCoinsBalance(p, finalPrice);

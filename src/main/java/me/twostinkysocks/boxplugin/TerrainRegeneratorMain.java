@@ -53,14 +53,16 @@ public final class TerrainRegeneratorMain implements Listener, CommandExecutor, 
 
     private ArrayList<Entity> toDeAgro;
 
-    private HashMap<String, ArrayList<UUID>> spawnedEntities;
+//    private HashMap<String, ArrayList<UUID>> spawnedEntities;
+    private HashMap<Long, UUID> timeParis;
+    private HashMap<String, HashMap<Long, UUID>> spawnedEntities;
 
     private YamlConfiguration config;
 
     public void onEnable() {
         tasks = new ArrayList<>();
         toDeAgro = new ArrayList<>();
-        spawnedEntities = new HashMap<String, ArrayList<UUID>>();
+        spawnedEntities = new HashMap<String, HashMap<Long, UUID>>();
         BoxPlugin.instance.getCommand("terrainregenerator").setExecutor(this);
         BoxPlugin.instance.getCommand("mmxp").setExecutor(this);
         BoxPlugin.instance.getCommand("mmxp").setTabCompleter(this);
@@ -107,6 +109,7 @@ public final class TerrainRegeneratorMain implements Listener, CommandExecutor, 
                     }
                 }
             }
+            spawnedEntities.clear();
         }, 20*60L);
         // schematics
         for(Object schem : this.config.getConfigurationSection("schematics").getKeys(false).toArray()) {
@@ -185,8 +188,8 @@ public final class TerrainRegeneratorMain implements Listener, CommandExecutor, 
             }
         }, 30 * 60 * 20, 30 * 60 * 20));
         tasks.add(Bukkit.getScheduler().runTaskTimer(BoxPlugin.instance, () -> {
-            for(ArrayList<UUID> list : spawnedEntities.values()) {
-                for(UUID uuid : list) {
+            for(HashMap<Long, UUID> map : spawnedEntities.values()) {
+                for(UUID uuid : map.values()) {
                     if(uuid == null) continue;
                     Entity entity = Bukkit.getEntity(uuid);
                     if(entity instanceof Warden) {
@@ -271,7 +274,15 @@ public final class TerrainRegeneratorMain implements Listener, CommandExecutor, 
 
     private void spawnEntity(String name, EntityType entityType, CompoundTag nbt, int x, int y, int z) {
         if(spawnedEntities.containsKey(name) && this.config.getBoolean("entities." + name + ".kill-existing")) {
-            for(UUID uuid : new ArrayList<>(spawnedEntities.get(name))) {
+            HashMap<Long, UUID> timeMap = spawnedEntities.get(name);
+            if(timeMap.size() >= this.config.getInt("entities." + name + ".count")){//only remove if the cap is reached
+                long oldestMobTime = Long.MAX_VALUE;
+                for(long time : timeMap.keySet()){
+                    if(time < oldestMobTime){
+                        oldestMobTime = time;
+                    }
+                }
+                UUID uuid = timeMap.get(oldestMobTime);
                 if(Bukkit.getEntity(uuid) != null) {
                     if(this.config.isSet("entities." + name + ".isMythic") && this.config.getBoolean("entities." + name + ".isMythic")) {
                         // reduce memory usage hopefully
@@ -280,39 +291,39 @@ public final class TerrainRegeneratorMain implements Listener, CommandExecutor, 
                         am.setDespawned();
                     }
                     Bukkit.getEntity(uuid).remove();
-                    spawnedEntities.get(name).remove(uuid);
+                    spawnedEntities.get(name).remove(oldestMobTime);
                 }
             }
         }
         Location loc = new Location(Bukkit.getWorld(this.config.getString("entities." + name + ".world")), x, y, z);
-        for(int i = 0; i < this.config.getInt("entities." + name + ".count"); i++) {
-            if(this.config.isSet("entities." + name + ".isMythic") && this.config.getBoolean("entities." + name + ".isMythic")) {
-                int xp = this.config.isSet("entities." + name + ".xp") ? this.config.getInt("entities." + name + ".xp") : 0;
-                String mythicName = this.config.getString("entities." + name + ".mythic-name", name);
-                UUID uuid = MythicMobsIntegration.spawnWithData(mythicName, xp, loc);
+        if(this.config.isSet("entities." + name + ".isMythic") && this.config.getBoolean("entities." + name + ".isMythic")) {
+            int xp = this.config.isSet("entities." + name + ".xp") ? this.config.getInt("entities." + name + ".xp") : 0;
+            String mythicName = this.config.getString("entities." + name + ".mythic-name", name);
+            UUID uuid = MythicMobsIntegration.spawnWithData(mythicName, xp, loc);
 
-                Entity mythicEntity = Bukkit.getEntity(uuid);
-                if (mythicEntity != null) {
-                    mythicEntity.getPersistentDataContainer().set(new NamespacedKey(BoxPlugin.instance, "respawningmobid"), PersistentDataType.STRING, name);
-                }
-                if(!spawnedEntities.containsKey(name) && this.config.getBoolean("entities." + name + ".kill-existing")) {
-                    spawnedEntities.put(name, new ArrayList<>());
-                }
-                spawnedEntities.get(name).add(uuid);
-            } else {
-                CraftEntity e = (CraftEntity) Bukkit.getWorld(this.config.getString("entities." + name + ".world")).spawnEntity(loc, entityType);
-                if(!spawnedEntities.containsKey(name) && this.config.getBoolean("entities." + name + ".kill-existing")) {
-                    spawnedEntities.put(name, new ArrayList<>());
-                }
-                spawnedEntities.get(name).add(e.getUniqueId());
-                if(this.config.getInt("entities." + name + ".xp") != 0) {
-                    e.getPersistentDataContainer().set(new NamespacedKey(BoxPlugin.instance, "xp"), PersistentDataType.INTEGER, this.config.getInt("entities." + name + ".xp"));
-                }
-                e.getPersistentDataContainer().set(new NamespacedKey(BoxPlugin.instance, "respawningmob"), PersistentDataType.INTEGER, 1);
-                e.getPersistentDataContainer().set(new NamespacedKey(BoxPlugin.instance, "respawningmobid"), PersistentDataType.STRING, name);
-                if(nbt != null) e.getHandle().load(nbt); // Entity#load()
-                e.teleport(loc); // loading nbt resets loc to 0
+            Entity mythicEntity = Bukkit.getEntity(uuid);
+            if (mythicEntity != null) {
+                mythicEntity.getPersistentDataContainer().set(new NamespacedKey(BoxPlugin.instance, "respawningmobid"), PersistentDataType.STRING, name);
             }
+            Long curTime = System.currentTimeMillis();
+            if(!spawnedEntities.containsKey(name) && this.config.getBoolean("entities." + name + ".kill-existing")) {
+                spawnedEntities.put(name, new HashMap<>());
+            }
+            spawnedEntities.get(name).put(curTime, uuid);
+        } else {
+            CraftEntity e = (CraftEntity) Bukkit.getWorld(this.config.getString("entities." + name + ".world")).spawnEntity(loc, entityType);
+            if(!spawnedEntities.containsKey(name) && this.config.getBoolean("entities." + name + ".kill-existing")) {
+                spawnedEntities.put(name, new HashMap<>());
+            }
+            Long curTime = System.currentTimeMillis();
+            spawnedEntities.get(name).put(curTime, e.getUniqueId());
+            if(this.config.getInt("entities." + name + ".xp") != 0) {
+                e.getPersistentDataContainer().set(new NamespacedKey(BoxPlugin.instance, "xp"), PersistentDataType.INTEGER, this.config.getInt("entities." + name + ".xp"));
+            }
+            e.getPersistentDataContainer().set(new NamespacedKey(BoxPlugin.instance, "respawningmob"), PersistentDataType.INTEGER, 1);
+            e.getPersistentDataContainer().set(new NamespacedKey(BoxPlugin.instance, "respawningmobid"), PersistentDataType.STRING, name);
+            if(nbt != null) e.getHandle().load(nbt); // Entity#load()
+            e.teleport(loc); // loading nbt resets loc to 0
         }
         if(this.config.getString("entities." + name + ".respawn-broadcast") != null) {
             Bukkit.broadcastMessage(ChatColor.translateAlternateColorCodes('&', this.config.getString("entities." + name + ".respawn-broadcast")));
@@ -409,8 +420,10 @@ public final class TerrainRegeneratorMain implements Listener, CommandExecutor, 
 
     @EventHandler
     public void onDeath(EntityDeathEvent e) {
-        if(spawnedEntities.containsValue(e.getEntity().getUniqueId())) {
-            spawnedEntities.values().remove(e.getEntity().getUniqueId());
+        UUID uuid = e.getEntity().getUniqueId();
+
+        for (HashMap<Long, UUID> map : spawnedEntities.values()) {
+            map.entrySet().removeIf(entry -> entry.getValue().equals(uuid));
         }
     }
 

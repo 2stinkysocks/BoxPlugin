@@ -107,6 +107,16 @@ public class XPManager {
         return total;
     }
 
+    public int getLevelUpRubyRewardLevelToLevel(int beforeLevel, int afterLevel) {
+        int total = 0;
+        for(int i = beforeLevel; i <= afterLevel; i++) {
+            if(i%100==0) {
+                total+=10;
+            }
+        }
+        return total;
+    }
+
     public int getCumulativeLevelUpReward(int level) {
         int total = 0;
         for(int i = 1; i <= level; i++) {
@@ -117,8 +127,8 @@ public class XPManager {
         return total;
     }
 
-    public void levelUpRubies(Player p){
-        BoxPlugin.instance.getMarketManager().addRubies(p, 10);
+    public void levelUpRubies(Player p, int amount){
+        BoxPlugin.instance.getMarketManager().addRubies(p, amount);
     }
 
     public void handleGroupUpdate(Player p, int beforelevel, int afterlevel) {

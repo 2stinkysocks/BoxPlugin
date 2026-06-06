@@ -861,9 +861,10 @@ public class Listeners implements Listener {
             p.sendMessage(ChatColor.GOLD + "Earned " + ChatColor.BOLD + toGive + " Giga Coins " + ChatColor.GOLD + "from leveling up!");
         }
         if((afterlevel/100) > (beforelevel/100) || (afterlevel/101) > (beforelevel/100)) {
-            BoxPlugin.instance.getXpManager().levelUpRubies(p);
+            int numRubies = BoxPlugin.instance.getXpManager().getLevelUpRubyRewardLevelToLevel(BoxPlugin.instance.getXpManager().convertXPToLevel(e.getBeforeXP()), BoxPlugin.instance.getXpManager().getLevel(p));
+            BoxPlugin.instance.getXpManager().levelUpRubies(p, numRubies);
             p.playSound(p.getLocation(), Sound.UI_TOAST_CHALLENGE_COMPLETE, 0.4f, 1f);
-            p.sendMessage(ChatColor.GOLD + "Earned " + ChatColor.RED + "10 Rubies " + ChatColor.GOLD + "from leveling up!");
+            p.sendMessage(ChatColor.GOLD + "Earned " + ChatColor.RED + numRubies + " Rubies " + ChatColor.GOLD + "from leveling up!");
         }
 
         //
