@@ -4,7 +4,10 @@
 pluginManagement {
     repositories {
         gradlePluginPortal()
-        maven("https://repo.papermc.io/repository/maven-public/")
+        maven {
+            name = "Canvas"
+            url = uri("https://maven.canvasmc.io/public")
+        }
     }
 }
 

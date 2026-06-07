@@ -4,8 +4,25 @@
 
 plugins {
     java
-    id("com.gradleup.shadow") version "9.3.0"
-    id("io.papermc.paperweight.userdev") version "2.0.0-beta.19"
+    id("io.canvasmc.weaver.userdev") version "2.4.4-SNAPSHOT"
+    id("io.canvasmc.horizon") version "1.0.0"
+    id("com.gradleup.shadow") version "9.4.2"
+}
+
+horizon {
+    splitPluginSourceSets()
+    accessTransformerFiles.from(
+        file("src/main/resources/wideners.at"),
+    )
+}
+
+val pluginShade by configurations.creating {
+    isCanBeConsumed = false
+    isCanBeResolved = true
+}
+
+configurations.named("pluginCompileClasspath") {
+    extendsFrom(pluginShade)
 }
 
 repositories {
@@ -42,39 +59,30 @@ dependencies {
         exclude("org.bukkit", "bukkit")
     }
 
-    implementation("org.xerial:sqlite-jdbc:3.46.0.0")
-    implementation("com.github.stefvanschie.inventoryframework:IF:0.10.8")
-    implementation("fr.skytasul:guardianbeam:2.4.1")
-    implementation("org.quartz-scheduler:quartz:2.3.0")
-    implementation("io.github.rapha149.signgui:signgui:2.2")
+    includeLibrary("org.xerial:sqlite-jdbc:3.46.0.0")
+    includeLibrary("fr.skytasul:guardianbeam:2.4.1")
+    includeLibrary("org.quartz-scheduler:quartz:2.3.0")
+    includeLibrary("io.github.rapha149.signgui:signgui:2.2")
 
-    paperweightDevelopmentBundle("io.papermc.paper:dev-bundle:1.21.4-R0.1-SNAPSHOT")
+    pluginShade("com.github.stefvanschie.inventoryframework:IF:0.10.8")
+
+    paperweight.paperDevBundle("1.21.4-R0.1-SNAPSHOT")
+    horizon.horizonApi("1.0.0.+")
 }
 
 group = "me.twostinkysocks"
 version = "3.0"
 description = "BoxPlugin"
-java.sourceCompatibility = JavaVersion.VERSION_21
+java.sourceCompatibility = JavaVersion.VERSION_25
 
 java {
-    toolchain.languageVersion.set(JavaLanguageVersion.of(21))
+    toolchain.languageVersion.set(JavaLanguageVersion.of(25))
 }
 
-tasks.withType<JavaCompile>() {
-    options.encoding = "UTF-8"
-}
-
-tasks.withType<Javadoc>() {
-    options.encoding = "UTF-8"
-}
-
-tasks.shadowJar {
-    archiveClassifier.set("")
-    relocate("com.github.stefvanschie.inventoryframework", "me.twostinkysocks.inventoryframework")
-
-    relocate("fr.skytasul.guardianbeam", "me.twostinkysocks.libs.guardianbeam")
-}
-
-tasks.build {
-    dependsOn(tasks.shadowJar)
+tasks.named<Jar>("pluginJar") {
+    from(pluginShade.map { file ->
+        if (file.isDirectory) file else zipTree(file)
+    }) {
+        exclude("META-INF/*.SF", "META-INF/*.DSA", "META-INF/*.RSA", "META-INF/MANIFEST.MF")
+    }
 }

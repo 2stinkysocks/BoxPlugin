@@ -1,0 +1,26 @@
+{
+  "name": "BoxPlugin",
+  "version": "3.0",
+  "description": "vitero would choke on zero",
+  "entrypoints": [
+    {
+      "server_main": "me.twostinkysocks.boxplugin.ServerMain"
+    },
+    {
+      "plugin_main": "me.twostinkysocks.boxplugin.BoxPlugin"
+    }
+  ],
+  "authors": [
+    "2stinkysocks"
+  ],
+  "load_datapack_entry": false,
+  "is_hybrid": true,
+  "mixins": [
+    "mixins.boxplugin.json"
+  ],
+  "dependencies": {
+    "minecraft": ">=1.21.4"
+  },
+  "wideners": [
+  ]
+}

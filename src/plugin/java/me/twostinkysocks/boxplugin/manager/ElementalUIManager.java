@@ -5,28 +5,26 @@ import com.github.stefvanschie.inventoryframework.gui.type.ChestGui;
 import com.github.stefvanschie.inventoryframework.pane.StaticPane;
 import me.twostinkysocks.boxplugin.BoxPlugin;
 import me.twostinkysocks.boxplugin.customEnchants.CustomEnchantsMain;
-import me.twostinkysocks.boxplugin.customEnchants.Enchants.OverGrowthEnchant;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.Sound;
 import org.bukkit.enchantments.Enchantment;
-import org.bukkit.entity.EntityType;
-import org.bukkit.entity.Item;
 import org.bukkit.entity.Player;
-import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 
-import java.io.IOException;
-import java.sql.SQLException;
 import java.util.*;
 
 public class ElementalUIManager {
-    ItemStack backround = new ItemStack(Material.WHITE_STAINED_GLASS_PANE);
-    GuiItem backroundGUI = new GuiItem(backround, e -> {
-        e.setCancelled(true);
-    });
+    private ItemStack backround = new ItemStack(Material.WHITE_STAINED_GLASS_PANE);
+    private GuiItem backroundGUI;
+
+    public ElementalUIManager() {
+         backroundGUI = new GuiItem(backround, e -> {
+            e.setCancelled(true);
+         });
+    }
 
     public void openMainGui(Player p) {
         ChestGui gui = new ChestGui(5, "Elemental Emporium");
