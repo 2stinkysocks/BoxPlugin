@@ -8,6 +8,8 @@ import io.github.rapha149.signgui.SignGUIAction;
 import me.twostinkysocks.boxplugin.BoxPlugin;
 import me.twostinkysocks.boxplugin.event.PlayerBoxXpUpdateEvent;
 import me.twostinkysocks.boxplugin.util.Util;
+import net.luckperms.api.model.user.User;
+import net.luckperms.api.node.types.InheritanceNode;
 import org.bukkit.*;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.EntityType;
@@ -110,11 +112,46 @@ public class MarketManager {
         ItemStack balance = new ItemStack(Material.PLAYER_HEAD);
         SkullMeta balancemeta = (SkullMeta) balance.getItemMeta();
         balancemeta.setDisplayName(ChatColor.AQUA + "Your Balance");
-        balancemeta.setLore(List.of(
-                "",
-                ChatColor.GRAY + "You have " + ChatColor.GOLD + String.format("%.0f",BoxPlugin.instance.getEconomy().getBalance(p)) + ChatColor.GRAY +  " Xanatos coins in your account",
-                ""
-        ));
+        if(!p.hasPermission("boxplugin.twomilbanklimit") && !p.hasPermission("boxplugin.tenmilbanklimit") && !p.hasPermission("boxplugin.twentyfivemilbanklimit")){
+            balancemeta.setLore(List.of(
+                    "",
+                    ChatColor.GRAY + "You have " + ChatColor.GOLD + String.format("%.0f",BoxPlugin.instance.getEconomy().getBalance(p)) + " / 500000" + ChatColor.GRAY +  " Xanatos coins in",
+                    ChatColor.GRAY +  "your account",
+                    "",
+                    ChatColor.GREEN +  "Click to upgrade your bank cap to 2 Mil",
+                    ChatColor.GREEN + "bank cap. Costs: " + ChatColor.GOLD + "495K",
+                    "",
+                    ChatColor.GREEN + "Or buy a rank with /donate to get up to 25 Mil",
+                    ChatColor.GREEN + "bank cap with no in-game cost",
+                    ""
+            ));
+        }
+        else if(p.hasPermission("boxplugin.twomilbanklimit") && !p.hasPermission("boxplugin.tenmilbanklimit") && !p.hasPermission("boxplugin.twentyfivemilbanklimit")){
+            balancemeta.setLore(List.of(
+                    "",
+                    ChatColor.GRAY + "You have " + ChatColor.GOLD + String.format("%.0f",BoxPlugin.instance.getEconomy().getBalance(p)) + " / 2000000" + ChatColor.GRAY +  " Xanatos coins in",
+                    ChatColor.GRAY +  "your account",
+                    "",
+                    ChatColor.GREEN + "buy a rank with /donate to get up to 25 Mil",
+                    ChatColor.GREEN + "bank cap with no in-game cost",
+                    ""
+            ));
+        }
+        else if(p.hasPermission("boxplugin.tenmilbanklimit") && !p.hasPermission("boxplugin.twentyfivemilbanklimit")){
+            balancemeta.setLore(List.of(
+                    "",
+                    ChatColor.GRAY + "You have " + ChatColor.GOLD + String.format("%.0f",BoxPlugin.instance.getEconomy().getBalance(p)) + " / 1000000" + ChatColor.GRAY +  " Xanatos coins in",
+                    ChatColor.GRAY +  "your account",
+                    ""
+            ));
+        } else {
+            balancemeta.setLore(List.of(
+                    "",
+                    ChatColor.GRAY + "You have " + ChatColor.GOLD + String.format("%.0f",BoxPlugin.instance.getEconomy().getBalance(p)) + " / 2500000" + ChatColor.GRAY +  " Xanatos coins in",
+                    ChatColor.GRAY +  "your account",
+                    ""
+            ));
+        }
         balancemeta.setOwnerProfile(p.getPlayerProfile());
         balance.setItemMeta(balancemeta);
 
@@ -183,7 +220,25 @@ public class MarketManager {
                 openWithDrawMenu(p);
             }
         });
-        GuiItem guiBalance = new GuiItem(balance, e -> e.setCancelled(true));
+        GuiItem guiBalance = new GuiItem(balance, e -> {
+            e.setCancelled(true);
+            if(!p.hasPermission("boxplugin.twomilbanklimit") && !p.hasPermission("boxplugin.tenmilbanklimit") && !p.hasPermission("boxplugin.twentyfivemilbanklimit")){
+                if(getCoinsBalance(p) >= 495000){
+                    User user = BoxPlugin.instance.getLuckPerms().getUserManager().getUser(p.getUniqueId());
+                    InheritanceNode node = InheritanceNode.builder("2milbank").value(true).build();
+                    user.data().add(node);
+                    removeCoinsBalance(p, 495000);
+                    p.playSound(p.getLocation(), Sound.BLOCK_NOTE_BLOCK_PLING, 0.5f, 2f);
+                    p.sendMessage(ChatColor.GREEN + "Your bank was upgraded!");
+                } else {
+                    p.playSound(p.getLocation(), Sound.BLOCK_FIRE_EXTINGUISH, 3.0F, 1.0F);
+                    p.sendMessage(ChatColor.RED + "You can't afford to upgrade your bank!");
+                }
+            } else {
+                p.playSound(p.getLocation(), Sound.BLOCK_FIRE_EXTINGUISH, 3.0F, 1.0F);
+                p.sendMessage(ChatColor.RED + "You already have an upgraded bank!");
+            }
+        });
         GuiItem guiRubies = new GuiItem(rubies, e -> {
             e.setCancelled(true);
             p.playSound(p.getLocation(), Sound.BLOCK_NOTE_BLOCK_PLING, 0.5f, 2f);
@@ -500,8 +555,13 @@ public class MarketManager {
         if(getMarketMultiplier() > 1) {
             total *= (1.0/getMarketMultiplier());
         }
-        if(!p.hasPermission("boxplugin.tenmilbanklimit") && !p.hasPermission("boxplugin.twentyfivemilbanklimit") && !p.hasPermission("boxplugin.nobanklimit") && total + getCoinsBalance(p) > 500000) {
+        if(!p.hasPermission("boxplugin.twomilbanklimit") && !p.hasPermission("boxplugin.tenmilbanklimit") && !p.hasPermission("boxplugin.twentyfivemilbanklimit") && !p.hasPermission("boxplugin.nobanklimit") && total + getCoinsBalance(p) > 500000) {
             p.sendMessage(ChatColor.RED + "You cannot exceed 500000 coins in your account!");
+            e.getView().close();
+            return;
+        }
+        if(p.hasPermission("boxplugin.twomilbanklimit") && !p.hasPermission("boxplugin.tenmilbanklimit") && !p.hasPermission("boxplugin.twentyfivemilbanklimit") && !p.hasPermission("boxplugin.nobanklimit") && total + getCoinsBalance(p) > 2000000) {
+            p.sendMessage(ChatColor.RED + "You cannot exceed 2000000 coins in your account!");
             e.getView().close();
             return;
         }

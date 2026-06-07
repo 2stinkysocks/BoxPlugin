@@ -1011,7 +1011,7 @@ public class PerksManager {
 
     public void setSelectedPerks(Player p, List<Perk> perks) {
         List<Perk> prevPerks = getSelectedPerks(p);
-        if(perks.size() == 0) {
+        if(perks.isEmpty()) {
             p.getPersistentDataContainer().remove(new NamespacedKey(BoxPlugin.instance, "selected_perks"));
         } else {
             p.getPersistentDataContainer().set(new NamespacedKey(BoxPlugin.instance, "selected_perks"), PersistentDataType.STRING, String.join("\n", perks.stream().map(pe -> pe.instance.getKey()).collect(Collectors.toList())));
@@ -1028,7 +1028,7 @@ public class PerksManager {
 
     public void setSelectedMegaPerks(Player p, List<MegaPerk> perks) {
         List<MegaPerk> prevPerks = getSelectedMegaPerks(p);
-        if(perks.size() == 0) {
+        if(perks.isEmpty()) {
             p.getPersistentDataContainer().remove(new NamespacedKey(BoxPlugin.instance, "selected_megaperks"));
         } else {
             p.getPersistentDataContainer().set(new NamespacedKey(BoxPlugin.instance, "selected_megaperks"), PersistentDataType.STRING, String.join("\n", perks.stream().map(pe -> pe.instance.getKey()).collect(Collectors.toList())));

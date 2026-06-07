@@ -4,6 +4,7 @@ import me.twostinkysocks.boxplugin.BoxPlugin;
 import me.twostinkysocks.boxplugin.customitems.CustomItemsMain;
 import me.twostinkysocks.boxplugin.customitems.items.CustomItem;
 import me.twostinkysocks.boxplugin.manager.PerksManager;
+import me.twostinkysocks.boxplugin.util.Util;
 import org.bukkit.*;
 import org.bukkit.attribute.Attribute;
 import org.bukkit.entity.Player;
@@ -35,6 +36,7 @@ public class DiamondTotem extends CustomItem {
             if(p.hasPermission("customitems.cooldownbypass") || !cooldown.containsKey(p.getUniqueId()) || cooldown.get(p.getUniqueId()) < System.currentTimeMillis()) {
                 cooldown.put(p.getUniqueId(), System.currentTimeMillis() + (long)(1000*300 * (BoxPlugin.instance.getPerksManager().getSelectedMegaPerks(p).contains(PerksManager.MegaPerk.MEGA_COOLDOWN_REDUCTION) ? 0.5 : 1)));
                 Bukkit.getScheduler().runTask(BoxPlugin.instance, () -> totemPop(p));
+                Util.debug(p, "You have been spared by the diamond totem!");
                 NamespacedKey itemIdKey = new NamespacedKey(BoxPlugin.instance, "ITEM_ID");
                 ItemStack totem = p.getInventory().getItemInOffHand();
                 ItemMeta totemMeta = totem.getItemMeta();

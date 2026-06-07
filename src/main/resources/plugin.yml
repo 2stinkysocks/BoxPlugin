@@ -214,6 +214,9 @@ permissions:
   boxplugin.addtag:
     description: add tags to items (should be admins)
     default: false
+  boxplugin.twomilbanklimit:
+    description: increases limit to 2m
+    default: false
   boxplugin.tenmilbanklimit:
     description: increases limit to 10m
     default: false

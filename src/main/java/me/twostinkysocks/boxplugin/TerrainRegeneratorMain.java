@@ -290,9 +290,9 @@ public final class TerrainRegeneratorMain implements Listener, CommandExecutor, 
                         ((MythicBukkit)Bukkit.getPluginManager().getPlugin("MythicMobs")).getMobManager().unregisterActiveMob(am);
                         am.setDespawned();
                     }
-                    Bukkit.getEntity(uuid).remove();
-                    spawnedEntities.get(name).remove(oldestMobTime);
+                    Objects.requireNonNull(Bukkit.getEntity(uuid)).remove();
                 }
+                spawnedEntities.get(name).remove(oldestMobTime);
             }
         }
         Location loc = new Location(Bukkit.getWorld(this.config.getString("entities." + name + ".world")), x, y, z);

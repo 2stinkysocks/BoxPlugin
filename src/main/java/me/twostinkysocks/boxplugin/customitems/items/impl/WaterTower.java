@@ -71,8 +71,9 @@ public class WaterTower extends CustomItem {
         p.getWorld().playSound(origin, Sound.BLOCK_BUBBLE_COLUMN_WHIRLPOOL_AMBIENT, 2.0F, 0.8F);
         Bukkit.getScheduler().runTaskTimer(BoxPlugin.instance, task -> {
             if(task.isCancelled()) return; // just in case
-
-            Collection<Entity> nearby = p.getWorld().getNearbyEntities(origin, 18, 18, 18, e -> !p.getUniqueId().equals(e.getUniqueId()) && e instanceof LivingEntity && !e.isDead() && e.getLocation().distanceSquared(origin) <= 18*18);
+            Collection<Entity> nearby = p.getWorld().getNearbyEntities(origin, 18, 18, 18, e ->
+                    !p.getUniqueId().equals(e.getUniqueId()) && (!(e instanceof Player player) || player.getGameMode() == GameMode.SURVIVAL)
+                    && e instanceof LivingEntity && !e.isDead() && e.getLocation().distanceSquared(origin) <= 18*18);
             Util.debug(p, "Found " + nearby.size() + " living entities within 18 blocks");
             int i = 0; // max 4 entities
             for(Entity e : nearby) {

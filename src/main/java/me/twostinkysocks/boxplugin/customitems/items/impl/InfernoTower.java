@@ -8,6 +8,7 @@ import me.twostinkysocks.boxplugin.util.RenderUtil;
 import me.twostinkysocks.boxplugin.util.Util;
 import org.bukkit.*;
 import org.bukkit.enchantments.Enchantment;
+import org.bukkit.entity.Damageable;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
@@ -75,7 +76,9 @@ public class InfernoTower extends CustomItem {
         Bukkit.getScheduler().runTaskTimer(BoxPlugin.instance, task -> {
             if(task.isCancelled()) return; // just in case
 
-            Collection<Entity> nearby = p.getWorld().getNearbyEntities(origin, 32, 32, 32, e -> !p.getUniqueId().equals(e.getUniqueId()) && e instanceof LivingEntity && !e.isDead() && e.getLocation().distanceSquared(origin) <= 32*32);
+            Collection<Entity> nearby = p.getWorld().getNearbyEntities(origin, 32, 32, 32, e ->
+                    !p.getUniqueId().equals(e.getUniqueId()) && (!(e instanceof Player player) || player.getGameMode() == GameMode.SURVIVAL)
+                    && e instanceof LivingEntity && !e.isDead() && e.getLocation().distanceSquared(origin) <= 32 * 32);
             Util.debug(p, "Found " + nearby.size() + " living entities within 32 blocks");
             int i = 0; // max 8 entities
             for(Entity e : nearby) {

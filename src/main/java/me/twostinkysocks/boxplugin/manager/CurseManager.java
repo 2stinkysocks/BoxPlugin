@@ -19,8 +19,10 @@ import org.bukkit.util.Vector;
 import java.io.IOException;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class CurseManager {
     private final NamespacedKey isCursed = new NamespacedKey(BoxPlugin.instance, "isCursed");
@@ -28,6 +30,16 @@ public class CurseManager {
     private final NamespacedKey soulOwnerKey = new NamespacedKey(BoxPlugin.instance, "soulOwner");
 
     public void removePerksExtraPerks(Player p) {
+        //save all selected perks to re-equip later
+        List<PerksManager.Perk> currentPerks = BoxPlugin.instance.getPerksManager().getSelectedPerks(p);
+        p.getPersistentDataContainer().set(new NamespacedKey(BoxPlugin.instance, "old_perks"),
+                PersistentDataType.STRING, String.join("\n", currentPerks.stream().map(pe -> pe.instance.getKey()).collect(Collectors.toList())));
+
+        //save all selected megaperks to re-equip later
+        List<PerksManager.MegaPerk> currentMegaPerks = BoxPlugin.instance.getPerksManager().getSelectedMegaPerks(p);
+        p.getPersistentDataContainer().set(new NamespacedKey(BoxPlugin.instance, "old_megaperks"),
+                PersistentDataType.STRING, String.join("\n", currentMegaPerks.stream().map(pe -> pe.instance.getKey()).collect(Collectors.toList())));
+
         if(BoxPlugin.instance.getXpManager().getLevel(p) < 50){//remove all perks
             for(PerksManager.Perk perk : BoxPlugin.instance.getPerksManager().getSelectedPerks(p)) {
                 if(perk != null) {
@@ -36,7 +48,6 @@ public class CurseManager {
             }
             p.getPersistentDataContainer().remove(new NamespacedKey(BoxPlugin.instance, "selected_perks"));
         } else {//let them keep one
-            List<PerksManager.Perk> currentPerks = BoxPlugin.instance.getPerksManager().getSelectedPerks(p);
             while(currentPerks.size() > 1) {
                 PerksManager.Perk perk = currentPerks.remove(currentPerks.size() - 1);
                 if(perk != null) {
@@ -53,6 +64,7 @@ public class CurseManager {
             }
         }
         p.getPersistentDataContainer().remove(new NamespacedKey(BoxPlugin.instance, "selected_megaperks"));
+
     }
 
     public ItemStack prepareSoul(Player p){
@@ -116,7 +128,16 @@ public class CurseManager {
         p.playSound(p.getLocation(), Sound.BLOCK_NOTE_BLOCK_PLING, 0.5f, 2f);
         p.getPersistentDataContainer().remove(isCursed);
         p.getPersistentDataContainer().remove(soulValueKey);
-
+        if(p.getPersistentDataContainer().has(new NamespacedKey(BoxPlugin.instance, "old_perks"))) {
+            List<PerksManager.Perk> oldPerks = Arrays.stream(p.getPersistentDataContainer().get(new NamespacedKey(BoxPlugin.instance, "old_perks"),
+                    PersistentDataType.STRING).split("\n")).map(s -> PerksManager.Perk.getByName(s)).collect(Collectors.toList());
+            BoxPlugin.instance.getPerksManager().setSelectedPerks(p, oldPerks);
+        }
+        if(p.getPersistentDataContainer().has(new NamespacedKey(BoxPlugin.instance, "old_megaperks"))) {
+            List<PerksManager.MegaPerk> oldMegaPerks = Arrays.stream(p.getPersistentDataContainer().get(new NamespacedKey(BoxPlugin.instance, "old_megaperks"),
+                    PersistentDataType.STRING).split("\n")).map(s -> PerksManager.MegaPerk.getByName(s)).collect(Collectors.toList());
+            BoxPlugin.instance.getPerksManager().setSelectedMegaPerks(p, oldMegaPerks);
+        }
     }
 
     public boolean hasCurse(Player p) {
