@@ -430,8 +430,7 @@ public class Listeners implements Listener {
 
                 int brambleChanceRolled = random.nextInt(100) + 1;
                 double brambleChance = BoxPlugin.instance.getEnchantBramble().getChanceFromTotalLevel(totalBrambleLvl);
-                if(brambleChanceRolled <= brambleChance){
-                    LivingEntity attacker = (LivingEntity) e.getDamager();
+                if(brambleChanceRolled <= brambleChance && e.getDamager() instanceof LivingEntity attacker){
                     if(attacker.hasMetadata("Bramble_Hit")){// prevent recussion
                         return;
                     }
@@ -1273,12 +1272,12 @@ public class Listeners implements Listener {
                 int godThornChanceRolled = random.nextInt(100) + 1;
                 double godThornChance = CustomEnchantsMain.Enchant.GodThorns.instance.getChanceFromTotalLevel(godThornLvl);
                 //final damage must be more than 10% max hp && (p.getAttribute(Attribute.MAX_HEALTH).getValue() * 0.1) <= e.getFinalDamage()
-                if(godThornChanceRolled <= godThornChance){
+                if(godThornChanceRolled <= godThornChance && e.getDamager() instanceof LivingEntity){
                     LivingEntity attacker = (LivingEntity) e.getDamager();
-//                    if(attacker.hasMetadata("GodThorn_hit")){// prevent recussion, we want it to actually get all sources of damage
-//                        return;
-//                    }
-//                    attacker.setMetadata("GodThorn_hit", FMDV);
+                    if(attacker.hasMetadata("GodThorn_hit")){// prevent recussion, we want it to actually get all sources of damage
+                        return;
+                    }
+                    Bukkit.getScheduler().runTask(BoxPlugin.instance, () -> attacker.setMetadata("GodThorn_hit", FMDV));
                     AtomicReference<Double> hpDiff = new AtomicReference<>(0.0);
                     double curHp = p.getHealth();
                     Bukkit.getScheduler().runTask(BoxPlugin.instance, () -> hpDiff.set(curHp - p.getHealth()));
@@ -1302,7 +1301,7 @@ public class Listeners implements Listener {
                         RenderUtil.renderParticleLine(origin, dir, Particle.ELECTRIC_SPARK, 0.2);
                         p.getWorld().playSound(attacker.getLocation(), Sound.ENTITY_BEE_STING, 1F, 0.5F);
                         attacker.setNoDamageTicks(0);
-//                        Bukkit.getScheduler().runTask(BoxPlugin.instance, () -> attacker.removeMetadata("GodThorn_hit", BoxPlugin.instance));
+                        Bukkit.getScheduler().runTaskLater(BoxPlugin.instance, () -> attacker.removeMetadata("GodThorn_hit", BoxPlugin.instance), 2L);
                     }, 2L);
                 }
             }

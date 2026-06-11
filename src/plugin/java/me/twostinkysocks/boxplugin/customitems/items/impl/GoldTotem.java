@@ -36,7 +36,8 @@ public class GoldTotem extends CustomItem {
             Player p = (Player) e.getEntity();
             // allow shield blocking to take priority
             if(p.hasPermission("customitems.cooldownbypass") || !cooldown.containsKey(p.getUniqueId()) || cooldown.get(p.getUniqueId()) < System.currentTimeMillis()) {
-                cooldown.put(p.getUniqueId(), System.currentTimeMillis() + (long)(1000*240 * (BoxPlugin.instance.getPerksManager().getSelectedMegaPerks(p).contains(PerksManager.MegaPerk.MEGA_COOLDOWN_REDUCTION) ? 0.5 : 1)));
+                Bukkit.getScheduler().runTask(BoxPlugin.instance, () -> cooldown.put(p.getUniqueId(), System.currentTimeMillis() +
+                        (long)(1000*240 * (BoxPlugin.instance.getPerksManager().getSelectedMegaPerks(p).contains(PerksManager.MegaPerk.MEGA_COOLDOWN_REDUCTION) ? 0.5 : 1))));
                 Bukkit.getScheduler().runTask(BoxPlugin.instance, () -> totemPop(p));
                 Util.debug(p, "You have been spared by the gold totem!");
                 NamespacedKey itemIdKey = new NamespacedKey(BoxPlugin.instance, "ITEM_ID");

@@ -33,7 +33,8 @@ public class SupremeTotem extends CustomItem {
         setTotemUse((e) -> {
             Player p = (Player) e.getEntity();
             if(p.hasPermission("customitems.cooldownbypass") || !cooldown.containsKey(p.getUniqueId()) || cooldown.get(p.getUniqueId()) < System.currentTimeMillis()) {
-                cooldown.put(p.getUniqueId(), System.currentTimeMillis() + (long)(1000*420 * (BoxPlugin.instance.getPerksManager().getSelectedMegaPerks(p).contains(PerksManager.MegaPerk.MEGA_COOLDOWN_REDUCTION) ? 0.5 : 1)));
+                Bukkit.getScheduler().runTask(BoxPlugin.instance, () -> cooldown.put(p.getUniqueId(), System.currentTimeMillis() +
+                        (long)(1000*420 * (BoxPlugin.instance.getPerksManager().getSelectedMegaPerks(p).contains(PerksManager.MegaPerk.MEGA_COOLDOWN_REDUCTION) ? 0.5 : 1))));
                 Bukkit.getScheduler().runTask(BoxPlugin.instance, () -> totemPop(p));
                 Util.debug(p, "You have been spared by the supreme totem!");
                 NamespacedKey itemIdKey = new NamespacedKey(BoxPlugin.instance, "ITEM_ID");

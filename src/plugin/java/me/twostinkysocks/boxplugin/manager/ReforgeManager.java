@@ -1323,22 +1323,22 @@ public class ReforgeManager {
                 p.sendMessage(ChatColor.GOLD + "" + ChatColor.BOLD + "Legendary reforge: Goliath: increase size and attack reach!");
                 if(reforgeChoiceChance2 <= 60){
                     p.sendMessage(ChatColor.DARK_AQUA + "Obtained tier I");
-                    ModifyAtribute.ModifyFlatAttackReach(item, 0.2, EquipmentSlotGroup.CHEST);
+                    ModifyAtribute.ModifyFlatAttackReach(item, 0.3, EquipmentSlotGroup.CHEST);
                     ModifyAtribute.ModifyPercentScale(item, 0.2, EquipmentSlotGroup.CHEST);
                     item = ModifyAtribute.ModifyGearScore(item, 7);
-                    item = setReforgeList(item, "+ .2 reach and 20% size");
+                    item = setReforgeList(item, "+ .3 reach and 20% size");
                 } else if (reforgeChoiceChance2 <= 90) {
                     p.sendMessage(ChatColor.DARK_AQUA + "Obtained tier II");
-                    ModifyAtribute.ModifyFlatAttackReach(item, 0.4, EquipmentSlotGroup.CHEST);
+                    ModifyAtribute.ModifyFlatAttackReach(item, 0.6, EquipmentSlotGroup.CHEST);
                     ModifyAtribute.ModifyPercentScale(item, 0.4, EquipmentSlotGroup.CHEST);
                     item = ModifyAtribute.ModifyGearScore(item, 14);
-                    item = setReforgeList(item, "+ .4 reach and 40% size");
+                    item = setReforgeList(item, "+ .6 reach and 40% size");
                 } else {
                     p.sendMessage(ChatColor.DARK_AQUA + "Obtained tier III");
-                    ModifyAtribute.ModifyFlatAttackReach(item, 0.6, EquipmentSlotGroup.CHEST);
+                    ModifyAtribute.ModifyFlatAttackReach(item, 0.9, EquipmentSlotGroup.CHEST);
                     ModifyAtribute.ModifyPercentScale(item, 0.6, EquipmentSlotGroup.CHEST);
                     item = ModifyAtribute.ModifyGearScore(item, 21);
-                    item = setReforgeList(item, "+ .6 reach and 60% size");
+                    item = setReforgeList(item, "+ .9 reach and 60% size");
                 }
             } else if(reforgeChoiceChance1 <= chancePerLegendary*2) {
                 p.sendMessage(ChatColor.GOLD + "" + ChatColor.BOLD + "Legendary reforge: Titan level increased!");
@@ -2579,19 +2579,19 @@ public class ReforgeManager {
                 p.sendMessage(ChatColor.GOLD + "" + ChatColor.BOLD + "Legendary reforge: attack reach increased!");
                 if(reforgeChoiceChance2 <= 60){
                     p.sendMessage(ChatColor.DARK_AQUA + "Obtained tier I");
-                    ModifyAtribute.ModifyFlatAttackReach(item, 0.2, EquipmentSlotGroup.MAINHAND);
+                    ModifyAtribute.ModifyFlatAttackReach(item, 0.3, EquipmentSlotGroup.MAINHAND);
                     item = ModifyAtribute.ModifyGearScore(item, 5);
-                    item = setReforgeList(item, "+ .2 reach");
+                    item = setReforgeList(item, "+ .3 reach");
                 } else if (reforgeChoiceChance2 <= 90) {
                     p.sendMessage(ChatColor.DARK_AQUA + "Obtained tier II");
-                    ModifyAtribute.ModifyFlatAttackReach(item, 0.4, EquipmentSlotGroup.MAINHAND);
+                    ModifyAtribute.ModifyFlatAttackReach(item, 0.6, EquipmentSlotGroup.MAINHAND);
                     item = ModifyAtribute.ModifyGearScore(item, 10);
-                    item = setReforgeList(item, "+ .4 reach");
+                    item = setReforgeList(item, "+ .6 reach");
                 } else {
                     p.sendMessage(ChatColor.DARK_AQUA + "Obtained tier III");
-                    ModifyAtribute.ModifyFlatAttackReach(item, 0.6, EquipmentSlotGroup.MAINHAND);
+                    ModifyAtribute.ModifyFlatAttackReach(item, 0.9, EquipmentSlotGroup.MAINHAND);
                     item = ModifyAtribute.ModifyGearScore(item, 15);
-                    item = setReforgeList(item, "+ .6 reach");
+                    item = setReforgeList(item, "+ .9 reach");
                 }
             } else if (reforgeChoiceChance1 <= chancePerLegendary*2) {//life steal
                 p.sendMessage(ChatColor.GOLD + "" + ChatColor.BOLD + "Legendary reforge: Life Steal level increased!");
@@ -2819,19 +2819,19 @@ public class ReforgeManager {
                 p.sendMessage(ChatColor.DARK_PURPLE + "Epic reforge: reach increased!");
                 if(reforgeChoiceChance2 <= 60){
                     p.sendMessage(ChatColor.DARK_AQUA + "Obtained tier I");
-                    ModifyAtribute.ModifyFlatAttackReach(item, 0.3, EquipmentSlotGroup.MAINHAND);
+                    ModifyAtribute.ModifyFlatAttackReach(item, 0.4, EquipmentSlotGroup.MAINHAND);
                     item = ModifyAtribute.ModifyGearScore(item, 8);
-                    item = setReforgeList(item, "+ .3 reach");
+                    item = setReforgeList(item, "+ .4 reach");
                 } else if (reforgeChoiceChance2 <= 90) {
                     p.sendMessage(ChatColor.DARK_AQUA + "Obtained tier II");
-                    ModifyAtribute.ModifyFlatAttackReach(item, 0.6, EquipmentSlotGroup.MAINHAND);
+                    ModifyAtribute.ModifyFlatAttackReach(item, 0.8, EquipmentSlotGroup.MAINHAND);
                     item = ModifyAtribute.ModifyGearScore(item, 16);
-                    item = setReforgeList(item, "+ .6 reach");
+                    item = setReforgeList(item, "+ .8 reach");
                 } else {
                     p.sendMessage(ChatColor.DARK_AQUA + "Obtained tier III");
-                    ModifyAtribute.ModifyFlatAttackReach(item, 0.9, EquipmentSlotGroup.MAINHAND);
+                    ModifyAtribute.ModifyFlatAttackReach(item, 1.2, EquipmentSlotGroup.MAINHAND);
                     item = ModifyAtribute.ModifyGearScore(item, 24);
-                    item = setReforgeList(item, "+ .9 reach");
+                    item = setReforgeList(item, "+ 1.2 reach");
                 }
             }
         } else {
@@ -3250,19 +3250,19 @@ public class ReforgeManager {
                 p.sendMessage(ChatColor.GOLD + "" + ChatColor.BOLD + "Legendary reforge: attack reach increased!");
                 if(reforgeChoiceChance2 <= 60){
                     p.sendMessage(ChatColor.DARK_AQUA + "Obtained tier I");
-                    ModifyAtribute.ModifyFlatAttackReach(item, 0.2, EquipmentSlotGroup.MAINHAND);
+                    ModifyAtribute.ModifyFlatAttackReach(item, 0.3, EquipmentSlotGroup.MAINHAND);
                     item = ModifyAtribute.ModifyGearScore(item, 5);
-                    item = setReforgeList(item, "+ .2 reach");
+                    item = setReforgeList(item, "+ .3 reach");
                 } else if (reforgeChoiceChance2 <= 90) {
                     p.sendMessage(ChatColor.DARK_AQUA + "Obtained tier II");
-                    ModifyAtribute.ModifyFlatAttackReach(item, 0.4, EquipmentSlotGroup.MAINHAND);
+                    ModifyAtribute.ModifyFlatAttackReach(item, 0.6, EquipmentSlotGroup.MAINHAND);
                     item = ModifyAtribute.ModifyGearScore(item, 10);
-                    item = setReforgeList(item, "+ .4 reach");
+                    item = setReforgeList(item, "+ .6 reach");
                 } else {
                     p.sendMessage(ChatColor.DARK_AQUA + "Obtained tier III");
-                    ModifyAtribute.ModifyFlatAttackReach(item, 0.6, EquipmentSlotGroup.MAINHAND);
+                    ModifyAtribute.ModifyFlatAttackReach(item, 0.9, EquipmentSlotGroup.MAINHAND);
                     item = ModifyAtribute.ModifyGearScore(item, 15);
-                    item = setReforgeList(item, "+ .6 reach");
+                    item = setReforgeList(item, "+ .9 reach");
                 }
             } else if (reforgeChoiceChance1 <= chancePerLegendary*2) {//life steal
                 p.sendMessage(ChatColor.GOLD + "" + ChatColor.BOLD + "Legendary reforge: Life Steal level increased!");
@@ -3325,19 +3325,19 @@ public class ReforgeManager {
                 p.sendMessage(ChatColor.GREEN + "Common reforge: attack damage increased!");
                 if(reforgeChoiceChance2 <= 60){
                     p.sendMessage(ChatColor.DARK_AQUA + "Obtained tier I");
-                    ModifyAtribute.ModifyFlatAttackDmg(item, 3, EquipmentSlotGroup.MAINHAND);
+                    ModifyAtribute.ModifyFlatAttackDmg(item, 2, EquipmentSlotGroup.MAINHAND);
                     item = ModifyAtribute.ModifyGearScore(item, 6);
-                    item = setReforgeList(item, "+ 3 attack damage");
+                    item = setReforgeList(item, "+ 2 attack damage");
                 } else if (reforgeChoiceChance2 <= 90) {
                     p.sendMessage(ChatColor.DARK_AQUA + "Obtained tier II");
-                    ModifyAtribute.ModifyFlatAttackDmg(item, 5, EquipmentSlotGroup.MAINHAND);
+                    ModifyAtribute.ModifyFlatAttackDmg(item, 4, EquipmentSlotGroup.MAINHAND);
                     item = ModifyAtribute.ModifyGearScore(item, 12);
-                    item = setReforgeList(item, "+ 5 attack damage");
+                    item = setReforgeList(item, "+ 4 attack damage");
                 } else {
                     p.sendMessage(ChatColor.DARK_AQUA + "Obtained tier III");
-                    ModifyAtribute.ModifyFlatAttackDmg(item, 7, EquipmentSlotGroup.MAINHAND);
-                    item = ModifyAtribute.ModifyGearScore(item, 18);
-                    item = setReforgeList(item, "+ 7 attack damage");
+                    ModifyAtribute.ModifyFlatAttackDmg(item, 5, EquipmentSlotGroup.MAINHAND);
+                    item = ModifyAtribute.ModifyGearScore(item, 16);
+                    item = setReforgeList(item, "+ 5 attack damage");
                 }
             }
 
@@ -3370,14 +3370,14 @@ public class ReforgeManager {
                     item = setReforgeList(item, "+ .2 attack speed");
                 } else if (reforgeChoiceChance2 <= 90) {
                     p.sendMessage(ChatColor.DARK_AQUA + "Obtained tier II");
-                    ModifyAtribute.ModifyFlatAttackSpeed(item, 0.4, EquipmentSlotGroup.MAINHAND);
+                    ModifyAtribute.ModifyFlatAttackSpeed(item, 0.3, EquipmentSlotGroup.MAINHAND);
                     item = ModifyAtribute.ModifyGearScore(item, 8);
-                    item = setReforgeList(item, "+ .4 attack speed");
+                    item = setReforgeList(item, "+ .3 attack speed");
                 } else {
                     p.sendMessage(ChatColor.DARK_AQUA + "Obtained tier III");
-                    ModifyAtribute.ModifyFlatAttackSpeed(item, 0.6, EquipmentSlotGroup.MAINHAND);
+                    ModifyAtribute.ModifyFlatAttackSpeed(item, 0.5, EquipmentSlotGroup.MAINHAND);
                     item = ModifyAtribute.ModifyGearScore(item, 12);
-                    item = setReforgeList(item, "+ .6 attack speed");
+                    item = setReforgeList(item, "+ .5 attack speed");
                 }
             }
         } else if (rarityChance <= 90) {//rare
@@ -3403,55 +3403,55 @@ public class ReforgeManager {
                 p.sendMessage(ChatColor.BLUE + "Rare reforge: Ice Aspect level increased!");
                 if (reforgeChoiceChance2 <= 60) {
                     p.sendMessage(ChatColor.DARK_AQUA + "Obtained tier I");
-                    ModifyAtribute.modifyCustomEnchant(item, CustomEnchantsMain.Enchant.IceAspect, 2);
+                    ModifyAtribute.modifyCustomEnchant(item, CustomEnchantsMain.Enchant.IceAspect, 1);
                     item = ModifyAtribute.ModifyGearScore(item, 5);
-                    item = setReforgeList(item, "+ 2 Ice Aspect");
+                    item = setReforgeList(item, "+ 1 Ice Aspect");
                 } else if (reforgeChoiceChance2 <= 90) {
                     p.sendMessage(ChatColor.DARK_AQUA + "Obtained tier II");
-                    ModifyAtribute.modifyCustomEnchant(item, CustomEnchantsMain.Enchant.IceAspect, 3);
+                    ModifyAtribute.modifyCustomEnchant(item, CustomEnchantsMain.Enchant.IceAspect, 2);
                     item = ModifyAtribute.ModifyGearScore(item, 9);
-                    item = setReforgeList(item, "+ 3 Ice Aspect");
+                    item = setReforgeList(item, "+ 2 Ice Aspect");
                 } else {
                     p.sendMessage(ChatColor.DARK_AQUA + "Obtained tier III");
-                    ModifyAtribute.modifyCustomEnchant(item, CustomEnchantsMain.Enchant.IceAspect, 4);
+                    ModifyAtribute.modifyCustomEnchant(item, CustomEnchantsMain.Enchant.IceAspect, 3);
                     item = ModifyAtribute.ModifyGearScore(item, 13);
-                    item = setReforgeList(item, "+ 4 Ice Aspect");
+                    item = setReforgeList(item, "+ 3 Ice Aspect");
                 }
             } else if (reforgeChoiceChance1 <= chancePerRare*3) { //choose Asphyxiation
                 p.sendMessage(ChatColor.BLUE + "Rare reforge: Asphyxiation level increased!");
                 if (reforgeChoiceChance2 <= 60) {
                     p.sendMessage(ChatColor.DARK_AQUA + "Obtained tier I");
-                    ModifyAtribute.modifyCustomEnchant(item, CustomEnchantsMain.Enchant.Asphyxiate, 2);
+                    ModifyAtribute.modifyCustomEnchant(item, CustomEnchantsMain.Enchant.Asphyxiate, 1);
                     item = ModifyAtribute.ModifyGearScore(item, 5);
-                    item = setReforgeList(item, "+ 2 Asphyxiation");
+                    item = setReforgeList(item, "+ 1 Asphyxiation");
                 } else if (reforgeChoiceChance2 <= 90) {
                     p.sendMessage(ChatColor.DARK_AQUA + "Obtained tier II");
-                    ModifyAtribute.modifyCustomEnchant(item, CustomEnchantsMain.Enchant.Asphyxiate, 3);
+                    ModifyAtribute.modifyCustomEnchant(item, CustomEnchantsMain.Enchant.Asphyxiate, 2);
                     item = ModifyAtribute.ModifyGearScore(item, 9);
-                    item = setReforgeList(item, "+ 3 Asphyxiation");
+                    item = setReforgeList(item, "+ 2 Asphyxiation");
                 } else {
                     p.sendMessage(ChatColor.DARK_AQUA + "Obtained tier III");
-                    ModifyAtribute.modifyCustomEnchant(item, CustomEnchantsMain.Enchant.Asphyxiate, 4);
+                    ModifyAtribute.modifyCustomEnchant(item, CustomEnchantsMain.Enchant.Asphyxiate, 3);
                     item = ModifyAtribute.ModifyGearScore(item, 13);
-                    item = setReforgeList(item, "+ 4 Asphyxiation");
+                    item = setReforgeList(item, "+ 3 Asphyxiation");
                 }
             } else if (reforgeChoiceChance1 <= chancePerRare*4) {//chose breach
                 p.sendMessage(ChatColor.BLUE + "Rare reforge: breach increased!");
                 if (reforgeChoiceChance2 <= 60) {
                     p.sendMessage(ChatColor.DARK_AQUA + "Obtained tier I");
-                    ModifyAtribute.modifyEnchant(item, Enchantment.BREACH, 2);
+                    ModifyAtribute.modifyEnchant(item, Enchantment.BREACH, 1);
                     item = ModifyAtribute.ModifyGearScore(item, 5);
-                    item = setReforgeList(item, "+ 2 breach");
+                    item = setReforgeList(item, "+ 1 breach");
                 } else if (reforgeChoiceChance2 <= 90) {
                     p.sendMessage(ChatColor.DARK_AQUA + "Obtained tier II");
-                    ModifyAtribute.modifyEnchant(item, Enchantment.BREACH, 3);
+                    ModifyAtribute.modifyEnchant(item, Enchantment.BREACH, 2);
                     item = ModifyAtribute.ModifyGearScore(item, 10);
-                    item = setReforgeList(item, "+ 3 breach");
+                    item = setReforgeList(item, "+ 2 breach");
                 } else {
                     p.sendMessage(ChatColor.DARK_AQUA + "Obtained tier III");
-                    ModifyAtribute.modifyEnchant(item, Enchantment.BREACH, 4);
+                    ModifyAtribute.modifyEnchant(item, Enchantment.BREACH, 3);
                     item = ModifyAtribute.ModifyGearScore(item, 15);
-                    item = setReforgeList(item, "+ 4 breach");
+                    item = setReforgeList(item, "+ 3 breach");
                 }
             }
 
@@ -3498,9 +3498,9 @@ public class ReforgeManager {
                 p.sendMessage(ChatColor.GOLD + "" + ChatColor.BOLD + "Legendary reforge: attack reach increased!");
                 if(reforgeChoiceChance2 <= 60){
                     p.sendMessage(ChatColor.DARK_AQUA + "Obtained tier I");
-                    ModifyAtribute.ModifyFlatAttackReach(item, 0.2, EquipmentSlotGroup.MAINHAND);
+                    ModifyAtribute.ModifyFlatAttackReach(item, 0.3, EquipmentSlotGroup.MAINHAND);
                     item = ModifyAtribute.ModifyGearScore(item, 7);
-                    item = setReforgeList(item, "+ .4 reach");
+                    item = setReforgeList(item, "+ .3 reach");
                 } else if (reforgeChoiceChance2 <= 90) {
                     p.sendMessage(ChatColor.DARK_AQUA + "Obtained tier II");
                     ModifyAtribute.ModifyFlatAttackReach(item, 0.4, EquipmentSlotGroup.MAINHAND);
