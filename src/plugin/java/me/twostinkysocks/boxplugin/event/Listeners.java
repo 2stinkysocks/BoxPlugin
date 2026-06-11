@@ -65,7 +65,7 @@ public class Listeners implements Listener {
         return RegisteredItem;
     }
 
-    @EventHandler
+    @EventHandler(priority = EventPriority.HIGH)
     public void entityDeath(EntityDeathEvent e) {
         entityHits.keySet().removeIf(key -> key.target.equals(e.getEntity().getUniqueId()));
 
