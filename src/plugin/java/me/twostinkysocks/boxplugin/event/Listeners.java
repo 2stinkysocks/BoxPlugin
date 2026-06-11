@@ -7,6 +7,10 @@ import com.github.sirblobman.combatlogx.api.event.PlayerTagEvent;
 import com.github.sirblobman.combatlogx.api.event.PlayerUntagEvent;
 import com.github.sirblobman.combatlogx.api.listener.CombatListener;
 import com.github.sirblobman.combatlogx.api.manager.ICombatManager;
+import io.lumine.mythic.bukkit.BukkitAdapter;
+import io.lumine.mythic.bukkit.events.MythicMobDeathEvent;
+import io.lumine.mythic.bukkit.events.MythicMobLootDropEvent;
+import io.lumine.mythic.core.drops.LootBag;
 import me.twostinkysocks.boxplugin.BoxPlugin;
 import me.twostinkysocks.boxplugin.ItemModification.RegisteredItem;
 import me.twostinkysocks.boxplugin.customitems.items.impl.CageStaff;
@@ -86,18 +90,31 @@ public class Listeners implements Listener {
         if(e.getEntityType() == EntityType.GUARDIAN) {
             e.getDrops().add(new ItemStack(Material.PRISMARINE_CRYSTALS));
         }
-        if(!(e.getEntity() instanceof Player)) { // handled in playerdeathevent
-            if(e.getEntity().getKiller() != null) {
-                Player p = e.getEntity().getKiller();
-                if(BoxPlugin.instance.getPerksManager().getSelectedPerks(p).contains(Perk.MAGNET)) {
-                    HashMap<Integer, ItemStack> leftover = p.getInventory().addItem(e.getDrops().toArray(new ItemStack[0]));
-                    e.getDrops().clear();
-                    for(ItemStack item : leftover.values()) {
-                        Item drop = (Item) p.getWorld().spawnEntity(e.getEntity().getLocation(), EntityType.ITEM);
-                        drop.setItemStack(item);
-                    }
-                    p.giveExp(e.getDroppedExp());
-                    e.setDroppedExp(0);
+        if(e.getEntity().getKiller() != null && e.getEntity().getKiller() instanceof Player) {
+            Player p = (Player) e.getEntity().getKiller();
+            if(BoxPlugin.instance.getPerksManager().getSelectedPerks(p).contains(Perk.MAGNET)) {
+                HashMap<Integer, ItemStack> leftover = p.getInventory().addItem(e.getDrops().toArray(new ItemStack[0]));
+                e.getDrops().clear();
+                for(ItemStack item : leftover.values()) {
+                    Item drop = (Item) p.getWorld().spawnEntity(e.getEntity().getLocation(), EntityType.ITEM);
+                    drop.setItemStack(item);
+                }
+                p.giveExp(e.getDroppedExp());
+                e.setDroppedExp(0);
+            }
+        }
+    }
+
+    @EventHandler(priority = EventPriority.HIGH)
+    public void mythicDeath(MythicMobDeathEvent e) {
+        if(e.getKiller() != null && e.getKiller() instanceof Player) {
+            Player p = (Player) e.getKiller();
+            if(BoxPlugin.instance.getPerksManager().getSelectedPerks(p).contains(Perk.MAGNET)) {
+                HashMap<Integer, ItemStack> leftover = p.getInventory().addItem(e.getDrops().toArray(new ItemStack[0]));
+                e.getDrops().clear();
+                for(ItemStack item : leftover.values()) {
+                    Item drop = (Item) p.getWorld().spawnEntity(e.getEntity().getLocation(), EntityType.ITEM);
+                    drop.setItemStack(item);
                 }
             }
         }
